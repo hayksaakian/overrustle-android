@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF">
+
+  <WebView
+    android:id="@+id/wv"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="50dp"
+    android:background="#00FFFFFF" />
+
+  <EditText
+    android:id="@+id/et"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentTop="true"
+    android:paddingRight="50dp"
+    android:singleLine="true"
+    android:imeActionLabel="Go" />
+
+  <ImageButton
+    android:id="@+id/new_activity"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:src="@drawable/plus"
+    android:background="@android:color/transparent"
+    android:scaleType="centerInside"
+    android:padding="34px"
+    android:layout_alignParentRight="true"/>
+
+  <TextView
+    android:id="@+id/page_load_time"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:padding="10dp"
+    android:text="0ms"
+    android:textSize="18dp"
+    android:textColor="#FF040F"/>
+
+</RelativeLayout>

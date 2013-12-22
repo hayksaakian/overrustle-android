@@ -1,0 +1,9 @@
+passwords.md
+*.keystore
+
+*.apk
+.DS_Store
+.idea/
+gen/
+out/
+proguard_logs/
