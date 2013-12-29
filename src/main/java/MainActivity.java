@@ -45,15 +45,13 @@ public class MainActivity extends Activity {
     }
 
     // setup wv
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
     wv.setWebChromeClient(new WebChromeClient());
     wv.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     WebSettings settings = wv.getSettings();
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-      settings.setAllowUniversalAccessFromFileURLs(true);
-    }
+    settings.setAllowUniversalAccessFromFileURLs(true);
     settings.setJavaScriptEnabled(true);
     settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
     settings.setAppCacheEnabled(false);
