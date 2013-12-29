@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -29,27 +30,57 @@ public class MainActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    handleOnCreate();
-  }
-
-  private void handleOnCreate() {
     setContentView(R.layout.main);
     wv = (WebView) findViewById(R.id.wv);
     newActivityBtn = (ImageButton) findViewById(R.id.new_activity);
     pageLoadTime = (TextView) findViewById(R.id.page_load_time);
     et = (EditText) findViewById(R.id.et);
+
+    // setup edit text
     et.setSelected(false);
     if (getIntent().getStringExtra("url") != null) {
       et.setText(getIntent().getStringExtra("url"));
     } else {
       et.setText("");
     }
-    setUpWebView();
-    setUpEvents();
-    loadUrl();
-  }
 
-  private void setUpEvents() {
+    // setup wv
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
+    wv.setWebChromeClient(new WebChromeClient());
+    wv.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+    WebSettings settings = wv.getSettings();
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      settings.setAllowUniversalAccessFromFileURLs(true);
+    }
+    settings.setJavaScriptEnabled(true);
+    settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+    settings.setAppCacheEnabled(false);
+    settings.setDomStorageEnabled(true);
+    wv.setWebViewClient(new WebViewClient() {
+      @Override
+      public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+        et.setText(url);
+        pageStartTime = System.currentTimeMillis();
+        pageLoadTime.setText("0ms");
+      }
+
+      @Override
+      public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+        if (pageStartTime == 0) {
+        } else {
+          long loadTime = (System.currentTimeMillis() - pageStartTime);
+          pageLoadTime.setText(String.format("%sms", loadTime));
+          System.out.println(String.format("page load time: %sms", loadTime));
+        }
+      }
+    });
+    handleLoadUrl();
+
+    // setup events
     newActivityBtn.setOnTouchListener(new View.OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
@@ -75,7 +106,7 @@ public class MainActivity extends Activity {
       @Override
       public boolean onKey(View v, int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-          loadUrl();
+          handleLoadUrl();
           return true;
         } else {
           return false;
@@ -84,39 +115,7 @@ public class MainActivity extends Activity {
     });
   }
 
-  private void setUpWebView() {
-    WebSettings settings = wv.getSettings();
-    wv.setWebChromeClient(new WebChromeClient());
-    wv.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-    wv.setScrollbarFadingEnabled(false);
-    settings.setJavaScriptEnabled(true);
-    settings.setAllowUniversalAccessFromFileURLs(true);
-    settings.setDomStorageEnabled(false);
-    settings.setAppCacheEnabled(false);
-    settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-    wv.setWebViewClient(new WebViewClient() {
-      @Override
-      public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        super.onPageStarted(view, url, favicon);
-        et.setText(url);
-        pageStartTime = System.currentTimeMillis();
-        pageLoadTime.setText("0ms");
-      }
-
-      @Override
-      public void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
-        if (pageStartTime ==  0) {
-        } else {
-          long loadTime = (System.currentTimeMillis() - pageStartTime);
-          System.out.println(String.format("page load time: %sms", loadTime));
-          pageLoadTime.setText(String.format("%sms", loadTime));
-        }
-      }
-    });
-  }
-
-  private void loadUrl() {
+  private void handleLoadUrl() {
     String url = et.getText().toString();
     if (url.startsWith("http://")) {
     } else if (url.startsWith("https://")) {
