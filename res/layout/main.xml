@@ -51,7 +51,7 @@
 
 		<Spinner
 			android:id="@+id/quality_picker"
-			android:layout_width="50dp"
+			android:layout_width="88dp"
 			android:layout_height="50dp"
 			android:background="@drawable/header"
 			android:color="@drawable/color_text"

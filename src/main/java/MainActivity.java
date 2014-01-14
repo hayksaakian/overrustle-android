@@ -24,6 +24,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 
 	private RelativeLayout header_container;
 
+	private int ogwidth;
+
+	private int ogheight;
+
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, 
 							   int pos, long id)
@@ -37,12 +41,33 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 			video.stopPlayback();
 			video.setVisibility(View.GONE);
 		}
-		else if (qualityOptions != null && qualityOptions.containsKey(qualityName))
-		{
+		else if (qualityOptions != null){
+			boolean audioOnly = false;
+			if(qualityName.startsWith("Audio")){
+				qualityName = "Low";
+				audioOnly = true;
+			}
+			if(qualityOptions.containsKey(qualityName)){
 			//else{
 				String url = (String)qualityOptions.get(qualityName);
 				Business.PlayURL(video, url);
-			//}
+			}
+			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) video.getLayoutParams();
+			if(audioOnly){
+				//video.setVisibility(View.INVISIBLE);
+				//video.
+				//video.layout(0, 1, 0, 1);
+				
+				params.width = 10; // (int) (300*metrics.density);
+				params.height = 10;// (int) (250*metrics.density);
+				//params.leftMargin = 30;
+				//video.setLayoutParams(params);
+			}else{
+				params.width = ogwidth;
+				params.height = ogheight;
+			}
+			video.setLayoutParams(params);
+			
 		}
 		
 		// todo: cache, remember chosen quality
@@ -66,6 +91,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	public HashMap qualityOptions;
 	String channel;
 
+	RelativeLayout.LayoutParams ogparams;
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
@@ -97,6 +124,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		setContentView(R.layout.main);
 		wv = (WebView) findViewById(R.id.wv);
 		video = (VideoView)findViewById(R.id.video);
+		ogparams = (RelativeLayout.LayoutParams) video.getLayoutParams();
+		ogheight = ogparams.height;
+		ogwidth = ogparams.width;
 		header_container = (RelativeLayout)findViewById(R.id.header_container);
 		header = (TextView)findViewById(R.id.header);
 		//newActivityBtn = (ImageButton) findViewById(R.id.new_activity);

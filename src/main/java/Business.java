@@ -270,7 +270,9 @@ public class Business
 		List<String> list = new ArrayList<String>();
 
 		list.addAll(qualities.keySet());
-		list.add("Chat");
+		list.add("Audio Only");
+		list.add("Chat Only");
+		
 		//sort list
 		java.util.Collections.sort(list, Collator.getInstance());
 		ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(context, spinnerItemId, list); 
