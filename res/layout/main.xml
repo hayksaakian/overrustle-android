@@ -1,44 +1,91 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#FFFFFF">
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#111111"
+	android:id="@+id/lo">
 
-  <WebView
-    android:id="@+id/wv"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="50dp"
-    android:background="#00FFFFFF" />
+	<VideoView
+		android:id="@+id/video"
+		android:visibility="gone"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_centerHorizontal="true" 
+		android:layout_marginTop="0dp"
+		android:background="#00FFFFFF" />
 
-  <EditText
-    android:id="@+id/et"
-    android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentTop="true"
-    android:paddingRight="50dp"
-    android:singleLine="true"
-    android:imeActionLabel="Go" />
+	<WebView
+		android:id="@+id/wv"
+		android:layout_width="match_parent"
+		android:layout_height="fill_parent"
+		android:layout_below="@+id/video"
+		android_layout_alignParentBottom="true"
+		android:background="#00FFFFFF" />
 
-  <ImageButton
-    android:id="@+id/new_activity"
-    android:layout_width="50dp"
-    android:layout_height="50dp"
-    android:src="@drawable/plus"
-    android:background="@android:color/transparent"
-    android:scaleType="centerInside"
-    android:padding="34px"
-    android:layout_alignParentRight="true"/>
 
-  <TextView
-    android:id="@+id/page_load_time"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:padding="10dp"
-    android:text="0ms"
-    android:textSize="18dp"
-    android:textColor="#FF040F"/>
+	
+
+	<RelativeLayout
+		android:id="@+id/header_container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+		<TextView
+			android:id="@+id/header"
+			style="@android:style/TextAppearance.Large"
+			android:textColor="@drawable/color_text"
+			android:background="@drawable/header"
+			android:gravity="center_vertical"
+			android:text="Destiny\'s stream app"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="50dip"
+			android:layout_alignParentTop="true"
+			android:paddingLeft="20dp"
+			android:paddingRight="40dp"
+
+			android:focusable="true"
+			android:focusableInTouchMode="true" 
+			android:clickable="true"
+			android:ellipsize="end"
+			android:maxLines="1" />
+
+
+		<Spinner
+			android:id="@+id/quality_picker"
+			android:layout_width="50dp"
+			android:layout_height="50dp"
+			android:background="@drawable/header"
+			android:color="@drawable/color_text"
+			android:gravity="center_vertical"
+			android:layout_alignParentRight="true"/>
+		
+		<EditText
+			android:id="@+id/et"
+			android:background="#AA333333"
+			android:text="destiny"
+			android:textColor="@drawable/color_text"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/header"
+			android:paddingRight="50dp"
+			android:paddingLeft="40dp"
+			android:singleLine="true"
+			android:visibility="invisible"
+			android:imeActionLabel="Go" />
+		
+		<TextView
+			android:id="@+id/page_load_time"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/header"
+			android:layout_alignParentRight="true"
+
+
+			android:padding="10dp"
+			android:text="0ms"
+			style="@android:style/TextAppearance.Small"
+			android:textColor="#FF040F"/>
+	</RelativeLayout>
 
 </RelativeLayout>

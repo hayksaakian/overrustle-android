@@ -21,7 +21,9 @@
     android:theme="@android:style/Theme.Holo.Light.NoActionBar">
     <activity
       android:label="@string/app_name"
-      android:name="main.java.MainActivity">
+      android:name="main.java.MainActivity"
+	  android:configChanges="orientation|screenSize"
+	  >
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
