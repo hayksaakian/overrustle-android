@@ -4,6 +4,21 @@
 	android:background="#111111"
 	android:id="@+id/lo">
 
+<!-- must be instantiated via java
+ 	
+<com.mongoweb.chrome.WebView
+		android:id="@+id/wv"
+		android:layout_width="match_parent"
+		android:layout_height="fill_parent"
+		android:layout_below="@+id/video"
+		android:layout_alignParentBottom="true"
+		android:background="#00FFFFFF" /> -->
+
+<RelativeLayout 
+    android:id="@+id/everything_else"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
 	<VideoView
 		android:id="@+id/video"
 		android:visibility="gone"
@@ -11,18 +26,7 @@
 		android:layout_height="wrap_content"
 		android:layout_centerHorizontal="true" 
 		android:layout_marginTop="0dp"
-		android:background="#00FFFFFF" />
-
-	<WebView
-		android:id="@+id/wv"
-		android:layout_width="match_parent"
-		android:layout_height="fill_parent"
-		android:layout_below="@+id/video"
-		android_layout_alignParentBottom="true"
-		android:background="#00FFFFFF" />
-
-
-	
+		android:background="#00FFFFFF" />	
 
 	<RelativeLayout
 		android:id="@+id/header_container"
@@ -88,4 +92,5 @@
 			android:textColor="#FF040F"/>
 	</RelativeLayout>
 
+	</RelativeLayout>
 </RelativeLayout>
