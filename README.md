@@ -1,7 +1,6 @@
-android
+Destiny.gg android application
 =======
 
-Destiny.gg android application
 
 Discuss the ALPHA test here:
 
