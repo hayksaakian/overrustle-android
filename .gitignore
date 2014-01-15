@@ -1,7 +1,7 @@
 passwords.md
 *.keystore
 
-*.apk
+
 .DS_Store
 .idea/
 gen/
