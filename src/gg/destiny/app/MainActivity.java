@@ -151,9 +151,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 wvr.contentContainer = (RelativeLayout) findViewById(R.id.lo);
                 wvr.loparams = new RelativeLayout.LayoutParams(
                 		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+                wvr.backToLoadedURLButton = (Button)findViewById(R.id.back_button);
                 wvr.pageLoadTime = pageLoadTime;
                 wvr.Make(this);
                 wvr.LoadURL("http://www.destiny.gg/embed/chat");
+                
                 
                 
                 

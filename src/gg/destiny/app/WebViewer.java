@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 //import com.mogoweb.chrome.*;
@@ -18,11 +19,13 @@ public class WebViewer {
 	public TextView pageLoadTime;
 	public RelativeLayout.LayoutParams loparams;
 	public RelativeLayout contentContainer;
+	public Button backToLoadedURLButton;
 	
 	boolean useNative;
 	android.webkit.WebView nativeWV;
 	com.mogoweb.chrome.WebView chromiumWV;
 	
+	private String lastLoadedURL = "";
 
 	WebViewer(){
 //		use native if we have websockets natively
@@ -41,9 +44,20 @@ public class WebViewer {
 		view.setLayoutParams(loparams);
 		contentContainer.addView(view);
 		view.requestFocus();
+		
+		backToLoadedURLButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(lastLoadedURL.length() > 0){
+					LoadURL(lastLoadedURL);
+				}
+			}
+		});
+		
 	}
 	
 	public void LoadURL(String url){
+		lastLoadedURL = url;
 		if(useNative){
 			nativeWV.loadUrl(url);
 		}else{
@@ -69,24 +83,14 @@ public class WebViewer {
             public void onPageStarted(com.mogoweb.chrome.WebView view, String url, Bitmap favicon)
             {
                 super.onPageStarted(view, url, favicon);
-                //et.setText(url);
-                pageStartTime = System.currentTimeMillis();
-                pageLoadTime.setText("0ms");
+                genericOnPageStarted(view, url, favicon);
             }
 
             @Override
             public void onPageFinished(com.mogoweb.chrome.WebView view, String url)
             {
                 super.onPageFinished(view, url);
-                if (pageStartTime == 0)
-                {
-                }
-                else
-                {
-                    long loadTime = (System.currentTimeMillis() - pageStartTime);
-                    pageLoadTime.setText(String.format("%sms to load chat", loadTime));
-                    System.out.println(String.format("page load time: %sms", loadTime));
-                }
+                genericOnPageFinished(view, url);
             }
         });
         webView.getSettings().setJavaScriptEnabled(true);
@@ -110,29 +114,51 @@ public class WebViewer {
             public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon)
             {
                 super.onPageStarted(view, url, favicon);
-                //et.setText(url);
-                pageStartTime = System.currentTimeMillis();
-                pageLoadTime.setText("0ms");
+                genericOnPageStarted(view, url, favicon);
             }
 
             @Override
             public void onPageFinished(android.webkit.WebView view, String url)
             {
                 super.onPageFinished(view, url);
-                if (pageStartTime == 0)
-                {
-                }
-                else
-                {
-                    long loadTime = (System.currentTimeMillis() - pageStartTime);
-                    pageLoadTime.setText(String.format("%sms to load chat", loadTime));
-                    System.out.println(String.format("page load time: %sms", loadTime));
-                }
+                genericOnPageFinished(view, url);
             }
         });
         webView.getSettings().setJavaScriptEnabled(true);
 		return webView;
-		
+	}
+	
+	// generic methods
+	private void genericOnPageStarted(View view, String url, Bitmap favicon){
+        //et.setText(url);
+        pageStartTime = System.currentTimeMillis();
+        pageLoadTime.setText("0ms");
+        if(!url.startsWith(lastLoadedURL)){
+        	//shoe back button
+        	backToLoadedURLButton.setVisibility(View.VISIBLE);
+        }else{
+        	//hide back button
+        	backToLoadedURLButton.setVisibility(View.INVISIBLE);
+        }
+	}
+	
+	private void genericOnPageFinished(View view, String url){
+		if (pageStartTime == 0)
+        {
+        }
+        else
+        {
+            long loadTime = (System.currentTimeMillis() - pageStartTime);
+            pageLoadTime.setText(String.format("%sms to load chat", loadTime));
+            System.out.println(String.format("page load time: %sms", loadTime));
+        }
+//        if(url != lastLoadedURL){
+//        	//shoe back button
+//        	backToLoadedURLButton.setVisibility(View.VISIBLE);
+//        }else{
+//        	//hide back button
+//        	backToLoadedURLButton.setVisibility(View.INVISIBLE);
+//        }
 	}
 
 

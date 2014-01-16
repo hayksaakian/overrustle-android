@@ -26,7 +26,7 @@
 		android:layout_height="wrap_content"
 		android:layout_centerHorizontal="true" 
 		android:layout_marginTop="0dp"
-		android:background="#00FFFFFF" />	
+		android:background="#00FFFFFF" />
 
 	<RelativeLayout
 		android:id="@+id/header_container"
@@ -44,7 +44,7 @@
 			android:minHeight="50dip"
 			android:layout_alignParentTop="true"
 			android:paddingLeft="20dp"
-			android:paddingRight="40dp"
+			android:paddingRight="66dp"
 
 			android:focusable="true"
 			android:focusableInTouchMode="true" 
@@ -55,7 +55,7 @@
 
 		<Spinner
 			android:id="@+id/quality_picker"
-			android:layout_width="88dp"
+			android:layout_width="66dp"
 			android:layout_height="50dp"
 			android:background="@drawable/header"
 			android:color="@drawable/color_text"
@@ -66,13 +66,14 @@
 			android:id="@+id/et"
 			android:background="#AA333333"
 			android:text="destiny"
+			android:hint="ex: desrowfighting"
 			android:textColor="@drawable/color_text"
 			android:layout_width="match_parent"
 			android:layout_height="50dp"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/header"
-			android:paddingRight="50dp"
+			android:layout_marginRight="50dp"
 			android:paddingLeft="40dp"
 			android:singleLine="true"
 			android:visibility="invisible"
@@ -80,7 +81,7 @@
 		
 		<TextView
 			android:id="@+id/page_load_time"
-			android:layout_width="wrap_content"
+			android:layout_width="88dp"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/header"
 			android:layout_alignParentRight="true"
@@ -90,6 +91,15 @@
 			android:text="0ms"
 			style="@android:style/TextAppearance.Small"
 			android:textColor="#FF040F"/>
+		<Button
+		    android:id="@+id/back_button"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_below="@+id/page_load_time"
+		    android:layout_margin="44dp"
+		    android:text="Go Back to Chat"
+		    android:layout_alignParentRight="true"
+		    android:visibility="invisible" />
 	</RelativeLayout>
 
 	</RelativeLayout>
