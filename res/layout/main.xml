@@ -2,7 +2,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="#111111"
-	android:id="@+id/lo">
+	android:id="@+id/lo"> 
 
 <!-- must be instantiated via java
  	
@@ -17,26 +17,77 @@
 <RelativeLayout 
     android:id="@+id/everything_else"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-	<VideoView
-		android:id="@+id/video"
-		android:visibility="gone"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_centerHorizontal="true" 
-		android:layout_marginTop="0dp"
-		android:background="#00FFFFFF" />
+    android:layout_height="wrap_content">
 
+    
+    
+	<FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:layout_below="@+id/header_container"
+        android:id="@+id/youtubeLayout"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true" 
+        android:visibility="visible">
+    
+	    
+	<VideoView
+        android:id="@+id/video"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp" /> 
+
+	</FrameLayout>
+
+	
+<!-- 
+	<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+		android:layout_below="@+id/header_container"
+        android:id="@+id/youtubeLayout"
+        android:orientation="vertical"
+        android:visibility="visible">
+	
+	   	<VideoView
+			android:id="@+id/video"
+			android:visibility="gone"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="#00FFFFFF" />
+
+    </LinearLayout> -->
+    
+<!-- 	<gg.destiny.app.YoutubeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+		android:layout_below="@+id/header_container"
+        android:id="@+id/youtubeLayout"
+        android:orientation="vertical"
+        android:visibility="visible">
+	
+	   	<VideoView
+			android:id="@+id/video"
+			android:visibility="gone"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="#00FFFFFF" />
+
+    </gg.destiny.app.YoutubeLayout> -->
+	
+	
 	<RelativeLayout
 		android:id="@+id/header_container"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:background="@drawable/header">
+
+
 		<TextView
 			android:id="@+id/header"
 			style="@android:style/TextAppearance.Large"
 			android:textColor="@drawable/color_text"
-			android:background="@drawable/header"
 			android:gravity="center_vertical"
 			android:text="Destiny\'s stream app"
 			android:layout_width="fill_parent"
@@ -57,10 +108,18 @@
 			android:id="@+id/quality_picker"
 			android:layout_width="66dp"
 			android:layout_height="50dp"
-			android:background="@drawable/header"
 			android:color="@drawable/color_text"
 			android:gravity="center_vertical"
 			android:layout_alignParentRight="true"/>
+		
+	</RelativeLayout>
+    
+	<RelativeLayout
+	    android:id="@+id/navigation"
+		android:layout_below="@+id/header_container"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    >
 		
 		<EditText
 			android:id="@+id/et"
@@ -72,7 +131,6 @@
 			android:layout_height="50dp"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@+id/header"
 			android:layout_marginRight="50dp"
 			android:paddingLeft="40dp"
 			android:singleLine="true"
@@ -83,10 +141,7 @@
 			android:id="@+id/page_load_time"
 			android:layout_width="88dp"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/header"
 			android:layout_alignParentRight="true"
-
-
 			android:padding="10dp"
 			android:text="0ms"
 			style="@android:style/TextAppearance.Small"
@@ -101,6 +156,6 @@
 		    android:layout_alignParentRight="true"
 		    android:visibility="invisible" />
 	</RelativeLayout>
-
+	
 	</RelativeLayout>
 </RelativeLayout>

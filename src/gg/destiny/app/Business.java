@@ -168,23 +168,32 @@ public class Business
 			Log.d("found qualities #", String.valueOf(qualities.size()));
 			String qualityURL = "";
 
-
-			Iterator it = qualities.entrySet().iterator();
-			while (it.hasNext())
-			{
-				Map.Entry pairs = (Map.Entry)it.next();
-				//System.out.println(pairs.getKey() + " = " + pairs.getValue());
-				qualityURL = (String)pairs.getValue();
-				it.remove(); // avoids a ConcurrentModificationException
-				// just pick the first quality and play
-				//String[] squals = {};
-				//qualities.keySet().toArray(squals);
-				//Log.d("Qualities; ", Arrays.asList(squals).toString());
-				//qualities.values().toArray(squals);
-				// = (String)qualities.get(squals[0]);
-				PlayURL(video, qualityURL);
-				break;
+			if(qualities.containsKey("Low")){
+				qualityURL = (String) qualities.get("Low");
+			}else if(qualities.containsKey("Medium")){
+				qualityURL = (String) qualities.get("Medium");
+			}else if(qualities.containsKey("High")){
+				qualityURL = (String) qualities.get("High");
 			}
+			if(!qualityURL.equals("")){
+				PlayURL(video, qualityURL);
+			}
+//			Iterator it = qualities.entrySet().iterator();
+//			while (it.hasNext())
+//			{
+//				Map.Entry pairs = (Map.Entry)it.next();
+//				//System.out.println(pairs.getKey() + " = " + pairs.getValue());
+//				qualityURL = (String)pairs.getValue();
+//				it.remove(); // avoids a ConcurrentModificationException
+//				// just pick the first quality and play
+//				//String[] squals = {};
+//				//qualities.keySet().toArray(squals);
+//				//Log.d("Qualities; ", Arrays.asList(squals).toString());
+//				//qualities.values().toArray(squals);
+//				// = (String)qualities.get(squals[0]);
+//				PlayURL(video, qualityURL);
+//				break;
+//			}
 
 			// set status
 			String headerText = channel + " is offline. You can watch another stream if you type its channel name exactly below.";

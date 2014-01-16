@@ -10,9 +10,12 @@ import android.support.v4.view.MotionEventCompat;
 import android.text.*;
 import android.util.*;
 import android.view.*;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.*;
 
 import android.widget.*;
+import android.widget.RelativeLayout.LayoutParams;
+//import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView.*;
 
 //import com.mogoweb.chrome.*;
@@ -45,7 +48,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 	qualityName = lastQuality;
                 }else{
                 	// or Low if there was no previous quality
-                	qualityName = "Low"; 
+                	qualityName = "Low";  
                 }
             }
             if(qualityOptions.containsKey(qualityName)){
@@ -62,9 +65,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 //params.height = 10;// (int) (250*metrics.density);
                 //params.leftMargin = 30;
                 //video.setLayoutParams(params);
-                ResizeVideoTo(video, 10, 10);                        
+            	ResizeViewTo(video, "tiny"); 
+            	disableFullscreen();
             }else{
-            	ResizeVideoTo(video, ogwidth, ogheight);
+            	ResizeViewTo(video, "original");
                 lastQuality = qualityName;
             }
         }
@@ -79,6 +83,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 
 //    NOTE: WebView is created at runtime
 //        private WebView wv;
+//  LinearLayout youtubeLayout;
+    FrameLayout youtubeLayout;
+//    YoutubeLayout youtubeLayout;
+    
     VideoView video;
     private EditText et;
     TextView header;
@@ -92,22 +100,29 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     WebViewer wvr;
     
     // remember the original attributes of the video view
-    RelativeLayout.LayoutParams ogparams;
+    
     private int ogwidth;
     private int ogheight;
 
     
     @Override
     public void onConfigurationChanged(Configuration newConfig){
+        toggleFullscreen(); // to force resize of video p1
         super.onConfigurationChanged(newConfig);
         // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
 //          et.setVisibility(View.INVISIBLE);
+            
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
 //          et.setVisibility(View.VISIBLE);
         }
+        toggleFullscreen(); // to force resize of video p2
+//        video.la
+//        youtubeLayout.requestLayout();
+//    	video.requestLayout();
+
     }
 
 	@Override
@@ -115,8 +130,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 //                wv = (WebView) findViewById(R.id.wv);
+        youtubeLayout = (FrameLayout) findViewById(R.id.youtubeLayout);
+//      youtubeLayout = (LinearLayout) findViewById(R.id.youtubeLayout);
+//        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
+        // TODO move to a better place
+//        youtubeLayout.maximize();
         video = (VideoView)findViewById(R.id.video);
-        ogparams = (RelativeLayout.LayoutParams) video.getLayoutParams();
+        ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
         ogheight = ogparams.height;
         ogwidth = ogparams.width;
         header_container = (RelativeLayout)findViewById(R.id.header_container);
@@ -126,18 +146,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         pageLoadTime = (TextView) findViewById(R.id.page_load_time);
         et = (EditText) findViewById(R.id.et);
 
-        // setup edit text
-        et.setSelected(false);
-        if (getIntent().getStringExtra("url") != null)
-        {
-                et.setText(getIntent().getStringExtra("url"));
-        }
-
         // setup wvr
         wvr = new WebViewer();
         wvr.contentContainer = (RelativeLayout) findViewById(R.id.lo);
         wvr.loparams = new RelativeLayout.LayoutParams(
         		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        
+        wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout); 
         wvr.backToLoadedURLButton = (Button)findViewById(R.id.back_button);
         wvr.pageLoadTime = pageLoadTime;
         wvr.Make(this);
@@ -184,8 +199,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         });
 
         qualityPicker.setOnItemSelectedListener(this);
-
-        video.setOnTouchListener(new View.OnTouchListener() {
+        
+        OnTouchListener vlistener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
             	Log.d("Touched Video", event.toString());
@@ -208,16 +223,17 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                         return false;
                     case (MotionEvent.ACTION_CANCEL) :
                         Log.d(DEBUG_TAG,"Action was CANCEL");
-                        return true;
+                        return false;
                     case (MotionEvent.ACTION_OUTSIDE) :
                         Log.d(DEBUG_TAG,"Movement occurred outside bounds " +
                                 "of current screen element");
-                        return true;      
+                        return false;      
                     default : 
                         return true;
                 }
             }
-        });
+        };
+        video.setOnTouchListener(vlistener);
 	}
 
 	private void loadChannel(String channel) {
@@ -236,30 +252,70 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     }
 
     //helper methods
+	//UI modes:
+//	fullscreen portrait
+//	fullscreen landscape
+//	topofscreen portrait
+//	bottomright_corner portrait
+	
+	
 	private void toggleFullscreen()	{
 		//toggle title bar
 		//header_container.setVisibility(View.GONE);
 	
 		// system fullscreen
 		WindowManager.LayoutParams attrs = getWindow().getAttributes();
-		boolean fullscreen = (attrs.flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
-		if (!fullscreen){
-			attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			//View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        	//attrs.flags |= WindowManager.LayoutParams.FLAG_;
-			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+		boolean currentlyFullscreen = (attrs.flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
+		if(currentlyFullscreen){
+			disableFullscreen(attrs);
+			header_container.setVisibility(View.VISIBLE);
+		}else{
+			enableFullscreen(attrs);
             header_container.setVisibility(View.GONE);
-        } else {
-            attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            header_container.setVisibility(View.VISIBLE);
-        }
-        getWindow().setAttributes(attrs);
+            //youtubeLayout.setVisibility(View.VISIBLE);
+            
+		}
 	}
-        
-    private static void ResizeVideoTo(VideoView video, int width, int height){
-    	RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) video.getLayoutParams();
+
+	private void enableFullscreen(){
+		WindowManager.LayoutParams attrs = getWindow().getAttributes();
+		enableFullscreen(attrs);
+	}
+	private void enableFullscreen(WindowManager.LayoutParams attrs){
+		attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+		//View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    	//attrs.flags |= WindowManager.LayoutParams.FLAG_;
+		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        getWindow().setAttributes(attrs);		
+	}
+	
+
+		private void disableFullscreen(WindowManager.LayoutParams attrs){
+	        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+	        getWindow().setAttributes(attrs);
+		}
+		private void disableFullscreen(){
+			WindowManager.LayoutParams attrs = getWindow().getAttributes();
+			disableFullscreen(attrs);
+		}
+
+    private static void ResizeViewTo(View view, int width, int height){
+    	ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) view.getLayoutParams();
     	params.width = width;
     	params.height = height;
-        video.setLayoutParams(params);        	
+        view.setLayoutParams(params);        	
+    }
+    private void ResizeViewTo(View video, String sizeName){
+    	// tiny is for Audio Only mode
+    	if(sizeName.startsWith("tiny")){
+    		ResizeViewTo(video, 10, 10);
+    	}else if(sizeName.startsWith("small")){
+    		DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
+    		int wd = (int) (160*metrics.density);
+    		int ht = (int) (90*metrics.density);
+    		ResizeViewTo(video, wd, ht);
+    	}else{ // if(original){
+    		ResizeViewTo(video, ogwidth, ogheight);
+    	}
     }
 }
