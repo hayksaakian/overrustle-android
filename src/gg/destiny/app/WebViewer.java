@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -25,6 +26,8 @@ public class WebViewer {
 	android.webkit.WebView nativeWV;
 	com.mogoweb.chrome.WebView chromiumWV;
 	
+	private ViewGroup vagueWebView;
+	
 	private String lastLoadedURL = "";
 
 	WebViewer(){
@@ -32,18 +35,18 @@ public class WebViewer {
 		this.useNative = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 	public void Make(Context context){
-		View view;
+
 		if (useNative){
 			nativeWV = createNativeWebView(context);
-			view = nativeWV;
+			vagueWebView = nativeWV;
         }else{
         	chromiumWV = createChromiumWebView(context);
-        	view = chromiumWV;
+        	vagueWebView = chromiumWV;
         }
 //      
-		view.setLayoutParams(loparams);
-		contentContainer.addView(view);
-		view.requestFocus();
+		vagueWebView.setLayoutParams(loparams);
+		contentContainer.addView(vagueWebView);
+		vagueWebView.requestFocus();
 		
 		backToLoadedURLButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -159,6 +162,25 @@ public class WebViewer {
 //        	//hide back button
 //        	backToLoadedURLButton.setVisibility(View.GONE);
 //        }
+	}
+	public void setAlignParentTop(boolean b) {
+		// TODO Auto-generated method stub
+//		contentContainer.`
+		RelativeLayout.LayoutParams cloParams;
+		cloParams = (RelativeLayout.LayoutParams)contentContainer.getLayoutParams();
+		if(b){
+			cloParams.removeRule(RelativeLayout.BELOW);
+			cloParams.addRule(RelativeLayout.BELOW, R.id.header_container);
+//			cloParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else{
+//			cloParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+			cloParams.removeRule(RelativeLayout.BELOW);
+			cloParams.addRule(RelativeLayout.BELOW, R.id.everything_else);
+		}
+		contentContainer.setLayoutParams(cloParams);
+		contentContainer.requestLayout();
+		vagueWebView.requestLayout();
+		
 	}
 
 

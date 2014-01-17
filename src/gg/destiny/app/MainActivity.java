@@ -320,11 +320,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	private void setMinimode(boolean b){
 		if(b){
 			ResizeViewTo(video, "small");
-			ResizeViewTo(youtubeLayout, "small");
-			
+			wvr.setAlignParentTop(true);
+			// also make the chat match_parent
 		}else{
 			ResizeViewTo(video, "original");
-			ResizeViewTo(youtubeLayout, "original");
+			wvr.setAlignParentTop(false);
+			// also make the chat match_parent
 		}
 		inMinimode = b;
 	}
