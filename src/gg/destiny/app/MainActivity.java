@@ -65,10 +65,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 //params.height = 10;// (int) (250*metrics.density);
                 //params.leftMargin = 30;
                 //video.setLayoutParams(params);
-            	ResizeViewTo(video, "tiny"); 
+            	ResizeViewTo(youtubeLayout, "tiny"); 
             	disableFullscreen();
             }else{
-            	ResizeViewTo(video, "original");
+            	ResizeViewTo(youtubeLayout, "original");
                 lastQuality = qualityName;
             }
         }
@@ -82,12 +82,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     private RelativeLayout header_container;
 
 //    NOTE: WebView is created at runtime
-//        private WebView wv;
-//  LinearLayout youtubeLayout;
-    FrameLayout youtubeLayout;
-//    YoutubeLayout youtubeLayout;
+//YoutubeLayout youtubeLayout;
+    LinearLayout youtubeLayout;
     
-    VideoView video;
+    ResizingVideoView video;
     private EditText et;
     TextView header;
     private TextView pageLoadTime;
@@ -107,6 +105,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     
     @Override
     public void onConfigurationChanged(Configuration newConfig){
+//        youtubeLayout.maximize();
         toggleFullscreen(); // to force resize of video p1
         super.onConfigurationChanged(newConfig);
         // Checks the orientation of the screen
@@ -118,7 +117,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
 //          et.setVisibility(View.VISIBLE);
         }
+        //hack
         toggleFullscreen(); // to force resize of video p2
+//        video.requestLayout();
+//        video.forceLayout();
+//        video.invalidate();
+        
 //        video.la
 //        youtubeLayout.requestLayout();
 //    	video.requestLayout();
@@ -130,12 +134,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 //                wv = (WebView) findViewById(R.id.wv);
-        youtubeLayout = (FrameLayout) findViewById(R.id.youtubeLayout);
-//      youtubeLayout = (LinearLayout) findViewById(R.id.youtubeLayout);
+//        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
+        youtubeLayout = (LinearLayout) findViewById(R.id.youtubeLayout);
 //        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
         // TODO move to a better place
 //        youtubeLayout.maximize();
-        video = (VideoView)findViewById(R.id.video);
+        video = (ResizingVideoView)findViewById(R.id.video);
         ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
         ogheight = ogparams.height;
         ogwidth = ogparams.width;
@@ -148,11 +152,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 
         // setup wvr
         wvr = new WebViewer();
-        wvr.contentContainer = (RelativeLayout) findViewById(R.id.lo);
+        wvr.contentContainer = (RelativeLayout) findViewById(R.id.chat_container);
         wvr.loparams = new RelativeLayout.LayoutParams(
         		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
         
-        wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout); 
+        //wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout); 
         wvr.backToLoadedURLButton = (Button)findViewById(R.id.back_button);
         wvr.pageLoadTime = pageLoadTime;
         wvr.Make(this);
@@ -219,7 +223,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                         return true;
                     case (MotionEvent.ACTION_UP) :
                         Log.d(DEBUG_TAG,"Action was UP");
-                    	toggleFullscreen();
+                    	toggleMinimode();
                         return false;
                     case (MotionEvent.ACTION_CANCEL) :
                         Log.d(DEBUG_TAG,"Action was CANCEL");
@@ -278,6 +282,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	}
 
 	private void enableFullscreen(){
+//		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//
 		WindowManager.LayoutParams attrs = getWindow().getAttributes();
 		enableFullscreen(attrs);
 	}
@@ -293,29 +300,59 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		private void disableFullscreen(WindowManager.LayoutParams attrs){
 	        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
 	        getWindow().setAttributes(attrs);
+//	        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+
 		}
 		private void disableFullscreen(){
 			WindowManager.LayoutParams attrs = getWindow().getAttributes();
 			disableFullscreen(attrs);
 		}
+	
+	public boolean inMinimode = false;
+		
+	private void toggleMinimode(){
+		//video.setTop(0);
+//		video.invalidate();
+		setMinimode(!inMinimode);
+		//video.setTop(0);
+//		video.invalidate();
+	}
+	private void setMinimode(boolean b){
+		if(b){
+			ResizeViewTo(video, "small");
+			ResizeViewTo(youtubeLayout, "small");
+			
+		}else{
+			ResizeViewTo(video, "original");
+			ResizeViewTo(youtubeLayout, "original");
+		}
+		inMinimode = b;
+	}
 
     private static void ResizeViewTo(View view, int width, int height){
+    	Log.d("resizing to preciely", String.valueOf(width)+" by "+String.valueOf(height));
     	ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) view.getLayoutParams();
     	params.width = width;
     	params.height = height;
-        view.setLayoutParams(params);        	
+        view.setLayoutParams(params);
+    	view.layout(view.getLeft(), view.getTop(), width, height);
+//        view.requestLayout();
+        //view.setDimensions(width, height);
+        
     }
-    private void ResizeViewTo(View video, String sizeName){
+    private void ResizeViewTo(View view, String sizeName){
     	// tiny is for Audio Only mode
+    	Log.d("resizing to", sizeName);
     	if(sizeName.startsWith("tiny")){
-    		ResizeViewTo(video, 10, 10);
+    		ResizeViewTo(view, 10, 10);
     	}else if(sizeName.startsWith("small")){
-    		DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
-    		int wd = (int) (160*metrics.density);
-    		int ht = (int) (90*metrics.density);
-    		ResizeViewTo(video, wd, ht);
+    		DisplayMetrics metrics = new DisplayMetrics(); 
+    		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+    		int wd = (int) (320f*metrics.density);
+    		int ht = (int) (180f*metrics.density);
+    		ResizeViewTo(view, wd, ht);
     	}else{ // if(original){
-    		ResizeViewTo(video, ogwidth, ogheight);
+    		ResizeViewTo(view, ogwidth, ogheight);
     	}
     }
 }

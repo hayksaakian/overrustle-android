@@ -5,6 +5,8 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,10 @@ public class YoutubeLayout extends ViewGroup {
 
 	private int mDragRange;
 	private int mTop;
+	private int mLeft;
 	private float mDragOffset;
+	
+	private float mDisplayDensity;
 
 
 	public YoutubeLayout(Context context) {
@@ -51,13 +56,32 @@ public class YoutubeLayout extends ViewGroup {
 	boolean smoothSlideTo(float slideOffset) {
 	    final int topBound = getPaddingTop();
 	    int y = (int) (topBound + slideOffset * mDragRange);
-
+	 // recalculate offset to account for when you just tap to maximize/minimize
+		//mDragOffset = (float)y / mDragRange;
+	    Log.d("Recalc Offset", String.valueOf(mDragOffset));
+	
 	    if (mDragHelper.smoothSlideViewTo(mHeaderView, mHeaderView.getLeft(), y)) {
 	        ViewCompat.postInvalidateOnAnimation(this);
+	        
 	        return true;
 	    }
 	    return false;
 	}
+//	for left to right
+//	boolean smoothSlideTo(float slideOffset) {
+//	    final int leftBound = getPaddingLeft();
+//	    int x = (int) (leftBound + slideOffset * mDragRange);
+//	 // recalculate offset to account for when you just tap to maximize/minimize
+//		//mDragOffset = (float)y / mDragRange;
+//	    Log.d("Recalc Offset", String.valueOf(mDragOffset));
+//	
+//	    if (mDragHelper.smoothSlideViewTo(mHeaderView, x, mHeaderView.getTop())) {
+//	        ViewCompat.postInvalidateOnAnimation(this);
+//	        
+//	        return true;
+//	    }
+//	    return false;
+//	}
 
 	private class DragHelperCallback extends ViewDragHelper.Callback {
 
@@ -68,34 +92,66 @@ public class YoutubeLayout extends ViewGroup {
 
 	    @Override
 	  public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-	      mTop = top;
+	      mTop = top; // this is the only place this is assigned
+	      mLeft = left;
 
 	      mDragOffset = (float) top / mDragRange;
+//	      mDragOffset = (float) left / mDragRange;
+	      
 
-	        mHeaderView.setPivotX(mHeaderView.getWidth());
-	        mHeaderView.setPivotY(mHeaderView.getHeight());
-	        mHeaderView.setScaleX(1 - mDragOffset / 2);
-	        mHeaderView.setScaleY(1 - mDragOffset / 2);
+//	      facts: scaling here crops the videoview
+	      // scaling onlayout does NOT!
+//	        mHeaderView.setPivotX(mHeaderView.getWidth());
+//	        mHeaderView.setPivotY(mHeaderView.getHeight());
+//	        mHeaderView.setScaleX(1 - mDragOffset / 2); // does what it says
+//	        mHeaderView.setScaleY(1 - mDragOffset / 2); // does what it says
 
 	        //mDescView.setAlpha(1 - mDragOffset);
 
+//	        TODO forcing a redraw should probably happen here!
 	        requestLayout();
 	  }
 
-	  @Override
-	  public void onViewReleased(View releasedChild, float xvel, float yvel) {
-	      int top = getPaddingTop();
-	      if (yvel > 0 || (yvel == 0 && mDragOffset > 0.5f)) {
-	          top += mDragRange;
-	      }
-	      mDragHelper.settleCapturedViewAt(releasedChild.getLeft(), top);
-	  }
+		  @Override
+		  public void onViewReleased(View releasedChild, float xvel, float yvel) {
+		      int top = getPaddingTop();
+		      if (yvel > 0 || (yvel == 0 && mDragOffset > 0.5f)) {
+		          top += mDragRange;
+		      }
+		      mDragHelper.settleCapturedViewAt(releasedChild.getLeft(), top);
+		  }
+//		  for side to side
+//		  @Override
+//		  public void onViewReleased(View releasedChild, float xvel, float yvel) {
+//		      int left = getPaddingLeft();
+//		      if (xvel > 0 || (xvel == 0 && mDragOffset > 0.5f)) {
+//		          left += mDragRange;
+//		      }
+//		      mDragHelper.settleCapturedViewAt(left, releasedChild.getTop());
+//		  }
 
 	  @Override
 	  public int getViewVerticalDragRange(View child) {
 	      return mDragRange;
 	  }
-
+	  
+//	  @Override
+//	  public int getViewHorizontalDragRange(View child) {
+//	      return mDragRange;
+//	  }
+//
+//	  @Override
+//	  public int clampViewPositionHorizontal(View child, int left, int dx) {
+////	    Log.d("DragLayout", "clampViewPositionHorizontal " + left + "," + dx);
+//
+//	    final int leftBound = getPaddingLeft();
+//	    final int rightBound = getWidth() - mHeaderView.getWidth();
+//
+//	    final int newLeft = Math.min(Math.max(left, leftBound), rightBound);
+//
+//	    return newLeft;
+//	  }
+	  
 	  @Override
 	  public int clampViewPositionVertical(View child, int top, int dy) {
 	      final int topBound = getPaddingTop();
@@ -156,9 +212,9 @@ public class YoutubeLayout extends ViewGroup {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		if(true){
-			return false;
-		}
+//		if(true){
+//			return false;
+//		}
 	  mDragHelper.processTouchEvent(ev);
 
 	  final int action = ev.getAction();
@@ -217,13 +273,74 @@ public class YoutubeLayout extends ViewGroup {
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+	  // below works fine by itself when dragging (with minor errors in the bottom right)
+		
 	  mDragRange = getHeight() - mHeaderView.getHeight();
+//		mDragRange = getWidth() - mHeaderView.getWidth();
+		  
+	  
+	  //resize here because videoview crops instead of scaling
 
+//      mHeaderView.setPivotX(mHeaderView.getWidth());
+//      mHeaderView.setPivotY(mHeaderView.getHeight());
+	  float computedScale = (1 - mDragOffset / 2);
+//	  Log.d("SCALE IS",String.valueOf(computedScale)); // verified 1 at full and ~0.5  at min
+	  int height = mHeaderView.getMeasuredHeight();
+	  int width = mHeaderView.getMeasuredWidth();
+//      mHeaderView.setScaleX(1 - mDragOffset / 2); // does what it says
+//      mHeaderView.setScaleY(1 - mDragOffset / 2); // does what it says
+  // TODO: left, top, right, bottom
+	  int normalL = 0;
+	  int normalT = mTop; 
+	  int normalR = r;
+	  int normalB =  mTop + mHeaderView.getMeasuredHeight(); // the measured height may be constant
+
+//		DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//		int wd = (int) (160*metrics.density);
+//		int ht = (int) (90*metrics.density);
+
+	  int newL = normalR - (int)(((float)normalR)*computedScale); // perfect
+	  int newT = (mTop + (int)(height*((1f-computedScale)/2))); 
+
+	  /**
+	   	at full top should be mTop
+	   	at min it should be mTop + half of height
+	  	computed scale ranges from 1 (max) to 0.5 (min)
+	   * mTop + (height * ((1-scale)/2))
+	   *  
+	   * **/
+	  
+	  
+	  //+ (int)(((float)normalB)*computedScale);
+//	  int newR = (int)(((float)normalR)*computedScale);
+//	  int newB = (int)(((float)normalB)*computedScale);
+//	  tweaked
 	    mHeaderView.layout(
-	            0,
-	            mTop,
-	            r,
-	            mTop + mHeaderView.getMeasuredHeight());
+	            newL,
+	            newT,
+	            normalR,
+	           	normalB);
+	  
+//	  normal
+//      mHeaderView.layout(
+//              0,
+//              mTop,
+//              r,
+//              mTop + mHeaderView.getMeasuredHeight());
+	  
+//	  left to right
+//      mHeaderView.layout(
+//              mLeft,
+//              0,
+//              mLeft + mHeaderView.getMeasuredWidth(),
+//              (int)(height*computedScale));
+//      
+//	  tweaked left to right
+//      mHeaderView.layout(
+//              mLeft,
+//              0,
+//              mLeft + mHeaderView.getMeasuredWidth(),
+//              (int)(height*computedScale));
 //
 //	    mDescView.layout(
 //	            0,

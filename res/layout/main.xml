@@ -1,7 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="#111111"
 	android:id="@+id/lo"> 
 
 <!-- must be instantiated via java
@@ -21,43 +20,44 @@
 
     
     
-	<FrameLayout
+<!-- 	<gg.destiny.app.YoutubeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 		android:layout_below="@+id/header_container"
         android:id="@+id/youtubeLayout"
         android:orientation="vertical"
-        android:layout_centerHorizontal="true" 
+
         android:visibility="visible">
     
 	    
-	<VideoView
+	<gg.destiny.app.ResizingVideoView
         android:id="@+id/video"
         android:visibility="gone"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp" /> 
+        android:layout_centerInParent="true" /> 
 
-	</FrameLayout>
-
+	</gg.destiny.app.YoutubeLayout>
+ -->
 	
-<!-- 
-	<LinearLayout
+	<LinearLayout 
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
 		android:layout_below="@+id/header_container"
+		android:gravity="top|right"
         android:id="@+id/youtubeLayout"
         android:orientation="vertical"
         android:visibility="visible">
 	
-	   	<VideoView
-			android:id="@+id/video"
-			android:visibility="gone"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="#00FFFFFF" />
+	   	<gg.destiny.app.ResizingVideoView
+	        android:id="@+id/video"
+	        android:visibility="gone"
+	        android:gravity="center"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"/>
 
-    </LinearLayout> -->
+    </LinearLayout>
     
 <!-- 	<gg.destiny.app.YoutubeLayout
         android:layout_width="match_parent"
@@ -154,8 +154,17 @@
 		    android:layout_margin="44dp"
 		    android:text="Go Back to Chat"
 		    android:layout_alignParentRight="true"
-		    android:visibility="invisible" />
+		    android:visibility="gone" />
 	</RelativeLayout>
 	
 	</RelativeLayout>
+	
+    <RelativeLayout
+	    android:id="@+id/chat_container"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/everything_else"
+        >
+        
+    </RelativeLayout>
 </RelativeLayout>

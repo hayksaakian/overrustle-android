@@ -138,7 +138,7 @@ public class WebViewer {
         	backToLoadedURLButton.setVisibility(View.VISIBLE);
         }else{
         	//hide back button
-        	backToLoadedURLButton.setVisibility(View.INVISIBLE);
+        	backToLoadedURLButton.setVisibility(View.GONE);
         }
 	}
 	
@@ -157,7 +157,7 @@ public class WebViewer {
 //        	backToLoadedURLButton.setVisibility(View.VISIBLE);
 //        }else{
 //        	//hide back button
-//        	backToLoadedURLButton.setVisibility(View.INVISIBLE);
+//        	backToLoadedURLButton.setVisibility(View.GONE);
 //        }
 	}
 

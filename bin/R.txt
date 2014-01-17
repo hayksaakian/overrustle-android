@@ -7,6 +7,7 @@ int drawable ic_launcher 0x7f020005
 int drawable icon 0x7f020006
 int drawable plus 0x7f020007
 int id back_button 0x7f07000a
+int id chat_container 0x7f07000b
 int id et 0x7f070008
 int id everything_else 0x7f070001
 int id header 0x7f070005
