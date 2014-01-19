@@ -9,6 +9,7 @@ import android.widget.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
@@ -17,9 +18,9 @@ import org.json.*;
 
 public class Business
 {
-	Business()
-	{
+	final static String GAMEONGG_QUALITIES_URL = "http://mlghds-lh.akamaihd.net/i/mlg17_1@167001/master.m3u8"; 
 
+	Business(){
 	}
 	/**
 	 steps
@@ -73,87 +74,27 @@ public class Business
 			//String retval = "";
 			channel = channels[0];
 			//String url = "";
-			String authurl = "http://api.twitch.tv/api/channels/" + channel + "/access_token";
-			String auth = HttpGet(authurl);
-			try
-			{
-				JSONObject authObj = new JSONObject(auth);
-				String token = authObj.getString("token");
-				String sig = authObj.getString("sig");
-
-				token = Uri.encode(token);
-
-				String qualitiesURL = "http://usher.justin.tv/api/channel/hls/" + channel + ".m3u8?token=" + token + "&sig=" + sig;
-
-				String qualityOptions = HttpGet(qualitiesURL);
-
-				//parse out options
-
-				BufferedReader bufReader = new BufferedReader(new StringReader(qualityOptions));
-
-				String line=null; 
-				try
-				{
-					String lastquality = null;
-					qualityOptions = qualityOptions.replace("#", "\n#").replace("http", "\nhttp");
-					//qualityOptions = qualityOptions.rep
-
-					String [] opA = qualityOptions.split("\n");
-					for (int i=0; i < opA.length; i++)
-					//while ((line = bufReader.readLine()) != null)
-					{
-						line = opA[i];
-						if (line.length() > 0)
-						{
-							if (line.startsWith("#EXT-X-MEDIA"))
-							{
-								// descriptor, therefore parse quality
-								// example
-								// #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="high",NAME="High",AUTOSELECT=YES,DEFAULT=YES
-								lastquality = line.split(",")[2];
-								//get text between quotes
-								lastquality = lastquality.split("\"")[1];
-								Log.d("found quality", lastquality);
-							}
-							else if (line.startsWith("http") && lastquality != null)
-							{
-								Log.d("quality url", line);
-								newQualities.put(lastquality, line);
-								lastquality = null;
-							}
-						}
-						Log.d("raw qualities", line);
-
+			if(channel.equals("gameongg")){
+				String qualitiesURL = GAMEONGG_QUALITIES_URL;
+				newQualities = parseQualitiesFromURL(qualitiesURL);
+				if(newQualities.size() > 0){
+					channelStatus = new JSONObject();
+					try {
+						channelStatus.put("status", "MLG GameOn.gg SC2 Invitational");
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
-				catch (Exception e)
-				{}
-
-				//maybe put this in another task...
-				String strStatus = "";
-				try
-				{
-					strStatus = HttpGet("https://api.twitch.tv/kraken/streams/" + channel);
+			}else{
+				String auth = getTwitchAuth(channel);
+				newQualities = getTwitchQualities(channel, auth);
+				try {
+					channelStatus = getTwitchStatus(channel);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-				catch (Exception e)
-				{
-
-				}
-				JSONObject jsnStatus = new JSONObject(strStatus);
-				if (!jsnStatus.isNull("stream"))
-				{
-					//statusMessage = "";
-					channelStatus = jsnStatus.getJSONObject("stream").getJSONObject("channel");
-				}
-				else
-				{
-					channelStatus = new JSONObject();
-				}
-
-
 			}
-			catch (JSONException e)
-			{}
 
 			//String readURL = HttpGet(url);
 			//String readURL = "[1, 2]";
@@ -174,26 +115,16 @@ public class Business
 				qualityURL = (String) qualities.get("Medium");
 			}else if(qualities.containsKey("High")){
 				qualityURL = (String) qualities.get("High");
+			}else{
+				if(qualities.size() > 0){
+					String fq = String.valueOf(qualities.keySet().toArray()[0]);
+					qualityURL = (String)qualities.get(fq);
+				}
 			}
+			
 			if(!qualityURL.equals("")){
 				PlayURL(video, qualityURL);
 			}
-//			Iterator it = qualities.entrySet().iterator();
-//			while (it.hasNext())
-//			{
-//				Map.Entry pairs = (Map.Entry)it.next();
-//				//System.out.println(pairs.getKey() + " = " + pairs.getValue());
-//				qualityURL = (String)pairs.getValue();
-//				it.remove(); // avoids a ConcurrentModificationException
-//				// just pick the first quality and play
-//				//String[] squals = {};
-//				//qualities.keySet().toArray(squals);
-//				//Log.d("Qualities; ", Arrays.asList(squals).toString());
-//				//qualities.values().toArray(squals);
-//				// = (String)qualities.get(squals[0]);
-//				PlayURL(video, qualityURL);
-//				break;
-//			}
 
 			// set status
 			String headerText = channel + " is offline. You can watch another stream if you type its channel name exactly below.";
@@ -220,49 +151,92 @@ public class Business
 			SetCachedHash(channel + "|cache", qualities, context);
 		}
 		//Note, url should be good and proper before hand
-		public String HttpGet(String url)
-		{ 
-			Log.d("GET ing", url);
-			//return "[200]";}
-			//public String baddoGet(String url) { 
-
-			StringBuilder builder = new StringBuilder(); 
-			HttpClient client = new DefaultHttpClient(); 
-			HttpGet httpGet = new HttpGet(url); 
-			try
-			{ 
-				HttpResponse response = client.execute(httpGet); 
-				StatusLine statusLine = response.getStatusLine(); 
-				int statusCode = statusLine.getStatusCode(); 
-				if (statusCode == 200)
-				{ 
-					HttpEntity entity = response.getEntity(); 
-					InputStream content = entity.getContent(); 
-					BufferedReader reader = new BufferedReader(new InputStreamReader(content)); 
-					String line; 
-					while ((line = reader.readLine()) != null)
-					{ 
-						builder.append(line); 
-					} 
-				}
-				else
-				{ 
-					Log.e(Business.class.toString(), "Failed to download file"); 
-				} 
-			}
-			catch (ClientProtocolException e)
-			{
-				e.printStackTrace();
-			}
-			catch (IOException e)
-			{ 
-				e.printStackTrace(); 
-			} 
-
-			return builder.toString(); 
-		}
+		
 	}
 
+	public static String HttpGet(String url)
+	{ 
+		Log.d("GET ing", url);
+		//return "[200]";}
+		//public String baddoGet(String url) { 
+
+		StringBuilder builder = new StringBuilder(); 
+		HttpClient client = new DefaultHttpClient(); 
+		HttpGet httpGet = new HttpGet(url); 
+		try
+		{ 
+			HttpResponse response = client.execute(httpGet); 
+			StatusLine statusLine = response.getStatusLine(); 
+			int statusCode = statusLine.getStatusCode(); 
+			if (statusCode == 200)
+			{ 
+				HttpEntity entity = response.getEntity(); 
+				InputStream content = entity.getContent(); 
+				BufferedReader reader = new BufferedReader(new InputStreamReader(content)); 
+				String line; 
+				while ((line = reader.readLine()) != null)
+				{ 
+					builder.append(line); 
+				} 
+			}
+			else
+			{ 
+				Log.e(Business.class.toString(), "Failed to download file"); 
+			} 
+		}
+		catch (ClientProtocolException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{ 
+			e.printStackTrace(); 
+		} 
+
+		return builder.toString(); 
+	}
+
+	public static HashMap getTwitchQualities(String channel, String auth) {
+		HashMap mQualities = new HashMap<String, String>();
+		try
+		{
+			JSONObject authObj = new JSONObject(auth);
+			String token = authObj.getString("token");
+			String sig = authObj.getString("sig");
+
+			token = Uri.encode(token);
+
+			String qualitiesURL = "http://usher.justin.tv/api/channel/hls/" + channel + ".m3u8?token=" + token + "&sig=" + sig;
+			
+			mQualities = parseQualitiesFromURL(qualitiesURL);
+			
+		}
+		catch (JSONException e)
+		{}
+		return mQualities;
+	}
+	
+	public static JSONObject getTwitchStatus(String channel) throws JSONException{
+		JSONObject channelStatus = new JSONObject();
+		//maybe put this in another task...
+		String strStatus = "";
+		try
+		{
+			strStatus = HttpGet("https://api.twitch.tv/kraken/streams/" + channel);
+		}
+		catch (Exception e)
+		{
+
+		}
+		JSONObject jsnStatus = new JSONObject(strStatus);
+		if (!jsnStatus.isNull("stream"))
+		{
+			//statusMessage = "";
+			channelStatus = jsnStatus.getJSONObject("stream").getJSONObject("channel");
+		}
+		
+		return channelStatus;
+	}
 
 	public static void PlayURL(VideoView video, String url)
 	{
@@ -272,6 +246,58 @@ public class Business
 		//video.setMediaController(new MediaController(context));
 		video.requestFocus();
 		video.start();
+	}
+
+	public static String getTwitchAuth(String channel) {
+		String auth = "";
+		String authurl = "http://api.twitch.tv/api/channels/" + channel + "/access_token";
+		auth = HttpGet(authurl);
+		return auth;
+	}
+	
+	public static HashMap parseQualitiesFromURL(String url){
+		HashMap mQualities = new HashMap<String, String>();
+		String qualityOptions = HttpGet(url);
+		String line=null; 
+		try
+		{
+			String lastquality = null;
+			qualityOptions = qualityOptions.replace("#", "\n#").replace("http", "\nhttp");
+
+			String [] opA = qualityOptions.split("\n");
+			for (int i=0; i < opA.length; i++)
+			{
+				line = opA[i];
+				if (line.length() > 0)
+				{
+					if (line.startsWith("#EXT-X-STREAM"))
+					{
+						// descriptor, therefore parse quality
+						// example
+						// #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="high",NAME="High",AUTOSELECT=YES,DEFAULT=YES
+						
+						lastquality = line.split(",")[2];
+						//get text between quotes
+						lastquality = lastquality.split("=")[1];
+						if(lastquality.contains("\"")){
+							lastquality = lastquality.split("\"")[1];
+						}
+						Log.d("found quality", lastquality);
+					}
+					else if (line.startsWith("http") && lastquality != null)
+					{
+						Log.d("quality url", line);
+						mQualities.put(lastquality, line);
+						lastquality = null;
+					}
+				}
+				Log.d("raw qualities", line);
+
+			}
+		}
+		catch (Exception e)
+		{}
+		return mQualities;
 	}
 
 	public static void LoadQualities(Spinner qualityPicker, HashMap qualities, Context context, int spinnerItemId)

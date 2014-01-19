@@ -156,6 +156,15 @@
 		    android:text="Go Back to Chat"
 		    android:layout_alignParentRight="true"
 		    android:visibility="gone" />
+		<Button
+		    android:id="@+id/load_gameongg_stream"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_below="@+id/et"
+		    android:layout_margin="44dp"
+		    android:text="Load Gameon.gg Stream"
+		    android:layout_alignParentLeft="true"
+		     />
 	</RelativeLayout>
 	
 	</RelativeLayout>

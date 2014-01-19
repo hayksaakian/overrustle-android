@@ -93,6 +93,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     
     ResizingVideoView video;
     private EditText et;
+    Button loadGameon;
     TextView header;
     private TextView pageLoadTime;
 
@@ -127,6 +128,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         header_container = (RelativeLayout)findViewById(R.id.header_container);
         header = (TextView)findViewById(R.id.header);
         navigation = (RelativeLayout)findViewById(R.id.navigation);
+        loadGameon = (Button)findViewById(R.id.load_gameongg_stream);
         //newActivityBtn = (ImageButton) findViewById(R.id.new_activity);
         qualityPicker = (Spinner)findViewById(R.id.quality_picker);
         pageLoadTime = (TextView) findViewById(R.id.page_load_time);
@@ -183,6 +185,14 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 }
             }
         });
+        loadGameon.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				et.setText("gameongg");
+				loadChannel("gameongg");
+			}
+		});
 
         qualityPicker.setOnItemSelectedListener(this);
         
@@ -253,6 +263,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         dt.channelSearch = et;
         dt.context = this;// getApplicationContext();
         dt.execute(channel);
+        
+        if(channel.equals("gameongg")){
+        	loadGameon.setVisibility(View.GONE);
+        }else{
+        	loadGameon.setVisibility(View.VISIBLE);
+        }
 
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
