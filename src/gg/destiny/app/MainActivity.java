@@ -227,8 +227,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
             	if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+            		// just went not fullscreen
                     showUI();
+                    if(!Business.isKitkat()){
+                    	setMinimode(true);
+                    }
                 } else {
+                	// just went fullscreen
                     hideUI();
                 }
             	Log.d("UI changed (fullscreen?)", String.valueOf(visibility));

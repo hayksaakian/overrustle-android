@@ -334,5 +334,9 @@ public class Business
 		}
 		return hm;
 	}
+	
+	public static boolean isKitkat(){
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+	}
 
 }

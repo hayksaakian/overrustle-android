@@ -32,7 +32,7 @@ public class WebViewer {
 
 	WebViewer(){
 //		use native if we have websockets natively
-//		this.useNative = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+//		this.useNative = Business.isKitkat();
 		this.useNative = true;
 	}
 	public void Make(Context context){
