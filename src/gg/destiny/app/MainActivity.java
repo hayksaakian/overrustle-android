@@ -11,6 +11,8 @@ import android.text.*;
 import android.util.*;
 import android.view.*;
 import android.view.View.OnTouchListener;
+import android.view.Window.Callback;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.*;
 
 import android.widget.*;
@@ -78,8 +80,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     public void onNothingSelected(AdapterView<?> parent){
         // Another interface callback
     }
-	
+
+    View rootView;
+    
     private RelativeLayout header_container;
+    private RelativeLayout navigation;
 
 //    NOTE: WebView is created at runtime
 //YoutubeLayout youtubeLayout;
@@ -96,38 +101,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     String channel;
 
     WebViewer wvr;
+//    SystemUIHider uiHider;
     
     // remember the original attributes of the video view
-    
     private int ogwidth;
     private int ogheight;
 
-    
-    @Override
-    public void onConfigurationChanged(Configuration newConfig){
-//        youtubeLayout.maximize();
-        toggleFullscreen(); // to force resize of video p1
-        super.onConfigurationChanged(newConfig);
-        // Checks the orientation of the screen
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
-            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-//          et.setVisibility(View.INVISIBLE);
-            
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-//          et.setVisibility(View.VISIBLE);
-        }
-        //hack
-        toggleFullscreen(); // to force resize of video p2
-//        video.requestLayout();
-//        video.forceLayout();
-//        video.invalidate();
-        
-//        video.la
-//        youtubeLayout.requestLayout();
-//    	video.requestLayout();
-
-    }
+	private boolean isOnCreateDone = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)	{
@@ -145,6 +125,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         ogwidth = ogparams.width;
         header_container = (RelativeLayout)findViewById(R.id.header_container);
         header = (TextView)findViewById(R.id.header);
+        navigation = (RelativeLayout)findViewById(R.id.navigation);
         //newActivityBtn = (ImageButton) findViewById(R.id.new_activity);
         qualityPicker = (Spinner)findViewById(R.id.quality_picker);
         pageLoadTime = (TextView) findViewById(R.id.page_load_time);
@@ -207,7 +188,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         OnTouchListener vlistener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-            	Log.d("Touched Video", event.toString());
+//            	Log.d("Touched Video", event.toString());
             	// True if the listener has consumed the event, false otherwise.
             	// return false if we don't care about the touch any more
             	// return true if we might care about it later
@@ -238,7 +219,23 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             }
         };
         video.setOnTouchListener(vlistener);
-	}
+        
+//        setWindowCallbacks();
+        
+        rootView = getWindow().getDecorView();
+        rootView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+            	if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    showUI();
+                } else {
+                    hideUI();
+                }
+            	Log.d("UI changed (fullscreen?)", String.valueOf(visibility));
+            }
+        });
+        isOnCreateDone  = true;
+	} // </ on create >
 
 	private void loadChannel(String channel) {
         Business.DownloadTask dt = new Business.DownloadTask();
@@ -262,22 +259,22 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //	topofscreen portrait
 //	bottomright_corner portrait
 	
+	boolean isFullscreen(){
+		return isFullscreen(getWindow().getAttributes());
+	}
+	boolean isFullscreen(WindowManager.LayoutParams attrs){
+		if(attrs == null){
+			attrs = getWindow().getAttributes();			
+		}
+		boolean currentlyFullscreen = (attrs.flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
+		return currentlyFullscreen;
+	}
 	
 	private void toggleFullscreen()	{
-		//toggle title bar
-		//header_container.setVisibility(View.GONE);
-	
-		// system fullscreen
-		WindowManager.LayoutParams attrs = getWindow().getAttributes();
-		boolean currentlyFullscreen = (attrs.flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
-		if(currentlyFullscreen){
-			disableFullscreen(attrs);
-			header_container.setVisibility(View.VISIBLE);
+		if(isFullscreen()){
+			disableFullscreen();
 		}else{
-			enableFullscreen(attrs);
-            header_container.setVisibility(View.GONE);
-            //youtubeLayout.setVisibility(View.VISIBLE);
-            
+			enableFullscreen();
 		}
 	}
 
@@ -289,24 +286,72 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		enableFullscreen(attrs);
 	}
 	private void enableFullscreen(WindowManager.LayoutParams attrs){
-		attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+		// change the actual screen
+//		attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
 		//View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-    	//attrs.flags |= WindowManager.LayoutParams.FLAG_;
-		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        getWindow().setAttributes(attrs);		
+//    	attrs.flags |= WindowManager.LayoutParams.FLAG_;
+//		attrs.flags |= WindowManager.LayoutParams.FLAG_
+		rootView.setSystemUiVisibility(
+	            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+	            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+	            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+	            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+	            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+	            | View.SYSTEM_UI_FLAG_IMMERSIVE);
+//		getWindow().setAttributes(attrs);
+//		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//		setFullscreen(true);
 	}
 	
 
-		private void disableFullscreen(WindowManager.LayoutParams attrs){
-	        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
-	        getWindow().setAttributes(attrs);
-//	        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-
+	private void disableFullscreen(WindowManager.LayoutParams attrs){
+		//rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+//        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+//        getWindow().setAttributes(attrs);
+//      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+//		setFullscreen(false);
+        // 0 clears the flags
+		rootView.setSystemUiVisibility(0);
+//		.setSystemUiVisibility(
+//	            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//	            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//	            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+	}
+	
+	private void disableFullscreen(){
+		WindowManager.LayoutParams attrs = getWindow().getAttributes();
+		disableFullscreen(attrs);
+//		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	}
+	void setFullscreen(boolean enable){
+		if(enable){
+			enableFullscreen();
+//			rootView.setSystem
+//			rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+			//rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		}else{
+			disableFullscreen();
+//			rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+			//rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 		}
-		private void disableFullscreen(){
-			WindowManager.LayoutParams attrs = getWindow().getAttributes();
-			disableFullscreen(attrs);
-		}
+	}
+	
+	private boolean shownUI = true;
+	void showUI(){
+        //show UI widgets
+        header_container.setVisibility(View.VISIBLE);
+        navigation.setVisibility(View.VISIBLE);	
+        shownUI = true;
+	}
+	void hideUI(){
+		Log.d("Called", "hide ui");
+        //hide UI widgets
+        header_container.setVisibility(View.GONE);
+        navigation.setVisibility(View.INVISIBLE);  		
+        shownUI = false;
+	}
+	
+// Minimized stream mode
 	
 	public boolean inMinimode = false;
 		
@@ -320,16 +365,18 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	private void setMinimode(boolean b){
 		if(b){
 			ResizeViewTo(video, "small");
-			wvr.setAlignParentTop(true);
-			// also make the chat match_parent
+			if(isLandscape())
+				disableFullscreen();
 		}else{
 			ResizeViewTo(video, "original");
-			wvr.setAlignParentTop(false);
-			// also make the chat match_parent
+			if(isLandscape())
+				enableFullscreen();
 		}
 		inMinimode = b;
 	}
 
+// Resizing streams
+	
     private static void ResizeViewTo(View view, int width, int height){
     	Log.d("resizing to preciely", String.valueOf(width)+" by "+String.valueOf(height));
     	ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) view.getLayoutParams();
@@ -356,4 +403,85 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     		ResizeViewTo(view, ogwidth, ogheight);
     	}
     }
+    
+// orientation
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        //toggleFullscreen(); // to force resize of video p1
+        super.onConfigurationChanged(newConfig);
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+//          et.setVisibility(View.INVISIBLE);
+            if(!inMinimode){
+                enableFullscreen();
+            }
+            //listenForIdleness();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+//          et.setVisibility(View.VISIBLE);
+            disableFullscreen();
+            //stopListeningForIdleness();
+        }
+        //hack
+        //toggleFullscreen();
+
+    }
+    
+    public int getScreenOrientation()
+    {
+        Display getOrient = getWindowManager().getDefaultDisplay();
+        int orientation = Configuration.ORIENTATION_UNDEFINED;
+        Point size = new Point();
+        getOrient.getSize(size);
+        if(size.x < size.y){
+        	orientation = Configuration.ORIENTATION_PORTRAIT;
+        }else { 
+        	orientation = Configuration.ORIENTATION_LANDSCAPE;
+        }
+        return orientation;
+    }
+    public boolean isLandscape(){
+    	return getScreenOrientation() == Configuration.ORIENTATION_LANDSCAPE;
+    }
+    Handler handler;
+    
+    // call this method after user input cancels fullscreen mode
+    // to smoothly return back to fullscreen
+    public void listenForIdleness(){
+    	handler=new Handler();
+    	final Runnable r=new Runnable(){
+    	    public void run(){
+    	    	enableFullscreen(); 			
+    	    }
+    	};
+    	handler.postDelayed(r, 3500);
+    }
+    public void stopListeningForIdleness(){
+    	
+    }
+    
+
+	// TODO
+	@Override
+	public void onWindowAttributesChanged(
+			android.view.WindowManager.LayoutParams attrs) {
+		// ChangeUI(attrs);
+	}
+	
+	void ChangeUI(WindowManager.LayoutParams attrs){
+//		attrs.
+		boolean _fullscreen = isFullscreen(attrs);
+		if(isOnCreateDone){
+			if(_fullscreen && shownUI == true){
+				hideUI();
+			}else if(shownUI == false){
+				showUI();
+			}
+		}
+
+    	Log.d("UI window (fullscreen?)", String.valueOf(_fullscreen));
+		
+	}
+	
 }
