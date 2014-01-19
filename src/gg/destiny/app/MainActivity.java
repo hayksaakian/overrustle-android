@@ -1,6 +1,7 @@
 package gg.destiny.app;
 
 //import android.R;
+import android.annotation.SuppressLint;
 import android.app.*;
 import android.content.*;
 import android.content.res.*;
@@ -236,7 +237,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 	// just went fullscreen
                     hideUI();
                 }
-            	Log.d("UI changed (fullscreen?)", String.valueOf(visibility));
+//            	Log.d("UI changed (fullscreen?)", String.valueOf(visibility));
             }
         });
         isOnCreateDone  = true;
@@ -290,6 +291,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		WindowManager.LayoutParams attrs = getWindow().getAttributes();
 		enableFullscreen(attrs);
 	}
+	// this is fine because constants are set at compile? time
+	@SuppressLint("InlinedApi")
 	private void enableFullscreen(WindowManager.LayoutParams attrs){
 		// change the actual screen
 //		attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -345,14 +348,20 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	void showUI(){
         //show UI widgets
         header_container.setVisibility(View.VISIBLE);
-        navigation.setVisibility(View.VISIBLE);	
+        navigation.setVisibility(View.VISIBLE);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
         shownUI = true;
 	}
 	void hideUI(){
 		Log.d("Called", "hide ui");
         //hide UI widgets
         header_container.setVisibility(View.GONE);
-        navigation.setVisibility(View.INVISIBLE);  		
+        navigation.setVisibility(View.INVISIBLE);
+        // hide open keyboards
+//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(wvr.getWindowToken(), 0);
+
         shownUI = false;
 	}
 	
@@ -412,25 +421,19 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 // orientation
     @Override
     public void onConfigurationChanged(Configuration newConfig){
-        //toggleFullscreen(); // to force resize of video p1
         super.onConfigurationChanged(newConfig);
         // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-//          et.setVisibility(View.INVISIBLE);
             if(!inMinimode){
                 enableFullscreen();
             }
-            //listenForIdleness();
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-//          et.setVisibility(View.VISIBLE);
-            disableFullscreen();
-            //stopListeningForIdleness();
+            if(isFullscreen() == false){
+                disableFullscreen();
+            }
         }
-        //hack
-        //toggleFullscreen();
-
     }
     
     public int getScreenOrientation()
@@ -448,45 +451,5 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     }
     public boolean isLandscape(){
     	return getScreenOrientation() == Configuration.ORIENTATION_LANDSCAPE;
-    }
-    Handler handler;
-    
-    // call this method after user input cancels fullscreen mode
-    // to smoothly return back to fullscreen
-    public void listenForIdleness(){
-    	handler=new Handler();
-    	final Runnable r=new Runnable(){
-    	    public void run(){
-    	    	enableFullscreen(); 			
-    	    }
-    	};
-    	handler.postDelayed(r, 3500);
-    }
-    public void stopListeningForIdleness(){
-    	
-    }
-    
-
-	// TODO
-	@Override
-	public void onWindowAttributesChanged(
-			android.view.WindowManager.LayoutParams attrs) {
-		// ChangeUI(attrs);
-	}
-	
-	void ChangeUI(WindowManager.LayoutParams attrs){
-//		attrs.
-		boolean _fullscreen = isFullscreen(attrs);
-		if(isOnCreateDone){
-			if(_fullscreen && shownUI == true){
-				hideUI();
-			}else if(shownUI == false){
-				showUI();
-			}
-		}
-
-    	Log.d("UI window (fullscreen?)", String.valueOf(_fullscreen));
-		
-	}
-	
+    }	
 }

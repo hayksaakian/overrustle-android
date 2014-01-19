@@ -3,6 +3,7 @@ package gg.destiny.app;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -182,6 +183,10 @@ public class WebViewer {
 		contentContainer.requestLayout();
 		vagueWebView.requestLayout();
 		
+	}
+	public IBinder getWindowToken() {
+		// TODO Auto-generated method stub
+		return vagueWebView.getWindowToken();
 	}
 
 
