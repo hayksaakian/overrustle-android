@@ -143,7 +143,7 @@
 			android:layout_width="88dp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:padding="10dp"
+			android:padding="2dp"
 			android:text="0ms"
 			style="@android:style/TextAppearance.Small"
 			android:textColor="#FF040F"/>
@@ -152,7 +152,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:layout_below="@+id/page_load_time"
-		    android:layout_margin="44dp"
+		    android:layout_margin="4dp"
 		    android:text="Go Back to Chat"
 		    android:layout_alignParentRight="true"
 		    android:visibility="gone" />
@@ -160,10 +160,11 @@
 		    android:id="@+id/load_gameongg_stream"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:layout_below="@+id/et"
-		    android:layout_margin="44dp"
+		    android:layout_margin="4dp"
 		    android:text="Load Gameon.gg Stream"
 		    android:layout_alignParentLeft="true"
+		    android:layout_alignParentTop="true"
+		    android:visibility="gone"
 		     />
 	</RelativeLayout>
 	

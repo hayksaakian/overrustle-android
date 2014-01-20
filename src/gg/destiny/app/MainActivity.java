@@ -93,7 +93,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     
     ResizingVideoView video;
     private EditText et;
-    Button loadGameon;
+    Button loadFeaturedStreamButton;
     TextView header;
     private TextView pageLoadTime;
 
@@ -111,6 +111,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 
 	private boolean isOnCreateDone = false;
 
+	boolean gameonlive = false;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)	{
         super.onCreate(savedInstanceState);
@@ -125,7 +127,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         header_container = (RelativeLayout)findViewById(R.id.header_container);
         header = (TextView)findViewById(R.id.header);
         navigation = (RelativeLayout)findViewById(R.id.navigation);
-        loadGameon = (Button)findViewById(R.id.load_gameongg_stream);
+        loadFeaturedStreamButton = (Button)findViewById(R.id.load_gameongg_stream);
         //newActivityBtn = (ImageButton) findViewById(R.id.new_activity);
         qualityPicker = (Spinner)findViewById(R.id.quality_picker);
         pageLoadTime = (TextView) findViewById(R.id.page_load_time);
@@ -146,8 +148,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         RelativeLayout everythingelse = (RelativeLayout)findViewById(R.id.everything_else);
         everythingelse.bringToFront();
         
-        channel = et.getText().toString();
-        loadChannel(channel);
         
 //      setup events
         OnFocusChangeListener toggle = new OnFocusChangeListener() {
@@ -182,7 +182,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 }
             }
         });
-        loadGameon.setOnClickListener(new View.OnClickListener() {
+        loadFeaturedStreamButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -251,7 +251,23 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         	alert(this);
         }
         isOnCreateDone  = true;
+        
+
+        channel = et.getText().toString();
+        loadChannel(channel);
+        
+        // destiny + check on gameon.gg
+        checkStatus("destiny", Business.MLG_STREAMS_STATUS_URL);
+        //checkStatus();       
+        
 	} // TODO </ on create >
+	
+	private void checkStatus(String... channel_name_or_mlg_urls){
+        Business.LiveChecker chkgameon = new Business().new LiveChecker();
+        chkgameon.goToStreamButton = loadFeaturedStreamButton;
+        chkgameon.channelSearch = et;
+        chkgameon.execute(channel_name_or_mlg_urls);		
+	}
 
 	private void loadChannel(String channel) {
         Business.DownloadTask dt = new Business.DownloadTask();
@@ -265,9 +281,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         dt.execute(channel);
         
         if(channel.equals("gameongg")){
-        	loadGameon.setVisibility(View.GONE);
+        	loadFeaturedStreamButton.setVisibility(View.GONE);
         }else{
-        	loadGameon.setVisibility(View.VISIBLE);
+        	if(gameonlive){
+            	loadFeaturedStreamButton.setVisibility(View.VISIBLE);        		
+        	}
         }
 
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

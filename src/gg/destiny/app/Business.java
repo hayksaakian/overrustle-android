@@ -18,8 +18,11 @@ import org.json.*;
 
 public class Business
 {
-	final static String GAMEONGG_QUALITIES_URL = "http://mlghds-lh.akamaihd.net/i/mlg17_1@167001/master.m3u8"; 
-
+	final static String GAMEONGG_QUALITIES_URL = "http://mlghds-lh.akamaihd.net/i/mlg17_1@167001/master.m3u8";
+	final static String MLG_STREAMS_STATUS_URL = "http://streamapi.majorleaguegaming.com/service/streams/all";
+	final static String GAMEONGG_STREAM_NAME = "mlg17";
+	final static String GAMEONGG_GENERIC_STATUS = "MLG GameOn.gg SC2 Invitational";
+	
 	Business(){
 	}
 	/**
@@ -51,6 +54,90 @@ public class Business
 
 	 **/
 
+
+	public class LiveChecker extends AsyncTask<String, Void, String>
+	{
+		TextView header;
+		Button goToStreamButton;
+		boolean isLive = false;
+		String channelname = "";
+		EditText channelSearch;
+		
+		@Override
+		protected String doInBackground(String... urls) {
+			String mStatus = "";
+			for (String url_or_channel : urls) {
+				mStatus = checkStream(url_or_channel);
+				if(isLive){
+					break; // we found a live stream, stop checking 
+				}
+			}
+			
+			return mStatus;
+		}
+	
+		@Override
+		protected void onPostExecute(String liveStatus){
+			// set status
+			if(!isLive && channelSearch != null){
+				channelSearch.setVisibility(View.VISIBLE);
+			}
+			if (header != null){
+				header.setText(liveStatus);
+			}
+			if(goToStreamButton != null){
+				if(isLive){
+					goToStreamButton.setVisibility(View.VISIBLE);
+				}else{
+					goToStreamButton.setText(channelname+" is live. Watch Now");
+					goToStreamButton.setVisibility(View.GONE);
+				}
+			}
+		}
+		
+		protected String checkStream(String url_or_channel_name){
+			String status = "";
+			try {
+				if(url_or_channel_name.equals("gameongg")){
+					url_or_channel_name = MLG_STREAMS_STATUS_URL;
+				}
+				JSONObject jsno = new JSONObject();
+				if(url_or_channel_name.contains("mlg") || url_or_channel_name.contains("majorleaguegaming")){
+					String mlgStatuses = HttpGet(url_or_channel_name);
+					channelname = "GameOn.gg";
+					JSONArray jsna = new JSONObject(mlgStatuses)
+						.getJSONObject("data")
+						.getJSONArray("items");
+					int l = jsna.length();
+					for (int i = 0; i < l; i++) {
+						JSONObject item = jsna.getJSONObject(i);
+						if(item.getString("stream_name").equals(GAMEONGG_STREAM_NAME)){
+							isLive = item.getInt("status") == 2;
+							if(isLive)
+								status = GAMEONGG_GENERIC_STATUS;
+							break;
+						}
+					}
+					
+				}else{
+					jsno = getTwitchStatus(url_or_channel_name);
+					channelname = url_or_channel_name;
+					if(jsno != null && jsno.length() > 0){
+						status = jsno.getString("status");
+						isLive = true;
+					}else{
+						status = channelname + " is offline. Type another channel\'s name below to watch something else.";
+					}
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();	
+			}
+			
+			return status;			
+		}
+	}
+
 	public static class DownloadTask extends AsyncTask<String, Void, HashMap>
 	{
 		public Spinner qualityPicker;
@@ -65,6 +152,7 @@ public class Business
 		public EditText channelSearch;
 
 		public HashMap qualities;
+		
 
 		@Override
 		protected HashMap doInBackground(String... channels)
@@ -75,12 +163,11 @@ public class Business
 			channel = channels[0];
 			//String url = "";
 			if(channel.equals("gameongg")){
-				String qualitiesURL = GAMEONGG_QUALITIES_URL;
-				newQualities = parseQualitiesFromURL(qualitiesURL);
+				newQualities = parseQualitiesFromURL(GAMEONGG_QUALITIES_URL);
 				if(newQualities.size() > 0){
 					channelStatus = new JSONObject();
 					try {
-						channelStatus.put("status", "MLG GameOn.gg SC2 Invitational");
+						channelStatus.put("status", GAMEONGG_GENERIC_STATUS);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -89,11 +176,6 @@ public class Business
 			}else{
 				String auth = getTwitchAuth(channel);
 				newQualities = getTwitchQualities(channel, auth);
-				try {
-					channelStatus = getTwitchStatus(channel);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
 			}
 
 			//String readURL = HttpGet(url);
@@ -109,12 +191,12 @@ public class Business
 			Log.d("found qualities #", String.valueOf(qualities.size()));
 			String qualityURL = "";
 
-			if(qualities.containsKey("Low")){
-				qualityURL = (String) qualities.get("Low");
-			}else if(qualities.containsKey("Medium")){
-				qualityURL = (String) qualities.get("Medium");
-			}else if(qualities.containsKey("High")){
-				qualityURL = (String) qualities.get("High");
+			if(qualities.containsKey("low")){
+				qualityURL = (String) qualities.get("low");
+			}else if(qualities.containsKey("medium")){
+				qualityURL = (String) qualities.get("medium");
+			}else if(qualities.containsKey("high")){
+				qualityURL = (String) qualities.get("high");
 			}else{
 				if(qualities.size() > 0){
 					String fq = String.valueOf(qualities.keySet().toArray()[0]);
@@ -126,29 +208,18 @@ public class Business
 				PlayURL(video, qualityURL);
 			}
 
-			// set status
-			String headerText = channel + " is offline. You can watch another stream if you type its channel name exactly below.";
-			if (channelStatus != null && channelStatus.length() > 0)
-			{
-				try
-				{
-					headerText = channelStatus.getString("status");
-				}
-				catch (JSONException e)
-				{}
-			}else{
-				//reveal channel search
-				channelSearch.setVisibility(View.VISIBLE);
-			}
-			if (header != null)
-			{
-				header.setText(headerText);
-			}
+			
 			if (qualities.size() > 0)
 			{
 				LoadQualities(qualityPicker, qualities, context, spinner_item);
 			}
 			SetCachedHash(channel + "|cache", qualities, context);
+			
+			// get the stream status
+			Business nb = new Business();
+			LiveChecker lc = nb.new LiveChecker();
+			lc.header = header;
+			lc.execute(channel);
 		}
 		//Note, url should be good and proper before hand
 		
@@ -215,7 +286,7 @@ public class Business
 		{}
 		return mQualities;
 	}
-	
+
 	public static JSONObject getTwitchStatus(String channel) throws JSONException{
 		JSONObject channelStatus = new JSONObject();
 		//maybe put this in another task...
