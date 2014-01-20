@@ -118,9 +118,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //                wv = (WebView) findViewById(R.id.wv);
 //        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
         youtubeLayout = (LinearLayout) findViewById(R.id.youtubeLayout);
-//        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
-        // TODO move to a better place
-//        youtubeLayout.maximize();
         video = (ResizingVideoView)findViewById(R.id.video);
         ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
         ogheight = ogparams.height;
@@ -250,8 +247,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //            	Log.d("UI changed (fullscreen?)", String.valueOf(visibility));
             }
         });
+        if(!Business.isKitkat()){
+        	alert(this);
+        }
         isOnCreateDone  = true;
-	} // </ on create >
+	} // TODO </ on create >
 
 	private void loadChannel(String channel) {
         Business.DownloadTask dt = new Business.DownloadTask();
@@ -467,5 +467,32 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     }
     public boolean isLandscape(){
     	return getScreenOrientation() == Configuration.ORIENTATION_LANDSCAPE;
-    }	
+    }
+    public void alert(Context context){
+    	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+    	        context);
+    	 
+    	// set the title of the Alert Dialog
+    	alertDialogBuilder.setTitle("Warning: you don\'t have at least Android 4.4");
+    	 
+    	// set dialog message
+    	alertDialogBuilder
+    	        .setMessage("Chat won\'t work on older versions of Android yet. I will post on the Destiny subreddit when I solve this problem.")
+    	        .setCancelable(true)
+    	        .setPositiveButton("NoTears",
+    	                new DialogInterface.OnClickListener() {
+    	                    public void onClick(DialogInterface dialog,
+    	                            int id) {
+    	                        // if yes is clicked, close
+    	                        // current activity
+    	                        //MainActivity.this.finish();
+    	                    	dialog.cancel();
+    	                    }
+    	                });
+    	 
+    	AlertDialog alertDialog = alertDialogBuilder.create();
+    	 
+    	alertDialog.show();
+
+    }
 }
