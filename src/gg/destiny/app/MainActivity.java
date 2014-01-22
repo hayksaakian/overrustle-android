@@ -109,6 +109,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     // remember the original attributes of the video view
     private int ogwidth;
     private int ogheight;
+    
+    final private float minimodeRatio = 3f; 
+    
+    private int screenLongSide = 960;
+    private int screenShortSide = 540;
 
 	private boolean isOnCreateDone = false;
 
@@ -255,6 +260,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //        }
         isOnCreateDone  = true;
         
+        configProportions();
 
         channel = et.getText().toString();
         loadChannel(channel);
@@ -264,6 +270,21 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         //checkStatus();       
         
 	} // TODO </ on create >
+	
+	private void configProportions(){
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		int width = size.x;
+		int height = size.y;
+		if(width > height){
+			screenLongSide = width;
+			screenShortSide = height;
+		}else{
+			screenLongSide = height;
+			screenShortSide = width;
+		}
+	}
 	
 	private void checkStatus(String... channel_name_or_mlg_urls){
         Business.LiveChecker chkgameon = new Business().new LiveChecker();
@@ -416,12 +437,18 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	private void setMinimode(boolean b){
 		if(b){
 			ResizeViewTo(video, "small");
-			if(isLandscape())
+			if(isLandscape()){
 				disableFullscreen();
+			}else{
+				showUI();
+			}
 		}else{
 			ResizeViewTo(video, "original");
-			if(isLandscape())
+			if(isLandscape()){
 				enableFullscreen();
+			}else{
+				hideUI();
+			}
 		}
 		inMinimode = b;
 	}
@@ -447,8 +474,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     	}else if(sizeName.startsWith("small")){
     		DisplayMetrics metrics = new DisplayMetrics(); 
     		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-    		int wd = (int) (320f*metrics.density);
-    		int ht = (int) (180f*metrics.density);
+    		int wd = (int) ((screenLongSide)/minimodeRatio);
+    		int ht = (int) ((screenShortSide)/minimodeRatio);
     		ResizeViewTo(view, wd, ht);
     	}else{ // if(original){
     		ResizeViewTo(view, ogwidth, ogheight);

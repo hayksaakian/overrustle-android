@@ -151,7 +151,7 @@
 		    android:id="@+id/back_button"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:layout_below="@+id/page_load_time"
+		    android:layout_below="@+id/et"
 		    android:layout_margin="4dp"
 		    android:text="Go Back to Chat"
 		    android:layout_alignParentRight="true"
