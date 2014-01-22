@@ -135,7 +135,7 @@
 			android:layout_marginRight="50dp"
 			android:paddingLeft="40dp"
 			android:singleLine="true"
-			android:visibility="invisible"
+			android:visibility="visible"
 			android:imeActionLabel="Go" />
 		
 		<TextView
@@ -163,7 +163,7 @@
 		    android:layout_margin="4dp"
 		    android:text="Load Gameon.gg Stream"
 		    android:layout_alignParentLeft="true"
-		    android:layout_alignParentTop="true"
+		    android:layout_below="@+id/et"
 		    android:visibility="gone"
 		     />
 	</RelativeLayout>
@@ -176,6 +176,23 @@
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
         >
+        
+     <EditText
+     	android:id="@+id/input"
+     	android:hint="Enter a message to send to chat..."
+     	android:layout_alignParentBottom="true"
+     	android:layout_width="match_parent"
+     	android:layout_height="wrap_content"
+        android:singleLine="true"
+	    android:imeOptions="actionSend" 
+	    android:visibility="gone"
+     	/>
+     <WebView
+        android:id="@+id/webview"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/input"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
         
     </RelativeLayout>
 </RelativeLayout>

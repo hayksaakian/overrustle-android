@@ -23,7 +23,8 @@ import android.widget.AdapterView.*;
 
 //import com.mogoweb.chrome.*;
 //import com.webviewbrowser.*;
-import gg.destiny.app.R;
+//import gg.destiny.app.R;
+import android.webkit.WebView;
 
 import java.util.*;
 
@@ -141,6 +142,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         
         //wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout); 
         wvr.backToLoadedURLButton = (Button)findViewById(R.id.back_button);
+        wvr.chatInput = (EditText)findViewById(R.id.input);
+        wvr.nativeWV = (WebView)findViewById(R.id.webview);
         wvr.pageLoadTime = pageLoadTime;
         wvr.Make(this);
         wvr.LoadURL("http://www.destiny.gg/embed/chat");
@@ -247,9 +250,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //            	Log.d("UI changed (fullscreen?)", String.valueOf(visibility));
             }
         });
-        if(!Business.isKitkat()){
-        	alert(this);
-        }
+//        if(!Business.isKitkat()){
+//        	alert(this);
+//        }
         isOnCreateDone  = true;
         
 
