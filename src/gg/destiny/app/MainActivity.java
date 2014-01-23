@@ -269,7 +269,21 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         checkStatus("destiny", Business.MLG_STREAMS_STATUS_URL);
         //checkStatus();       
         
+	}
+
+	@Override
+	protected void onResume()
+	{
+		if(!video.isPlaying()){
+			// play video
+			video.start();
+			Log.d("video", "autoresuming");
+		}
+		
+		super.onResume();
 	} // TODO </ on create >
+	
+	
 	
 	private void configProportions(){
 		Display display = getWindowManager().getDefaultDisplay();
