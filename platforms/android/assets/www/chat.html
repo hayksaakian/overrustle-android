@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Destiny : Steven Bonnell II</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" charset="utf-8">
+<link rel="shortcut icon" href="//cdn.destiny.gg/favicon.png">
+<link href="http://cdn.destiny.gg/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="http://cdn.destiny.gg/1.25.3/web/css/style.min.css" rel="stylesheet" media="screen">
+<link href="http://cdn.destiny.gg/1.25.3/chat/css/style.min.css" rel="stylesheet" media="screen">
+</head>
+<body id="chat-embedded">
+
+<div id="destinychat" class="chat chat-theme-dark chat-icons">
+
+	<div class="chat-output-frame">
+		<div class="chat-output nano">
+			<div class="chat-lines overthrow"></div>
+		</div>
+	</div>
+	
+	<form class="chat-input">
+		<div class="clearfix">
+			<div class="chat-input-wrap">
+				<div class="chat-input-control">
+					<input type="text" placeholder="Enter a message..." class="input" autocomplete="off" spellcheck="true">
+				</div>
+			</div>
+			<div class="chat-tools-wrap">
+				<a class="iconbtn chat-send-btn" title="Send"><i class="icon-bullhorn icon-white subtle"></i></a>
+				<a class="iconbtn chat-settings-btn" title="Settings"><i class="icon-cog icon-white subtle"></i></a>
+				<a class="iconbtn chat-users-btn" title="Users"><i class="icon-user icon-white subtle"></i></a>
+			</div>
+		</div>
+	</form>
+	
+	<div id="chat-user-list" class="chat-menu" style="visibility: hidden;">
+		<div class="list-wrap clearfix">
+			<div class="toolbar">
+				<h5>
+					<a href="#" class="close pull-right"><i class="icon-remove icon-white"></i></a>
+					Users (~<span></span>)
+				</h5>
+			</div>
+			<div id="chat-groups" class="scrollable nano">
+				<div class="content">
+					<h6>Admins</h6>
+					<ul class="unstyled admins"></ul>
+					<hr/>
+					<h6>VIP</h6>
+					<ul class="unstyled vips"></ul>
+					<hr/>
+					<h6>Moderators</h6>
+					<ul class="unstyled moderators"></ul>
+					<hr/>
+					<h6>Subscribers</h6>
+					<ul class="unstyled subs"></ul>
+					<hr/>
+					<h6>Plebs</h6>
+					<ul class="unstyled plebs"></ul>
+					<hr/>
+					<h6>Bots</h6>
+					<ul class="unstyled bots"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="chat-settings" class="chat-menu" style="visibility: hidden;">
+		<div class="list-wrap clearfix">
+			<div class="toolbar">
+				<h5>
+					<a href="#" class="close pull-right"><i class="icon-remove icon-white"></i></a>
+					<span>Settings</span>
+				</h5>
+			</div>
+			<ul class="unstyled">
+				<li>
+					<label class="checkbox" title="Show all user flair icons">
+						<input name="hideflairicons" type="checkbox" /> Hide flair icons
+					</label>
+				</li>
+				<li>
+					<label class="checkbox" title="Show the timestamps next to the messages">
+						<input name="showtime" type="checkbox" /> Show time for messages
+					</label>
+				</li>
+				<li>
+					<label class="checkbox" title="Highlight text that you are mentioned in">
+						<input name="highlight" type="checkbox" checked="checked"/> Highlight on mention
+					</label>
+				</li>
+				<li>
+					<label class="text" title="Your custom list of words that will make messages highlight">
+						Custom highlight words.
+						<input name="customhighlight" type="text" placeholder="Separated using a comma (,)" style="font-size:0.9em;"/>
+					</label>
+				</li>
+				<li>
+					<label class="checkbox" title="Show desktop notifications on hightlight">
+						<input name="notifications" type="checkbox" /> Desktop notification on highlight
+					</label>
+				</li>
+				<li>
+					<hr style="margin:5px 0;">
+					See the <a href="/chat/faq" target="_blank">chat FAQ</a> for more information
+				</li>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="user-tools" style="visibility: hidden;">
+		<div class="wrap clearfix">
+			<h5>
+				<a href="#" class="close pull-right"><i class="icon-remove icon-white"></i></a>
+				<span class="user-tools-user"></span>
+			</h5>
+			<div class="tools">
+				<div class="user-tools-wrap">
+					<a id="ignoreuser" href="#ignore"><i class="icon-eye-close icon-white"></i> Ignore</a>
+					<a id="unignoreuser" href="#unignore"><i class="icon-eye-open icon-white"></i> Unignore</a>
+									</div>
+							</div>
+		</div>
+	</div>
+	
+	<div class="hint-popup" style="visibility: hidden;">
+		<div class="wrap clearfix">
+			<div class="alert">
+				<a class="hidehint" title="Hide hint"><i class="icon-remove subtle"></i></a>
+				<a class="nexthint" title="Next hint"><i class="icon-chevron-right subtle"></i></a>
+				<strong>Hint:</strong> <span class="hint-message"></span>
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+<script type="text/javascript" src="phonegap.js"></script>
+<script src="http://cdn.destiny.gg/1.0.0/vendor/libs.min.js"></script>
+<script src="http://cdn.destiny.gg/1.25.3/web/js/destiny.min.js"></script>
+<!--  <script src="utils.js"></script>
+<script src="destiny.js"></script>
+<script src="feed.js"></script>
+<script src="twitch.js"></script>
+<script src="ui.js"></script> -->
+<script>destiny.init({cdn:'//'});</script>
+
+<script src="http://www.destiny.gg/chat/history"></script>
+<!-- <script src="http://cdn.destiny.gg/1.25.3/chat/js/chat.min.js"></script> -->
+
+<script src="js/formatters.js"></script>
+<script src="js/hints.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/gui.js"></script>
+<script src="js/chat.js"></script>
+
+<script>$('#destinychat').ChatGui({"username":"9inevolt"},{"host":"10.0.3.2","port":9998,"maxlines":150,"emoticons":["Abathur","AngelThump","ASLAN","BasedGod","BibleThump","CallCatz","CallChad","DaFeels","DappaKappa","DatGeoff","DESBRO","Disgustiny","DJAslan","Dravewin","DuckerZ","DURRSTINY","FeedNathan","FIDGETLOL","FrankerZ","GameOfThrows","Heimerdonger","Hhhehhehe","INFESTINY","Kappa","Klappa","LUL","MotherFuckinGame","NoTears","OhKrappa","OverRustle","SoDoge","SoSad","SURPRISE","TooSpicy","UWOTM8","WhoahDude","WORTH"]});</script>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="gg.destiny.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Destiny - Chat</name>
+    <description>
+        Chat app for Destiny.gg
+    </description>
+    <preference name="loglevel" value="DEBUG" />
+    <!-- This is required for native Android hooks? -->
+    <feature name="App">
+        <param name="android-package" value="org.apache.cordova.App" />
+    </feature>
+</widget>
