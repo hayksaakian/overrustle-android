@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="gg.destiny.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>Destiny - Chat</name>
+<widget id="gg.destiny.app.chat" version="0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Destiny Chat</name>
     <description>
         Chat app for Destiny.gg
     </description>

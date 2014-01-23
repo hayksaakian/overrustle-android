@@ -1,9 +1,14 @@
+.project
+.classpath
 passwords.md
 *.keystore
+local.properties
 
 
 .DS_Store
 .idea/
+bin/
 gen/
 out/
 proguard_logs/
+.staging/

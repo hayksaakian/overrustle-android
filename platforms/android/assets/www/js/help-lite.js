@@ -146,6 +146,7 @@
 		var content = $(_parse(data));
 		content.find("script[src]").detach();
 		//console.debug(content.html());
+		//$(document.body).empty();
 		content.prependTo(document.body);
 	};
 	
@@ -154,6 +155,7 @@
 	};
 	
 	var _loadChat = function(url) {
+		url = url || "http://www.destiny.gg/embed/chat";
 		console.debug("loadchat");
 		// Load the new content.
 		$.ajax({
@@ -173,7 +175,7 @@
 		document.addEventListener("deviceready", pgReady.resolve, false);
 		$.when(pgReady).then(function () {
 		    console.debug("allready");
-		    _loadChat("http://www.destiny.gg/embed/chat");
+		    _loadChat();
 		});
 
 		// click routing - direct to HTTP or Ajax, accordingly
@@ -215,7 +217,11 @@
 			var useInAppBrowser = /destiny.gg$/.test(domain);
 			var target = useInAppBrowser ? "_blank" : "_system";
 			
-			window.open(href, target);
+			var iab = window.open(href, target);
+			iab.addEventListener("exit", function() { 
+				console.debug("iab exit");
+				window.location.reload(true);
+			});
 			event.preventDefault();
 		});
 	});

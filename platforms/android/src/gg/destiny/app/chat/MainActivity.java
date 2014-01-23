@@ -1,4 +1,4 @@
-package gg.destiny.app;
+package gg.destiny.app.chat;
 
 //import android.R;
 import android.app.*;
@@ -20,7 +20,6 @@ import android.widget.AdapterView.*;
 
 //import com.mogoweb.chrome.*;
 //import com.webviewbrowser.*;
-import gg.destiny.app.R;
 
 import java.util.*;
 
@@ -28,7 +27,7 @@ import android.view.View.OnFocusChangeListener;
 
 public class MainActivity extends Activity implements OnItemSelectedListener
 {
-	
+
 	@Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         // An item was selected. You can retrieve the selected item using
@@ -48,7 +47,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 	qualityName = lastQuality;
                 }else{
                 	// or Low if there was no previous quality
-                	qualityName = "Low";  
+                	qualityName = "Low";
                 }
             }
             if(qualityOptions.containsKey(qualityName)){
@@ -65,7 +64,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 //params.height = 10;// (int) (250*metrics.density);
                 //params.leftMargin = 30;
                 //video.setLayoutParams(params);
-            	ResizeViewTo(youtubeLayout, "tiny"); 
+            	ResizeViewTo(youtubeLayout, "tiny");
             	disableFullscreen();
             }else{
             	ResizeViewTo(youtubeLayout, "original");
@@ -73,18 +72,18 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             }
         }
     }
-	 
+
     @Override
     public void onNothingSelected(AdapterView<?> parent){
         // Another interface callback
     }
-	
+
     private RelativeLayout header_container;
 
 //    NOTE: WebView is created at runtime
 //YoutubeLayout youtubeLayout;
     LinearLayout youtubeLayout;
-    
+
     ResizingVideoView video;
     private EditText et;
     TextView header;
@@ -96,13 +95,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     String channel;
 
     WebViewer wvr;
-    
+
     // remember the original attributes of the video view
-    
+
     private int ogwidth;
     private int ogheight;
 
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig){
 //        youtubeLayout.maximize();
@@ -112,7 +111,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
 //          et.setVisibility(View.INVISIBLE);
-            
+
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
 //          et.setVisibility(View.VISIBLE);
@@ -122,7 +121,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //        video.requestLayout();
 //        video.forceLayout();
 //        video.invalidate();
-        
+
 //        video.la
 //        youtubeLayout.requestLayout();
 //    	video.requestLayout();
@@ -155,19 +154,19 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         wvr.contentContainer = (RelativeLayout) findViewById(R.id.chat_container);
         wvr.loparams = new RelativeLayout.LayoutParams(
         		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        
-        //wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout); 
+
+        //wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout);
         wvr.backToLoadedURLButton = (Button)findViewById(R.id.back_button);
         wvr.pageLoadTime = pageLoadTime;
         wvr.Make(this);
         wvr.LoadURL("http://www.destiny.gg/embed/chat");
-        
+
         RelativeLayout everythingelse = (RelativeLayout)findViewById(R.id.everything_else);
         everythingelse.bringToFront();
-        
+
         channel = et.getText().toString();
         loadChannel(channel);
-        
+
 //      setup events
         OnFocusChangeListener toggle = new OnFocusChangeListener() {
             @Override
@@ -203,7 +202,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         });
 
         qualityPicker.setOnItemSelectedListener(this);
-        
+
         OnTouchListener vlistener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -213,7 +212,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             	// return true if we might care about it later
             	int action = MotionEventCompat.getActionMasked(event);
             	String DEBUG_TAG = "Video Touch Event";
-                
+
                 switch(action) {
                     case (MotionEvent.ACTION_DOWN) :
                         Log.d(DEBUG_TAG,"Action was DOWN");
@@ -231,8 +230,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                     case (MotionEvent.ACTION_OUTSIDE) :
                         Log.d(DEBUG_TAG,"Movement occurred outside bounds " +
                                 "of current screen element");
-                        return false;      
-                    default : 
+                        return false;
+                    default :
                         return true;
                 }
             }
@@ -261,12 +260,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //	fullscreen landscape
 //	topofscreen portrait
 //	bottomright_corner portrait
-	
-	
+
+
 	private void toggleFullscreen()	{
 		//toggle title bar
 		//header_container.setVisibility(View.GONE);
-	
+
 		// system fullscreen
 		WindowManager.LayoutParams attrs = getWindow().getAttributes();
 		boolean currentlyFullscreen = (attrs.flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
@@ -277,7 +276,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 			enableFullscreen(attrs);
             header_container.setVisibility(View.GONE);
             //youtubeLayout.setVisibility(View.VISIBLE);
-            
+
 		}
 	}
 
@@ -293,9 +292,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		//View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
     	//attrs.flags |= WindowManager.LayoutParams.FLAG_;
 		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        getWindow().setAttributes(attrs);		
+        getWindow().setAttributes(attrs);
 	}
-	
+
 
 		private void disableFullscreen(WindowManager.LayoutParams attrs){
 	        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -307,9 +306,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 			WindowManager.LayoutParams attrs = getWindow().getAttributes();
 			disableFullscreen(attrs);
 		}
-	
+
 	public boolean inMinimode = false;
-		
+
 	private void toggleMinimode(){
 		//video.setTop(0);
 //		video.invalidate();
@@ -339,7 +338,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     	view.layout(view.getLeft(), view.getTop(), width, height);
 //        view.requestLayout();
         //view.setDimensions(width, height);
-        
+
     }
     private void ResizeViewTo(View view, String sizeName){
     	// tiny is for Audio Only mode
@@ -347,7 +346,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     	if(sizeName.startsWith("tiny")){
     		ResizeViewTo(view, 10, 10);
     	}else if(sizeName.startsWith("small")){
-    		DisplayMetrics metrics = new DisplayMetrics(); 
+    		DisplayMetrics metrics = new DisplayMetrics();
     		getWindowManager().getDefaultDisplay().getMetrics(metrics);
     		int wd = (int) (320f*metrics.density);
     		int ht = (int) (180f*metrics.density);

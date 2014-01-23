@@ -1,4 +1,4 @@
-package gg.destiny.app;
+package gg.destiny.app.chat;
 
 import java.util.concurrent.*;
 

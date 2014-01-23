@@ -1,4 +1,4 @@
-package gg.destiny.app;
+package gg.destiny.app.chat;
 
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;

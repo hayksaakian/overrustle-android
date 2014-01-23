@@ -51,7 +51,7 @@
         android:orientation="vertical"
         android:visibility="visible">
 	
-	   	<gg.destiny.app.ResizingVideoView
+	   	<gg.destiny.app.chat.ResizingVideoView
 	        android:id="@+id/video"
 	        android:visibility="gone"
 	        android:gravity="center"
