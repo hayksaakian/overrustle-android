@@ -6,9 +6,9 @@
     </description>
 
     <access origin="http://127.0.0.1*" />
-    <access origin="10.0.3.2:*" />
     <access origin="*://*.destiny.gg/*" subdomains="true" />
-    <access origin="*" />
+    <!-- <access origin="10.0.3.2:*" />
+    <access origin="*" /> -->
 
     <content src="http://www.destiny.gg/embed/chat" />
 

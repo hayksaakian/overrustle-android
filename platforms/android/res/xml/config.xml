@@ -7,14 +7,15 @@
     <feature name="WebSocket">
         <param name="android-package" value="com.ququplay.websocket.WebSocket" />
     </feature>
+    <feature name="InAppBrowser">
+        <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser" />
+    </feature>
     <name>Destiny - Chat</name>
     <description>
         Chat app for Destiny.gg
     </description>
     <access origin="http://127.0.0.1*" />
-    <access origin="10.0.3.2:*" />
     <access origin="*://*.destiny.gg/*" subdomains="true" />
-    <access origin="*" />
     <content src="http://www.destiny.gg/embed/chat" />
     <feature name="http://api.phonegap.com/1.0/device" />
     <preference name="permissions" value="none" />
