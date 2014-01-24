@@ -1,34 +1,28 @@
 package gg.destiny.app;
 
 //import android.R;
-import android.annotation.SuppressLint;
+import android.annotation.*;
 import android.app.*;
 import android.content.*;
 import android.content.res.*;
 import android.graphics.*;
+import android.media.*;
 import android.os.*;
-import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.*;
 import android.text.*;
 import android.util.*;
 import android.view.*;
-import android.view.View.OnTouchListener;
-import android.view.Window.Callback;
-import android.view.accessibility.AccessibilityEvent;
+import android.view.View.*;
 import android.view.inputmethod.*;
-
+import android.webkit.*;
 import android.widget.*;
-import android.widget.RelativeLayout.LayoutParams;
-//import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView.*;
-
-//import com.mogoweb.chrome.*;
-//import com.webviewbrowser.*;
-//import gg.destiny.app.R;
-import android.webkit.WebView;
-
 import java.util.*;
 
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
+
+import gg.destiny.app.ResizingVideoView;
 
 public class MainActivity extends Activity implements OnItemSelectedListener
 {
@@ -90,7 +84,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 
 //    NOTE: WebView is created at runtime
 //YoutubeLayout youtubeLayout;
-    LinearLayout youtubeLayout;
+   // LinearLayout youtubeLayout;
+	RelativeLayout youtubeLayout;
     
     ResizingVideoView video;
     private EditText et;
@@ -125,8 +120,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         setContentView(R.layout.main);
 //                wv = (WebView) findViewById(R.id.wv);
 //        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
-        youtubeLayout = (LinearLayout) findViewById(R.id.youtubeLayout);
+        youtubeLayout = (RelativeLayout) findViewById(R.id.youtubeLayout);
         video = (ResizingVideoView)findViewById(R.id.video);
+		video.progressBar = (ProgressBar)findViewById(R.id.video_loading);
         ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
         ogheight = ogparams.height;
         ogwidth = ogparams.width;
@@ -235,6 +231,19 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             }
         };
         video.setOnTouchListener(vlistener);
+		
+		video.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
+
+				@Override
+				public void onPrepared(MediaPlayer p1)
+				{
+					// TODO: Implement this method
+					//p1.
+					video.progressBar.setVisibility(View.GONE);
+					Log.d("video", "hiding progress");
+				}
+			});
+		
         
 //        setWindowCallbacks();
         

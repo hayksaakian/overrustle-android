@@ -142,7 +142,7 @@ public class Business
 	{
 		public Spinner qualityPicker;
 		public int spinner_item;
-		public VideoView video;
+		public ResizingVideoView video;
 		public Context context;
 
 		String channel;
@@ -309,9 +309,11 @@ public class Business
 		return channelStatus;
 	}
 
-	public static void PlayURL(VideoView video, String url)
+	public static void PlayURL(ResizingVideoView video, String url)
 	{
 		video.setVisibility(View.VISIBLE);
+		video.showProgress();
+		//video.progressBar.setVisibility(View.VISIBLE);
 		video.setVideoURI(Uri.parse(url));
 
 		//video.setMediaController(new MediaController(context));
