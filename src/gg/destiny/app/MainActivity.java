@@ -27,13 +27,15 @@ import gg.destiny.app.ResizingVideoView;
 public class MainActivity extends Activity implements OnItemSelectedListener
 {
 	
+	final static String DEFAULT_CHANNEL = "destiny";
+	
 	@Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         // An item was selected. You can retrieve the selected item using
         // parent.getItemAtPosition(pos)
         String qualityName = ((Spinner) parent).getSelectedItem().toString();
         qualityOptions = Business.GetCachedHash(channel + "|cache", this);
-        Log.d("quality setting", qualityName);
+        Log.d("quality setting", qualityName+" of "+String.valueOf(qualityOptions.size()));
         if(qualityName.startsWith("Chat")){
             video.stopPlayback();
             video.setVisibility(View.GONE);
@@ -46,12 +48,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener
                 	qualityName = lastQuality;
                 }else{
                 	// or Low if there was no previous quality
-                	qualityName = "Low";  
+                	qualityName = "low";  
                 }
             }
             if(qualityOptions.containsKey(qualityName)){
             	// only reload if this is a different quality
             	if(!lastQuality.startsWith(qualityName)){
+					Log.d("VideoView", "loading quality="+qualityName);
                     String url = (String)qualityOptions.get(qualityName);
                     Business.PlayURL(video, url);
             	}else{
@@ -79,7 +82,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 
     View rootView;
     
-    private RelativeLayout header_container;
+	// replaced with actionbar
+    //private RelativeLayout header_container;
     private RelativeLayout navigation;
 
 //    NOTE: WebView is created at runtime
@@ -88,12 +92,15 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	RelativeLayout youtubeLayout;
     
     ResizingVideoView video;
-    private EditText et;
+	
+	MenuItem actionSearchItem;
+	
+    //private EditText et; // replaced with searchview in actionbar
     Button loadFeaturedStreamButton;
-    TextView header;
+    //TextView header; // replaced with action bar title
     private TextView pageLoadTime;
 
-    private Spinner qualityPicker;
+    private Spinner mQualityPicker;
     public HashMap qualityOptions;
     String lastQuality = "";
     String channel;
@@ -126,14 +133,14 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
         ogheight = ogparams.height;
         ogwidth = ogparams.width;
-        header_container = (RelativeLayout)findViewById(R.id.header_container);
-        header = (TextView)findViewById(R.id.header);
+        //header_container = (RelativeLayout)findViewById(R.id.header_container);
+        //header = (TextView)findViewById(R.id.header);
         navigation = (RelativeLayout)findViewById(R.id.navigation);
         loadFeaturedStreamButton = (Button)findViewById(R.id.load_gameongg_stream);
         //newActivityBtn = (ImageButton) findViewById(R.id.new_activity);
-        qualityPicker = (Spinner)findViewById(R.id.quality_picker);
+        //qualityPicker = (Spinner)findViewById(R.id.quality_picker);
         pageLoadTime = (TextView) findViewById(R.id.page_load_time);
-        et = (EditText) findViewById(R.id.et);
+        //et = (EditText) findViewById(R.id.et);
 
         // setup wvr
         wvr = new WebViewer();
@@ -158,44 +165,46 @@ public class MainActivity extends Activity implements OnItemSelectedListener
             @Override
             public void onFocusChange(View v, boolean hasFocus)
             {
+				// TODO implement for action
                 if (hasFocus)
                 {
-                    header.setMaxLines(Integer.MAX_VALUE);
-                    header.setEllipsize(null);
+                    //header.setMaxLines(Integer.MAX_VALUE);
+                    //header.setEllipsize(null);
                     Toast.makeText(getApplicationContext(), "got the focus", Toast.LENGTH_LONG).show();
                 }
                 else
                 {
-                    header.setMaxLines(1);
-                    header.setEllipsize(TextUtils.TruncateAt.END);
+                    //header.setMaxLines(1);
+                    //header.setEllipsize(TextUtils.TruncateAt.END);
                     Toast.makeText(getApplicationContext(), "lost the focus", Toast.LENGTH_LONG).show();
                 }
             }
         };
 
-        header.setOnFocusChangeListener(toggle);
-        et.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                	channel = et.getText().toString();
-                    loadChannel(channel);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
+        //header.setOnFocusChangeListener(toggle);
+		// search on submit
+//        et.setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View v, int keyCode, KeyEvent event) {
+//                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+//                	channel = et.getText().toString();
+//                    loadChannel(channel);
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
+//        });
         loadFeaturedStreamButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				et.setText("gameongg");
+				//et.setText("gameongg");
 				loadChannel("gameongg");
 			}
 		});
 
-        qualityPicker.setOnItemSelectedListener(this);
+        //qualityPicker.setOnItemSelectedListener(this);
         
         OnTouchListener vlistener = new View.OnTouchListener() {
             @Override
@@ -271,14 +280,34 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         
         configProportions();
 
-        channel = et.getText().toString();
-        loadChannel(channel);
+        //channel = et.getText().toString();
+        //loadChannel(DEFAULT_CHANNEL);
         
         // destiny + check on gameon.gg
-        checkStatus("destiny", Business.MLG_STREAMS_STATUS_URL);
+        //checkStatus(DEFAULT_CHANNEL, Business.MLG_STREAMS_STATUS_URL);
         //checkStatus();       
-        
-	}
+        //setTitle("t");
+		handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+		// ...
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+			loadChannel(query);
+			actionSearchItem.collapseActionView();
+			//planetSearchView.co
+            //use the query to search your data somehow
+        }
+    }
+	
+	
 
 	@Override
 	protected void onResume()
@@ -292,7 +321,44 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		super.onResume();
 	} // TODO </ on create >
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.actionbar, menu);
+		
+
+		// Associate searchable configuration with the SearchView
+		SearchManager searchManager =
+			(SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		actionSearchItem = menu.findItem(R.id.action_search);
+		SearchView mSearchView =
+            (SearchView) actionSearchItem.getActionView();
+		mSearchView.setSearchableInfo(
+            searchManager.getSearchableInfo(getComponentName()));
+
+		// set up quality picker
+		mQualityPicker = (Spinner) menu.findItem(R.id.action_quality_picker).getActionView(); // find the spinner
+		//ArrayAdapter<String> mSpinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, mPlanetTitles);
+		//  create the adapter from a StringArray
+		//s.setAdapter(mSpinnerAdapter); // set the adapter
+		mQualityPicker.setOnItemSelectedListener(this); // (optional) 
+		
+		
+		// TODO find a better place for this call
+		loadChannel(DEFAULT_CHANNEL);
+		
+		return super.onCreateOptionsMenu(menu);
+	}
 	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
 	
 	private void configProportions(){
 		Display display = getWindowManager().getDefaultDisplay();
@@ -312,18 +378,22 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	private void checkStatus(String... channel_name_or_mlg_urls){
         Business.LiveChecker chkgameon = new Business().new LiveChecker();
         chkgameon.goToStreamButton = loadFeaturedStreamButton;
-        chkgameon.channelSearch = et;
+		chkgameon.mActivity = this;
+        //chkgameon.channelSearch = et;
         chkgameon.execute(channel_name_or_mlg_urls);		
 	}
 
 	private void loadChannel(String channel) {
+		this.channel = channel;
         Business.DownloadTask dt = new Business.DownloadTask();
-        dt.qualityPicker = qualityPicker;
+        dt.qualityPicker = mQualityPicker;
         dt.spinner_item = R.layout.simple_spinner_item;
         dt.qualities = qualityOptions;
         dt.video = video;
-        dt.header = header;
-        dt.channelSearch = et;
+		// TODO find a cleaner way to set title from asynctask
+		dt.mActivity = this;
+        //dt.header = header;
+        //dt.channelSearch = et;
         dt.context = this;// getApplicationContext();
         dt.execute(channel);
         
@@ -335,8 +405,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         	}
         }
 
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+		// TODO figure out what this code was for
+		// delete if pointless
+        //InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        //imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
     }
 
     //helper methods
@@ -428,7 +500,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	private boolean shownUI = true;
 	void showUI(){
         //show UI widgets
-        header_container.setVisibility(View.VISIBLE);
+        //header_container.setVisibility(View.VISIBLE);
         navigation.setVisibility(View.VISIBLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
         shownUI = true;
@@ -436,7 +508,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	void hideUI(){
 		Log.d("Called", "hide ui");
         //hide UI widgets
-        header_container.setVisibility(View.GONE);
+        //header_container.setVisibility(View.GONE);
         navigation.setVisibility(View.INVISIBLE);
         // hide open keyboards
 //        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);

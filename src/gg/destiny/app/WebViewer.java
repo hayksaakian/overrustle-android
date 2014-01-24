@@ -182,6 +182,8 @@ public class WebViewer {
 //        	backToLoadedURLButton.setVisibility(View.GONE);
 //        }
 	}
+	
+	// TODO deprecate
 	public void setAlignParentTop(boolean b) {
 		// TODO Auto-generated method stub
 //		contentContainer.`
@@ -189,12 +191,12 @@ public class WebViewer {
 		cloParams = (RelativeLayout.LayoutParams)contentContainer.getLayoutParams();
 		if(b){
 			cloParams.removeRule(RelativeLayout.BELOW);
-			cloParams.addRule(RelativeLayout.BELOW, R.id.header_container);
+			//cloParams.addRule(RelativeLayout.BELOW, R.id.header_container);
 //			cloParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 		}else{
 //			cloParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
 			cloParams.removeRule(RelativeLayout.BELOW);
-			cloParams.addRule(RelativeLayout.BELOW, R.id.everything_else);
+			//cloParams.addRule(RelativeLayout.BELOW, R.id.everything_else);
 		}
 		contentContainer.setLayoutParams(cloParams);
 		contentContainer.requestLayout();

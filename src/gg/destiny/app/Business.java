@@ -1,5 +1,6 @@
 package gg.destiny.app;
 
+import android.app.*;
 import android.content.*;
 import android.net.*;
 import android.os.*;
@@ -9,7 +10,6 @@ import android.widget.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
@@ -57,11 +57,12 @@ public class Business
 
 	public class LiveChecker extends AsyncTask<String, Void, String>
 	{
-		TextView header;
+		Activity mActivity;
+		//TextView header;
 		Button goToStreamButton;
 		boolean isLive = false;
 		String channelname = "";
-		EditText channelSearch;
+		//EditText channelSearch;
 		
 		@Override
 		protected String doInBackground(String... urls) {
@@ -78,18 +79,17 @@ public class Business
 	
 		@Override
 		protected void onPostExecute(String liveStatus){
-			// set status
-			if(!isLive && channelSearch != null){
-				channelSearch.setVisibility(View.VISIBLE);
-			}
-			if (header != null){
-				header.setText(liveStatus);
-			}
+			
+			//context.setTitle
+			if(liveStatus != null)
+				mActivity.setTitle(liveStatus);
+				
 			if(goToStreamButton != null){
+				
 				if(isLive){
 					goToStreamButton.setVisibility(View.VISIBLE);
-				}else{
 					goToStreamButton.setText(channelname+" is live. Watch Now");
+				}else{
 					goToStreamButton.setVisibility(View.GONE);
 				}
 			}
@@ -113,8 +113,11 @@ public class Business
 						JSONObject item = jsna.getJSONObject(i);
 						if(item.getString("stream_name").equals(GAMEONGG_STREAM_NAME)){
 							isLive = item.getInt("status") == 2;
-							if(isLive)
+							if(isLive){
 								status = GAMEONGG_GENERIC_STATUS;
+							}else{
+								status = "GameOn.gg might be offline. Tell hephaestus if this is wrong.";
+							}
 							break;
 						}
 					}
@@ -129,6 +132,7 @@ public class Business
 						status = channelname + " is offline. Type another channel\'s name below to watch something else.";
 					}
 				}
+				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();	
@@ -140,6 +144,7 @@ public class Business
 
 	public static class DownloadTask extends AsyncTask<String, Void, HashMap>
 	{
+		Activity mActivity;
 		public Spinner qualityPicker;
 		public int spinner_item;
 		public ResizingVideoView video;
@@ -149,7 +154,7 @@ public class Business
 		JSONObject channelStatus;
 
 		public TextView header;
-		public EditText channelSearch;
+		//public EditText channelSearch;
 
 		public HashMap qualities;
 		
@@ -218,7 +223,7 @@ public class Business
 			// get the stream status
 			Business nb = new Business();
 			LiveChecker lc = nb.new LiveChecker();
-			lc.header = header;
+			lc.mActivity = mActivity;
 			lc.execute(channel);
 		}
 		//Note, url should be good and proper before hand
@@ -391,6 +396,7 @@ public class Business
 
 	static public boolean SetCachedHash(String key, HashMap value, Context cn)
 	{
+		Log.d("business", "caching qualities="+String.valueOf(value.size()));
 		SharedPreferences prefs = cn.getSharedPreferences("prefs", 0);
 		SharedPreferences.Editor edit = prefs.edit();
 		JSONObject jsn = new JSONObject(value);
