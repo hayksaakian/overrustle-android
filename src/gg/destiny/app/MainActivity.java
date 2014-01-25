@@ -347,6 +347,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		
 		// TODO find a better place for this call
 		loadChannel(DEFAULT_CHANNEL);
+		// and this one
+		checkStatus("gameongg");
 		
 		return super.onCreateOptionsMenu(menu);
 	}

@@ -66,7 +66,7 @@ public class Business
 		
 		@Override
 		protected String doInBackground(String... urls) {
-			String mStatus = "";
+			String mStatus = null;
 			for (String url_or_channel : urls) {
 				mStatus = checkStream(url_or_channel);
 				if(isLive){
@@ -112,10 +112,16 @@ public class Business
 					for (int i = 0; i < l; i++) {
 						JSONObject item = jsna.getJSONObject(i);
 						if(item.getString("stream_name").equals(GAMEONGG_STREAM_NAME)){
-							isLive = item.getInt("status") == 2;
+							
+							int iStatus = item.getInt("status");
+							isLive = iStatus == 1;
 							if(isLive){
 								status = GAMEONGG_GENERIC_STATUS;
-							}else{
+							}else if(iStatus == 2){
+								// from replay
+								status = GAMEONGG_GENERIC_STATUS + " [rebroadcast]";
+							}else
+							{
 								status = "GameOn.gg might be offline. Tell hephaestus if this is wrong.";
 							}
 							break;
