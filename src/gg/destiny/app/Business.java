@@ -4,12 +4,14 @@ import android.app.*;
 import android.content.*;
 import android.net.*;
 import android.os.*;
+import android.provider.UserDictionary;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
@@ -22,6 +24,11 @@ public class Business
 	final static String MLG_STREAMS_STATUS_URL = "http://streamapi.majorleaguegaming.com/service/streams/all";
 	final static String GAMEONGG_STREAM_NAME = "mlg17";
 	final static String GAMEONGG_GENERIC_STATUS = "MLG GameOn.gg SC2 Invitational";
+	
+	final static String DESTINY_EMOTICON_CSS_ENDPOINT = "http://cdn.destiny.gg/1.25.3/chat/css/emoticons.css";
+	final static String DESTINY_EMOTES_ENDPOINT = "";
+	
+	final static String[] EMOTICON_LIST = {"Abathur", "AngelThump", "ASLAN", "BasedGod", "BibleThump", "CallCatz", "CallChad", "DaFeels", "DappaKappa", "DatGeoff", "DESBRO", "Disgustiny", "DJAslan", "Dravewin", "DuckerZ", "DURRSTINY", "FeedNathan", "FIDGETLOL", "FrankerZ", "GameOfThrows", "Heimerdonger", "Hhhehhehe", "INFESTINY", "Kappa", "Klappa", "LUL", "MotherFuckinGame", "NoTears", "OhKrappa", "OverRustle", "SoDoge", "SoSad", "SURPRISE", "TooSpicy", "UWOTM8", "WhoahDude", "WORTH"};
 	
 	Business(){
 	}
@@ -55,6 +62,43 @@ public class Business
 	 **/
 
 
+	public class EmoteDownloader extends AsyncTask<String, Void, String[]>{
+		Context mContext;
+		
+		@Override
+		protected String[] doInBackground(String... urls) {
+			// get emotes from proper endpoint
+			String[] emotes = {};
+			if(!DESTINY_EMOTES_ENDPOINT.equals("")){
+				String rawJsonEmotes = HttpGet(DESTINY_EMOTES_ENDPOINT);
+				JSONArray jsonEmotes = null;
+				try {
+					jsonEmotes = new JSONArray(rawJsonEmotes);
+					if(jsonEmotes != null && jsonEmotes.length() > 0){
+						emotes = new String[jsonEmotes.length()];
+						for (int i = 0; i < emotes.length; i++) {
+							String emote = jsonEmotes.getString(i);
+							emotes[i] = emote;
+						}
+					}
+				} catch (JSONException e) { e.printStackTrace(); }
+			}else{
+				return EMOTICON_LIST;
+			}
+			return emotes;
+		}
+	
+		@Override
+		protected void onPostExecute(String[] foundEmotes){
+			if(foundEmotes != null && foundEmotes.length > 0){
+				AddEmotesToUserDict(mContext, foundEmotes);
+				Log.d("EmoteDownload", "Done adding emotes total#:"+String.valueOf(foundEmotes.length));
+			}else{
+				Log.e("EmoteDownload", "Problem finding or GETting emotes list.");
+			}			
+		}
+	}
+	
 	public class LiveChecker extends AsyncTask<String, Void, String>
 	{
 		Activity mActivity;
@@ -410,8 +454,20 @@ public class Business
 		edit.putString(key, String.valueOf(jsn));
 		return edit.commit();
 	}
-	static public HashMap GetCachedHash(String key, Context cn)
-	{
+	
+	static public boolean SetCachedArray(String key, String[] array, Context cn){
+		Log.d("business", "caching array key="+key+" of length "+String.valueOf(array.length));
+		SharedPreferences prefs = cn.getSharedPreferences("prefs", 0);
+		SharedPreferences.Editor edit = prefs.edit();
+		 
+		Set<String> set = new HashSet<String>(Arrays.asList(array));
+		//edit.putString(key, String.valueOf(jsn));
+		edit.putStringSet(key, set);
+		return edit.commit();
+		
+	}
+	
+	static public HashMap GetCachedHash(String key, Context cn){
 		HashMap hm = new HashMap<String, String>();
 
 		SharedPreferences settings;
@@ -446,8 +502,40 @@ public class Business
 		return hm;
 	}
 	
+	static public String[] GetCachedArray(String key, Context cn){
+		String[] retval = {};
+
+		SharedPreferences settings;
+		settings = cn.getSharedPreferences("prefs", 0);
+        //get the sharepref
+		Set<String> rawarr = settings.getStringSet(key, null);
+		
+		rawarr.toArray(retval);
+		
+		return retval;
+	}
+	
 	public static boolean isKitkat(){
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 
+	// UserDictionary.Words.addWord(Context context, String word, int frequency, String shortcut, Locale locale)
+	// UserDictionary.Words.addWord( this , "newMedicalWord", 1, UserDictionary.Words.LOCALE_TYPE_CURRENT);
+	// TODO support api level 15 (4.0)
+	public void AddEmotesToUserDict(Context context, String[] emotes){
+		Locale locale = context.getResources().getConfiguration().locale;
+		
+		// check current dict to avoid redundant adds
+		List<String> currentWords = new ArrayList<String>();
+		
+		int frequency = 0;
+		String shortcut = null;
+		for (int i = 0; i < emotes.length; i++) {
+			String word = emotes[i];
+			if(currentWords.indexOf(word) != -1){
+			}else{
+				UserDictionary.Words.addWord(context, word, frequency, shortcut, locale);
+			}
+		}		
+	}
 }
