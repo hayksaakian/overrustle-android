@@ -18,8 +18,7 @@ import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import org.json.*;
 
-public class Business
-{
+public class Business{
 	final static String GAMEONGG_QUALITIES_URL = "http://mlghds-lh.akamaihd.net/i/mlg17_1@167001/master.m3u8";
 	final static String MLG_STREAMS_STATUS_URL = "http://streamapi.majorleaguegaming.com/service/streams/all";
 	final static String GAMEONGG_STREAM_NAME = "mlg17";
