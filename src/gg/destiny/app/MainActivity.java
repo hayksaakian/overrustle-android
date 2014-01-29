@@ -356,7 +356,18 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
+		Business.EmoteDownloader ed = new Business.EmoteDownloader();
+		ed.mContext = this;
 		switch (item.getItemId()) {
+			case R.id.action_settings:
+				ed.execute();
+				return true;
+			//case R.id.action_settings_delete:
+			//	ed.execute("delete");
+			//	return true;
+			case R.id.action_settings_delete_by_id:
+				ed.execute("deletebyappid");
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

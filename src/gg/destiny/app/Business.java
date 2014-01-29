@@ -2,16 +2,16 @@ package gg.destiny.app;
 
 import android.app.*;
 import android.content.*;
+import android.database.*;
 import android.net.*;
 import android.os.*;
-import android.provider.UserDictionary;
+import android.provider.*;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
@@ -62,13 +62,21 @@ public class Business
 	 **/
 
 
-	public class EmoteDownloader extends AsyncTask<String, Void, String[]>{
+	public static class EmoteDownloader extends AsyncTask<String, Void, String[]>{
 		Context mContext;
+		String note = null;
 		
 		@Override
-		protected String[] doInBackground(String... urls) {
-			// get emotes from proper endpoint
-			String[] emotes = {};
+		protected String[] doInBackground(String... notes) {
+			String[] emotes = EMOTICON_LIST;
+			//if(false){
+			if(notes.length > 0){
+				note = notes[0];
+				
+				return emotes;
+			}
+			// TODO get emotes from proper endpoint
+			//String[] emotes = {};
 			if(!DESTINY_EMOTES_ENDPOINT.equals("")){
 				String rawJsonEmotes = HttpGet(DESTINY_EMOTES_ENDPOINT);
 				JSONArray jsonEmotes = null;
@@ -91,8 +99,20 @@ public class Business
 		@Override
 		protected void onPostExecute(String[] foundEmotes){
 			if(foundEmotes != null && foundEmotes.length > 0){
-				AddEmotesToUserDict(mContext, foundEmotes);
-				Log.d("EmoteDownload", "Done adding emotes total#:"+String.valueOf(foundEmotes.length));
+				if(note !=null){
+					if(note.equals("delete")){
+						DeleteAllDict(mContext);
+					}else if(note.equals("deletebyappid")){
+						DeleteAppDict(mContext);
+					}
+				}else{
+						AddEmotesToUserDict(mContext, foundEmotes);
+						String s = "Done adding emotes total#:"+String.valueOf(foundEmotes.length);
+						Toast.makeText(mContext, s, Toast.LENGTH_LONG).show();
+						Log.d("EmoteDownload", s);
+				}
+				
+				
 			}else{
 				Log.e("EmoteDownload", "Problem finding or GETting emotes list.");
 			}			
@@ -519,23 +539,184 @@ public class Business
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 
+	
+	// HACK using the shortcut fiekd
+	// to identify words added by this app
 	// UserDictionary.Words.addWord(Context context, String word, int frequency, String shortcut, Locale locale)
 	// UserDictionary.Words.addWord( this , "newMedicalWord", 1, UserDictionary.Words.LOCALE_TYPE_CURRENT);
 	// TODO support api level 15 (4.0)
-	public void AddEmotesToUserDict(Context context, String[] emotes){
+	// TODO dont add words already there, this spams up the user dictionary
+	
+	public static void oldAddEmotesToUserDict(Context context, String[] emotes){
 		Locale locale = context.getResources().getConfiguration().locale;
-		
-		// check current dict to avoid redundant adds
-		List<String> currentWords = new ArrayList<String>();
-		
-		int frequency = 0;
-		String shortcut = null;
 		for (int i = 0; i < emotes.length; i++) {
 			String word = emotes[i];
-			if(currentWords.indexOf(word) != -1){
-			}else{
-				UserDictionary.Words.addWord(context, word, frequency, shortcut, locale);
+			//if(currentWords.indexOf(word) != -1){
+			//}else{
+			UserDictionary.Words.addWord(context, word, 255, null, locale);
+			//}
+		}
+		
+	}
+	
+	public static void AddEmotesToUserDict(Context context, String[] emotes){
+		Locale locale = context.getResources().getConfiguration().locale;
+		String APP_ID = context.getPackageName();
+		int iAPP_ID = android.os.Process.myUid();
+		APP_ID = String.valueOf(iAPP_ID);
+		//APP_ID = FIXED_APP_ID;
+		Log.d("app id", APP_ID);
+		ContentResolver userDictResolver = context.getContentResolver();
+		
+//		1) read emotes we already have
+		// A "projection" defines the columns that will be returned for each row
+		String[] mProjection =
+		{
+			UserDictionary.Words.APP_ID,
+			UserDictionary.Words._ID,    // Contract class constant for the _ID column name
+			UserDictionary.Words.WORD,   // Contract class constant for the word column name
+			UserDictionary.Words.LOCALE  // Contract class constant for the locale column name
+		};
+
+// Defines a string to contain the selection clause
+//		String mSelectionClause = null;
+
+// Initializes an array to contain selection arguments
+		String mmSelectionClause = UserDictionary.Words.SHORTCUT + " LIKE ?";
+		String[] mmSelectionArgs = {APP_ID};
+		
+		// Does a query against the table and returns a Cursor object
+		Cursor mCursor = null;
+		String mSortOrder = UserDictionary.Words.DEFAULT_SORT_ORDER;
+		mCursor = userDictResolver.query(
+			UserDictionary.Words.CONTENT_URI,  // The content URI of the words table
+			mProjection,                       // The columns to return for each row
+			mmSelectionClause,                   // Either null, or the word the user entered
+			mmSelectionArgs,                    // Either empty, or the string the user entered
+			mSortOrder);                       // The sort order for the returned rows
+		
+		int appidindex = mCursor.getColumnIndex(UserDictionary.Words.APP_ID);
+		int wordindex = mCursor.getColumnIndex(UserDictionary.Words.WORD);
+		int ilocale = mCursor.getColumnIndex(UserDictionary.Words.LOCALE);
+		
+		if (mCursor != null) {
+			/*
+			 * Moves to the next row in the cursor. Before the first movement in the cursor, the
+			 * "row pointer" is -1, and if you try to retrieve data at that position you will get an
+			 * exception.
+			 */
+			while (mCursor.moveToNext()) {
+
+				// Gets the value from the column.
+				String appid = mCursor.getString(appidindex);
+				String word = mCursor.getString(wordindex);
+				String slocale = mCursor.getString(ilocale);
+				Log.d("dictionary word", "app_id="+appid+" &word="+word + " &locale="+slocale);
+
+				// Insert code here to process the retrieved wo
+
+				// end of while loop
 			}
+		} else {
+
+			// Insert code here to report an error if the cursor is null or the provider threw an exception.
+		}
+		
+		
+
+//		2) Delete all old emotes
+		DeleteAppDict(context);
+		
+		
+		// Defines a new Uri object that receives the result of the insertion
+		Uri mNewUri = null;
+		
+		
+		
+		int frequency = 255;
+		String shortcut = null;
+		
+		for (int i = 0; i < emotes.length; i++) {
+			String word = emotes[i];
+			//if(currentWords.indexOf(word) != -1){
+			//}else{
+			//	UserDictionary.Words.addWord(context, word, frequency, shortcut, locale);
+			//}
+
+			// Defines an object to contain the new values to insert
+			ContentValues mNewValues = new ContentValues();
+
+			/*
+			 * Sets the values of each column and inserts the word. The arguments to the "put"
+			 * method are "column name" and "value"
+			 */
+			mNewValues.put(UserDictionary.Words.APP_ID, iAPP_ID);
+			mNewValues.put(UserDictionary.Words.LOCALE, locale.toString());
+			mNewValues.put(UserDictionary.Words.WORD, word);
+			mNewValues.put(UserDictionary.Words.SHORTCUT, APP_ID);
+			mNewValues.put(UserDictionary.Words.FREQUENCY, frequency);
+			//mNewValues.put(UserDictionary.Words.FREQUENCY, String.valueOf(frequency));
+
+			mNewUri = userDictResolver.insert(
+				UserDictionary.Words.CONTENT_URI,   // the user dictionary content URI
+				mNewValues                          // the values to insert
+			);
 		}		
+	}
+	
+	public static void DeleteAppDict(Context context){
+		int iAPP_ID = android.os.Process.myUid();
+		String appid = String.valueOf(iAPP_ID);
+		//appid = FIXED_APP_ID;
+		//DeleteAllDict(context, appid);
+		//DeleteAllDict(context, FIXED_APP_ID);
+		
+		ContentResolver userDictResolver = context.getContentResolver();
+		//		2) Delete all old emotes
+//		// Defines selection criteria for the rows you want to delete
+
+		String mSelectionClause = UserDictionary.Words.SHORTCUT + " LIKE ?";
+		String[] genericAppId = {appid}; // this will delete everything
+
+		// Defines a variable to contain the number of rows deleted
+		int mRowsDeleted = 0;
+
+		// Deletes the words that match the selection criteria
+		mRowsDeleted = userDictResolver.delete(
+			UserDictionary.Words.CONTENT_URI,   // the user dictionary content URI
+			mSelectionClause,                   // the column to select on
+			genericAppId                      // the value to compare to
+		);
+		String s = "Deleted old emotes. Total="+String.valueOf(mRowsDeleted);
+		Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+		Log.d("Deleted emotes", s);
+		
+		
+	}
+	
+	public static void DeleteAllDict(Context context){
+		DeleteAllDict(context, "0");
+	}
+	public static void DeleteAllDict(Context context, String appid){
+		ContentResolver userDictResolver = context.getContentResolver();
+		//		2) Delete all old emotes
+//		// Defines selection criteria for the rows you want to delete
+		
+		String mSelectionClause = UserDictionary.Words.APP_ID + " LIKE ?";
+		String[] genericAppId = {appid}; // this will delete everything
+
+		// Defines a variable to contain the number of rows deleted
+		int mRowsDeleted = 0;
+
+		// Deletes the words that match the selection criteria
+		mRowsDeleted = userDictResolver.delete(
+			UserDictionary.Words.CONTENT_URI,   // the user dictionary content URI
+			mSelectionClause,                   // the column to select on
+			genericAppId                      // the value to compare to
+		);
+		String s = "Deleted old emotes. Total="+String.valueOf(mRowsDeleted);
+		Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+		Log.d("Deleted emotes", s);
+		
 	}
 }

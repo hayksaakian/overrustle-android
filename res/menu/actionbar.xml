@@ -15,4 +15,14 @@
 		android:textColor="@drawable/color_text"
 		style="@android:style/TextAppearance.Medium" 
 		android:actionViewClass="android.widget.Spinner"/>
+	
+	<item android:id="@+id/action_settings"
+		android:title="@string/action_settings"
+		android:showAsAction="never" />
+	<!--<item android:id="@+id/action_settings_delete"
+		android:title="delete all"
+		android:showAsAction="never" />-->
+	<item android:id="@+id/action_settings_delete_by_id"
+		android:title="Delete emotes from autocomplete"
+		android:showAsAction="never" />
 </menu>
