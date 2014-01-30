@@ -26,7 +26,7 @@ public class Business{
 	
 	final static String DESTINY_EMOTICON_CSS_ENDPOINT = "http://cdn.destiny.gg/1.25.3/chat/css/emoticons.css";
 	final static String DESTINY_EMOTES_ENDPOINT = "";
-	
+	final static String CONTENTPROVIDER_APP_ID = "^gg.destiny.app";
 	final static String[] EMOTICON_LIST = {"Abathur", "AngelThump", "ASLAN", "BasedGod", "BibleThump", "CallCatz", "CallChad", "DaFeels", "DappaKappa", "DatGeoff", "DESBRO", "Disgustiny", "DJAslan", "Dravewin", "DuckerZ", "DURRSTINY", "FeedNathan", "FIDGETLOL", "FrankerZ", "GameOfThrows", "Heimerdonger", "Hhhehhehe", "INFESTINY", "Kappa", "Klappa", "LUL", "MotherFuckinGame", "NoTears", "OhKrappa", "OverRustle", "SoDoge", "SoSad", "SURPRISE", "TooSpicy", "UWOTM8", "WhoahDude", "WORTH"};
 	
 	Business(){
@@ -105,10 +105,10 @@ public class Business{
 						DeleteAppDict(mContext);
 					}
 				}else{
-						AddEmotesToUserDict(mContext, foundEmotes);
-						String s = "Done adding emotes total#:"+String.valueOf(foundEmotes.length);
-						Toast.makeText(mContext, s, Toast.LENGTH_LONG).show();
-						Log.d("EmoteDownload", s);
+					AddEmotesToUserDict(mContext, foundEmotes);
+					String s = "Done adding emotes total#:"+String.valueOf(foundEmotes.length);
+					Toast.makeText(mContext, s, Toast.LENGTH_LONG).show();
+					Log.d("EmoteDownload", s);
 				}
 				
 				
@@ -539,7 +539,7 @@ public class Business{
 	}
 
 	
-	// HACK using the shortcut fiekd
+	// NOTE HACK using the shortcut field
 	// to identify words added by this app
 	// UserDictionary.Words.addWord(Context context, String word, int frequency, String shortcut, Locale locale)
 	// UserDictionary.Words.addWord( this , "newMedicalWord", 1, UserDictionary.Words.LOCALE_TYPE_CURRENT);
@@ -560,77 +560,19 @@ public class Business{
 	
 	public static void AddEmotesToUserDict(Context context, String[] emotes){
 		Locale locale = context.getResources().getConfiguration().locale;
-		String APP_ID = context.getPackageName();
+		String APP_ID = CONTENTPROVIDER_APP_ID;
 		int iAPP_ID = android.os.Process.myUid();
-		APP_ID = String.valueOf(iAPP_ID);
+		//APP_ID = String.valueOf(iAPP_ID);
 		//APP_ID = FIXED_APP_ID;
 		Log.d("app id", APP_ID);
 		ContentResolver userDictResolver = context.getContentResolver();
 		
-//		1) read emotes we already have
-		// A "projection" defines the columns that will be returned for each row
-		String[] mProjection =
-		{
-			UserDictionary.Words.APP_ID,
-			UserDictionary.Words._ID,    // Contract class constant for the _ID column name
-			UserDictionary.Words.WORD,   // Contract class constant for the word column name
-			UserDictionary.Words.LOCALE  // Contract class constant for the locale column name
-		};
-
-// Defines a string to contain the selection clause
-//		String mSelectionClause = null;
-
-// Initializes an array to contain selection arguments
-		String mmSelectionClause = UserDictionary.Words.SHORTCUT + " LIKE ?";
-		String[] mmSelectionArgs = {APP_ID};
-		
-		// Does a query against the table and returns a Cursor object
-		Cursor mCursor = null;
-		String mSortOrder = UserDictionary.Words.DEFAULT_SORT_ORDER;
-		mCursor = userDictResolver.query(
-			UserDictionary.Words.CONTENT_URI,  // The content URI of the words table
-			mProjection,                       // The columns to return for each row
-			mmSelectionClause,                   // Either null, or the word the user entered
-			mmSelectionArgs,                    // Either empty, or the string the user entered
-			mSortOrder);                       // The sort order for the returned rows
-		
-		int appidindex = mCursor.getColumnIndex(UserDictionary.Words.APP_ID);
-		int wordindex = mCursor.getColumnIndex(UserDictionary.Words.WORD);
-		int ilocale = mCursor.getColumnIndex(UserDictionary.Words.LOCALE);
-		
-		if (mCursor != null) {
-			/*
-			 * Moves to the next row in the cursor. Before the first movement in the cursor, the
-			 * "row pointer" is -1, and if you try to retrieve data at that position you will get an
-			 * exception.
-			 */
-			while (mCursor.moveToNext()) {
-
-				// Gets the value from the column.
-				String appid = mCursor.getString(appidindex);
-				String word = mCursor.getString(wordindex);
-				String slocale = mCursor.getString(ilocale);
-				Log.d("dictionary word", "app_id="+appid+" &word="+word + " &locale="+slocale);
-
-				// Insert code here to process the retrieved wo
-
-				// end of while loop
-			}
-		} else {
-
-			// Insert code here to report an error if the cursor is null or the provider threw an exception.
-		}
-		
-		
-
 //		2) Delete all old emotes
 		DeleteAppDict(context);
 		
 		
 		// Defines a new Uri object that receives the result of the insertion
 		Uri mNewUri = null;
-		
-		
 		
 		int frequency = 255;
 		String shortcut = null;
@@ -666,6 +608,7 @@ public class Business{
 	public static void DeleteAppDict(Context context){
 		int iAPP_ID = android.os.Process.myUid();
 		String appid = String.valueOf(iAPP_ID);
+		String APP_ID = CONTENTPROVIDER_APP_ID; 
 		//appid = FIXED_APP_ID;
 		//DeleteAllDict(context, appid);
 		//DeleteAllDict(context, FIXED_APP_ID);
@@ -675,7 +618,7 @@ public class Business{
 //		// Defines selection criteria for the rows you want to delete
 
 		String mSelectionClause = UserDictionary.Words.SHORTCUT + " LIKE ?";
-		String[] genericAppId = {appid}; // this will delete everything
+		String[] genericAppId = {APP_ID}; // this will delete everything
 
 		// Defines a variable to contain the number of rows deleted
 		int mRowsDeleted = 0;
@@ -717,5 +660,34 @@ public class Business{
 		Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
 		Log.d("Deleted emotes", s);
 		
+	}
+
+	public static boolean hasAutocomplete(Context context) {
+		int iAPP_ID = android.os.Process.myUid();
+		String APP_ID = String.valueOf(iAPP_ID);
+		APP_ID = CONTENTPROVIDER_APP_ID;
+		
+		ContentResolver userDictResolver = context.getContentResolver();
+
+		// A "projection" defines the columns that will be returned for each row
+		   // Contract class constant for the _ID column name
+		String[] mProjection = {UserDictionary.Words._ID };
+// Initializes an array to contain selection arguments
+		String mmSelectionClause = UserDictionary.Words.SHORTCUT + " LIKE ?";
+		String[] mmSelectionArgs = {APP_ID};
+		
+		// Does a query against the table and returns a Cursor object
+		Cursor mCursor = null;
+		String mSortOrder = UserDictionary.Words.DEFAULT_SORT_ORDER;
+		mCursor = userDictResolver.query(
+			UserDictionary.Words.CONTENT_URI,  // The content URI of the words table
+			mProjection,                       // The columns to return for each row
+			mmSelectionClause,                   // Either null, or the word the user entered
+			mmSelectionArgs,                    // Either empty, or the string the user entered
+			mSortOrder);                       // The sort order for the returned rows
+
+//		http://stackoverflow.com/questions/468211/how-do-i-get-the-count-in-my-content-provider
+//		may be more efficient
+		return (mCursor != null && mCursor.getCount() > 0);
 	}
 }

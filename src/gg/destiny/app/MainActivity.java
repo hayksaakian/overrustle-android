@@ -159,28 +159,22 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         RelativeLayout everythingelse = (RelativeLayout)findViewById(R.id.everything_else);
         everythingelse.bringToFront();
         
-        
 //      setup events
         OnFocusChangeListener toggle = new OnFocusChangeListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus)
-            {
-				// TODO implement for action
-                if (hasFocus)
-                {
+            public void onFocusChange(View v, boolean hasFocus){
+                if (hasFocus){
                     //header.setMaxLines(Integer.MAX_VALUE);
                     //header.setEllipsize(null);
                     Toast.makeText(getApplicationContext(), "got the focus", Toast.LENGTH_LONG).show();
-                }
-                else
-                {
+                }else{
                     //header.setMaxLines(1);
                     //header.setEllipsize(TextUtils.TruncateAt.END);
                     Toast.makeText(getApplicationContext(), "lost the focus", Toast.LENGTH_LONG).show();
                 }
             }
         };
-
+        
         //header.setOnFocusChangeListener(toggle);
 		// search on submit
 //        et.setOnKeyListener(new View.OnKeyListener() {
@@ -244,12 +238,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		video.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
 
 				@Override
-				public void onPrepared(MediaPlayer p1)
-				{
-					// TODO: Implement this method
-					//p1.
+				public void onPrepared(MediaPlayer p1){
 					video.progressBar.setVisibility(View.GONE);
-					Log.d("video", "hiding progress");
 				}
 			});
 		
@@ -344,6 +334,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		//s.setAdapter(mSpinnerAdapter); // set the adapter
 		mQualityPicker.setOnItemSelectedListener(this); // (optional) 
 		
+		// set up the autocomplete checkbox
+		boolean hasAutocomplete = Business.hasAutocomplete(this);
+		menu.findItem(R.id.action_settings).setChecked(hasAutocomplete);
 		
 		// TODO find a better place for this call
 		loadChannel(DEFAULT_CHANNEL);
@@ -356,20 +349,29 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
-		Business.EmoteDownloader ed = new Business.EmoteDownloader();
-		ed.mContext = this;
+		
 		switch (item.getItemId()) {
 			case R.id.action_settings:
-				ed.execute();
-				return true;
-			//case R.id.action_settings_delete:
-			//	ed.execute("delete");
-			//	return true;
-			case R.id.action_settings_delete_by_id:
-				ed.execute("deletebyappid");
+				// why the fuck this is necessary i don't understand
+//				http://developer.android.com/guide/topics/ui/menus.html#checkable
+	            if (item.isChecked()) item.setChecked(false);
+	            else item.setChecked(true);
+				setAutocomplete(item.isChecked());
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void setAutocomplete(boolean newSetting){
+		Business.EmoteDownloader ed = new Business.EmoteDownloader();
+		ed.mContext = this;
+		String onoff = newSetting ? "on" : "off";
+		Log.d("Autocomplete Setting", "turning autocomplete "+newSetting);
+		if(newSetting){
+			ed.execute();	
+		}else{
+			ed.execute("deletebyappid");
 		}
 	}
 	
