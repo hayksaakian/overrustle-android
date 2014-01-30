@@ -110,8 +110,6 @@ public class Business{
 					Toast.makeText(mContext, s, Toast.LENGTH_LONG).show();
 					Log.d("EmoteDownload", s);
 				}
-				
-				
 			}else{
 				Log.e("EmoteDownload", "Problem finding or GETting emotes list.");
 			}			
@@ -202,10 +200,7 @@ public class Business{
 					}
 				}
 				
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();	
-			}
+			} catch (JSONException e) {	e.printStackTrace();}
 			
 			return status;			
 		}
@@ -263,29 +258,11 @@ public class Business{
 		{
 			qualities = foundQualities;
 			Log.d("found qualities #", String.valueOf(qualities.size()));
-			String qualityURL = "";
-
-			if(qualities.containsKey("low")){
-				qualityURL = (String) qualities.get("low");
-			}else if(qualities.containsKey("medium")){
-				qualityURL = (String) qualities.get("medium");
-			}else if(qualities.containsKey("high")){
-				qualityURL = (String) qualities.get("high");
-			}else{
-				if(qualities.size() > 0){
-					String fq = String.valueOf(qualities.keySet().toArray()[0]);
-					qualityURL = (String)qualities.get(fq);
-				}
-			}
-			
-			if(!qualityURL.equals("")){
-				PlayURL(video, qualityURL);
-			}
-
 			
 			if (qualities.size() > 0)
 			{
 				LoadQualities(qualityPicker, qualities, context, spinner_item);
+//				if(qualityPicker.)
 			}
 			SetCachedHash(channel + "|cache", qualities, context);
 			
@@ -452,11 +429,13 @@ public class Business{
 		List<String> list = new ArrayList<String>();
 
 		list.addAll(qualities.keySet());
-		list.add("Audio Only");
-		list.add("Chat Only");
 		
 		//sort list
 		java.util.Collections.sort(list, Collator.getInstance());
+
+		list.add("Audio Only");
+		list.add("Chat Only");
+		
 		ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(context, spinnerItemId, list); 
 		dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); 
 		qualityPicker.setAdapter(dataAdapter);

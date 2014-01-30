@@ -367,7 +367,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		Business.EmoteDownloader ed = new Business.EmoteDownloader();
 		ed.mContext = this;
 		String onoff = newSetting ? "on" : "off";
-		Log.d("Autocomplete Setting", "turning autocomplete "+newSetting);
+		Log.d("Autocomplete Setting", "turning autocomplete "+onoff);
 		if(newSetting){
 			ed.execute();	
 		}else{
