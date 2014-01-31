@@ -6,6 +6,7 @@ import android.database.*;
 import android.net.*;
 import android.os.*;
 import android.provider.*;
+import android.support.v4.app.NotificationCompat;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
@@ -472,30 +473,21 @@ public class Business{
 		settings = cn.getSharedPreferences("prefs", 0);
         //get the sharepref
 		String rawhm = settings.getString(String.valueOf(key), "");
-		if (rawhm != null && !rawhm.equals(""))
-		{
-			try
-			{
+		if (rawhm != null && !rawhm.equals("")){
+			try{
 				JSONObject jsnhm = new JSONObject(rawhm);
 				//Log.d(LOG, rawhm);
-				if (jsnhm.length() > 0)
-				{
-
+				if (jsnhm.length() > 0){
 					JSONArray nms = jsnhm.names();
 					int klength = nms.length();
-					for (int i = 0; i < klength; i++)
-					{
+					for (int i = 0; i < klength; i++){
 						String nm = nms.getString(i);
 						String vl = jsnhm.getString(nm);
 						hm.put(nm, vl);
 					}
 				}
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
+			}catch (JSONException e)
+			{e.printStackTrace();}
 		}
 		return hm;
 	}
@@ -523,7 +515,7 @@ public class Business{
 	// UserDictionary.Words.addWord(Context context, String word, int frequency, String shortcut, Locale locale)
 	// UserDictionary.Words.addWord( this , "newMedicalWord", 1, UserDictionary.Words.LOCALE_TYPE_CURRENT);
 	// TODO support api level 15 (4.0)
-	// TODO dont add words already there, this spams up the user dictionary
+	// TODO maybe move this to a class?
 	
 	public static void oldAddEmotesToUserDict(Context context, String[] emotes){
 		Locale locale = context.getResources().getConfiguration().locale;
@@ -669,4 +661,38 @@ public class Business{
 //		may be more efficient
 		return (mCursor != null && mCursor.getCount() > 0);
 	}
+	
+	
+	// Push Notifications!!
+	
+
+    public static final int NOTIFICATION_ID = 1;
+	// Put the message into a notification and post it.
+    // This is just one simple example of what you might choose to do with
+    // a GCM message .
+    public static void sendNotification(Context context, String msg) {
+    	String title = "Live Notification";
+    	NotificationManager mNotificationManager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+    	Intent intent = new Intent(context, MainActivity.class);
+    	intent.setAction(Intent.ACTION_SEARCH);
+    	intent.putExtra(SearchManager.QUERY, MainActivity.DEFAULT_CHANNEL);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                intent, 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context)
+        .setSmallIcon(R.drawable.icon)
+        .setContentTitle(title)
+        .setStyle(new NotificationCompat.BigTextStyle()
+        .bigText(msg))
+//        .setVibrate(new long[]{1l})
+//        .setSound("some uri?")
+        .setContentText(msg)
+        .setAutoCancel(true);
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+    }
 }

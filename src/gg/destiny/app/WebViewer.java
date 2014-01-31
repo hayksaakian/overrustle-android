@@ -127,7 +127,10 @@ public class WebViewer {
         webView.setWebChromeClient(new android.webkit.WebChromeClient());
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         android.webkit.WebSettings settings = webView.getSettings();
-        settings.setAllowUniversalAccessFromFileURLs(true);
+        // fixes a crash on ISC
+        if(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            settings.setAllowUniversalAccessFromFileURLs(true);    
+        }
 //        settings.setJavaScriptEnabled(true);
         settings.setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
         settings.setAppCacheEnabled(false);

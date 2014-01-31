@@ -20,6 +20,10 @@
 		android:title="@string/action_settings"
 		android:checkable="true"
 		android:showAsAction="never" />
+	<item android:id="@+id/action_notifications"
+		android:title="@string/action_notifications"
+		android:checkable="true"
+		android:showAsAction="never" />
 	<!--<item android:id="@+id/action_settings_delete"
 		android:title="delete all"
 		android:showAsAction="never" />

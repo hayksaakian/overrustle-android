@@ -277,24 +277,27 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         //checkStatus(DEFAULT_CHANNEL, Business.MLG_STREAMS_STATUS_URL);
         //checkStatus();       
         //setTitle("t");
-		handleIntent(getIntent());
+        // call this later to account for invokations of this activity via push notifications
+		//handleIntent(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-		// ...
         handleIntent(intent);
     }
 
-    private void handleIntent(Intent intent) {
+    private boolean handleIntent(Intent intent) {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
 			loadChannel(query);
-			actionSearchItem.collapseActionView();
+			if(actionSearchItem != null)
+				actionSearchItem.collapseActionView();
 			//planetSearchView.co
             //use the query to search your data somehow
+			return true;
         }
+        return false;
     }
 	
 	
@@ -339,24 +342,28 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		menu.findItem(R.id.action_settings).setChecked(hasAutocomplete);
 		
 		// TODO find a better place for this call
-		loadChannel(DEFAULT_CHANNEL);
-		// and this one
-		checkStatus("gameongg");
-		
+		if(!handleIntent(getIntent())){
+			loadChannel(DEFAULT_CHANNEL);
+			// and this one
+			checkStatus("gameongg");
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
-		
 		switch (item.getItemId()) {
 			case R.id.action_settings:
-				// why the fuck this is necessary i don't understand
+				// why this is necessary i don't understand
 //				http://developer.android.com/guide/topics/ui/menus.html#checkable
 	            if (item.isChecked()) item.setChecked(false);
 	            else item.setChecked(true);
 				setAutocomplete(item.isChecked());
+				return true;
+			case R.id.action_notifications:
+				
+				Business.sendNotification(this, "Test Notification");
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

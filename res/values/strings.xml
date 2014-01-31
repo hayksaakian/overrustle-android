@@ -3,4 +3,5 @@
 	<string name="app_name">Destiny.gg Stream Viewer</string>
 	<string name="search_hint">Search by exact name of a stream channel</string>
 	<string name="action_settings">Add Emotes to Autocomplete</string>
+	<string name="action_notifications">Notify when Destiny goes Live</string>
 </resources>
