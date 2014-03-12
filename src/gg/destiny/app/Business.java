@@ -329,7 +329,7 @@ public class Business{
 
 			token = Uri.encode(token);
 
-			String qualitiesURL = "http://usher.justin.tv/api/channel/hls/" + channel + ".m3u8?token=" + token + "&sig=" + sig;
+			String qualitiesURL = "http://usher.justin.tv/api/channel/hls/" + channel + ".m3u8?token=" + token + "&sig=" + sig "&allow_source=true";
 			
 			mQualities = parseQualitiesFromURL(qualitiesURL);
 			
