@@ -25,11 +25,56 @@ public class Business{
 	final static String GAMEONGG_STREAM_NAME = "mlg17";
 	final static String GAMEONGG_GENERIC_STATUS = "MLG GameOn.gg SC2 Invitational";
 	
-	final static String DESTINY_EMOTICON_CSS_ENDPOINT = "http://cdn.destiny.gg/1.25.3/chat/css/emoticons.css";
-	final static String DESTINY_EMOTES_ENDPOINT = "";
+//	final static String DESTINY_EMOTICON_CSS_ENDPOINT = "http://cdn.destiny.gg/1.25.3/chat/css/emoticons.css";
+	final static String DESTINY_EMOTES_ENDPOINT = "http://www.destiny.gg/chat/emotes.json";
 	final static String CONTENTPROVIDER_APP_ID = "^gg.destiny.app";
-	final static String[] EMOTICON_LIST = {"Abathur", "AngelThump", "ASLAN", "BasedGod", "BibleThump", "CallCatz", "CallChad", "DaFeels", "DappaKappa", "DatGeoff", "DESBRO", "Disgustiny", "DJAslan", "Dravewin", "DuckerZ", "DURRSTINY", "FeedNathan", "FIDGETLOL", "FrankerZ", "GameOfThrows", "Heimerdonger", "Hhhehhehe", "INFESTINY", "Kappa", "Klappa", "LUL", "MotherFuckinGame", "NoTears", "OhKrappa", "OverRustle", "SoDoge", "SoSad", "SURPRISE", "TooSpicy", "UWOTM8", "WhoahDude", "WORTH"};
-	
+	static String[] EMOTICON_LIST = {
+                    "Dravewin",
+                    "INFESTINY",
+                    "FIDGETLOL",
+                    "Hhhehhehe",
+                    "GameOfThrows",
+                    "WORTH",
+                    "FeedNathan",
+                    "Abathur",
+                    "LUL",
+                    "Heimerdonger",
+                    "ASLAN",
+                    "DJAslan",
+                    "SoSad",
+                    "DURRSTINY",
+                    "SURPRISE",
+                    "NoTears",
+                    "OverRustle",
+                    "DuckerZ",
+                    "Kappa",
+                    "Klappa",
+                    "DappaKappa",
+                    "BibleThump",
+                    "AngelThump",
+                    "FrankerZ",
+                    "BasedGod",
+                    "TooSpicy",
+                    "OhKrappa",
+                    "SoDoge",
+                    "WhoahDude",
+                    "MotherFuckinGame",
+                    "DaFeels",
+                    "UWOTM8",
+                    "CallCatz",
+                    "CallChad",
+                    "DatGeoff",
+                    "Disgustiny",
+                    "FerretLOL",
+                    "Sippy",
+                    "DestiSenpaii",
+                    "KINGSLY",
+                    "Nappa",
+                    "DAFUK",
+                    "AYYYLMAO",
+                    "DANKMEMES"
+            };
+
 	Business(){
 	}
 	/**

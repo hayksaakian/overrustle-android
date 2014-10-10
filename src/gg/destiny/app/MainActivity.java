@@ -422,10 +422,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	            else item.setChecked(true);
 				setAutocomplete(item.isChecked());
 				return true;
-			case R.id.action_notifications:
-				
-				Business.sendNotification(this, "Test Notification");
-				return true;
+//			case R.id.action_notifications:
+//
+//				Business.sendNotification(this, "Test Notification");
+//				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
