@@ -15,10 +15,14 @@
     <style name="viepagertitlestrip">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
         <item name="android:textColor">#FEFEFE</item>
-        <item name="android:background">#121212</item>
+        <item name="android:background">#080808</item>
         <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">4dp</item>
-        <item name="android:layout_gravity">top</item>
+        <item name="android:shadowColor">#010101</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
     </style>
 </resources>
