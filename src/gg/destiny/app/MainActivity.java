@@ -8,6 +8,10 @@ import android.content.res.*;
 import android.graphics.*;
 import android.media.*;
 import android.os.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.*;
 import android.text.*;
 import android.util.*;
@@ -19,14 +23,68 @@ import android.widget.*;
 import android.widget.AdapterView.*;
 import java.util.*;
 
+
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 
 import gg.destiny.app.ResizingVideoView;
 
-public class MainActivity extends Activity implements OnItemSelectedListener
+
+public class MainActivity extends FragmentActivity implements OnItemSelectedListener
 {
-	
+    private static final int NUM_PAGES = 2;
+    private ViewPager chatPager;
+    private PagerAdapter chatPagerAdapter;
+    /**
+     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
+     * sequence.
+     */
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+        public ScreenSlidePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Fragment fragment = new ScreenSlidePageFragment();
+            Bundle args = new Bundle();
+            // Our object is just an integer :-P
+            args.putInt(ScreenSlidePageFragment.ARG_OBJECT, position);
+            fragment.setArguments(args);
+
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_PAGES;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if(position == 0) {
+                return "Destiny Chat";
+            }else if (position == 1) {
+                return "Twitch Chat";
+            }else {
+                return "OBJECT " + Integer.toString(position);
+            }
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+//        if (mPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            super.onBackPressed();
+//        } else {
+//            // Otherwise, select the previous step.
+//            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+//        }
+    }
+
 	final static String DEFAULT_CHANNEL = "destiny";
 	
 	@Override
@@ -84,7 +142,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
     
 	// replaced with actionbar
     //private RelativeLayout header_container;
-    private RelativeLayout navigation;
+//    private RelativeLayout navigation;
 
 //    NOTE: WebView is created at runtime
 //YoutubeLayout youtubeLayout;
@@ -96,16 +154,16 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	MenuItem actionSearchItem;
 	
     //private EditText et; // replaced with searchview in actionbar
-    Button loadFeaturedStreamButton;
+    // TODO: replace with side navigation
+//    Button loadFeaturedStreamButton;
     //TextView header; // replaced with action bar title
-    private TextView pageLoadTime;
+//    private TextView pageLoadTime;
 
     private Spinner mQualityPicker;
     public HashMap qualityOptions;
     String lastQuality = "";
     String channel;
 
-    WebViewer wvr;
 //    SystemUIHider uiHider;
     
     // remember the original attributes of the video view
@@ -125,6 +183,24 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	public void onCreate(Bundle savedInstanceState)	{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        // Instantiate a ViewPager and a PagerAdapter.
+        chatPager = (ViewPager) findViewById(R.id.pager);
+//        chatPager.setOnPageChangeListener(
+//                new ViewPager.SimpleOnPageChangeListener() {
+//                    @Override
+//                    public void onPageSelected(int position) {
+//                        // When swiping between pages, select the
+//                        // corresponding tab.
+////                        getActionBar().setSelectedNavigationItem(position);
+//                        Toast.makeText(getApplicationContext(), "changed to tab: " + Integer.toString(position), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+        chatPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        chatPager.setAdapter(chatPagerAdapter);
+
+        Log.i("POKE", "PROD");
+
 //                wv = (WebView) findViewById(R.id.wv);
 //        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
         youtubeLayout = (RelativeLayout) findViewById(R.id.youtubeLayout);
@@ -135,30 +211,19 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         ogwidth = ogparams.width;
         //header_container = (RelativeLayout)findViewById(R.id.header_container);
         //header = (TextView)findViewById(R.id.header);
-        navigation = (RelativeLayout)findViewById(R.id.navigation);
-        loadFeaturedStreamButton = (Button)findViewById(R.id.load_gameongg_stream);
+//        navigation = (RelativeLayout)findViewById(R.id.navigation);
+//        TODO: move to side navigation
+//        loadFeaturedStreamButton = (Button)findViewById(R.id.load_gameongg_stream);
+
         //newActivityBtn = (ImageButton) findViewById(R.id.new_activity);
         //qualityPicker = (Spinner)findViewById(R.id.quality_picker);
-        pageLoadTime = (TextView) findViewById(R.id.page_load_time);
+//        pageLoadTime = (TextView) findViewById(R.id.page_load_time);
         //et = (EditText) findViewById(R.id.et);
 
-        // setup wvr
-        wvr = new WebViewer();
-        wvr.contentContainer = (RelativeLayout) findViewById(R.id.chat_container);
-        wvr.loparams = new RelativeLayout.LayoutParams(
-        		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        
-        //wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout); 
-        wvr.backToLoadedURLButton = (Button)findViewById(R.id.back_button);
-        wvr.chatInput = (EditText)findViewById(R.id.input);
-        wvr.nativeWV = (WebView)findViewById(R.id.webview);
-        wvr.pageLoadTime = pageLoadTime;
-        wvr.Make(this);
-        wvr.LoadURL("http://www.destiny.gg/embed/chat");
         
         RelativeLayout everythingelse = (RelativeLayout)findViewById(R.id.everything_else);
         everythingelse.bringToFront();
-        
+
 //      setup events
         OnFocusChangeListener toggle = new OnFocusChangeListener() {
             @Override
@@ -189,14 +254,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 //                }
 //            }
 //        });
-        loadFeaturedStreamButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				//et.setText("gameongg");
-				loadChannel("gameongg");
-			}
-		});
+//        loadFeaturedStreamButton.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {loadChannel("gameongg");}
+//		});
 
         //qualityPicker.setOnItemSelectedListener(this);
         
@@ -399,7 +460,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	
 	private void checkStatus(String... channel_name_or_mlg_urls){
         Business.LiveChecker chkgameon = new Business().new LiveChecker();
-        chkgameon.goToStreamButton = loadFeaturedStreamButton;
+//        chkgameon.goToStreamButton = loadFeaturedStreamButton;
 		chkgameon.mActivity = this;
         //chkgameon.channelSearch = et;
         chkgameon.execute(channel_name_or_mlg_urls);		
@@ -420,10 +481,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener
         dt.execute(channel);
         
         if(channel.equals("gameongg")){
-        	loadFeaturedStreamButton.setVisibility(View.GONE);
+//        	loadFeaturedStreamButton.setVisibility(View.GONE);
         }else{
         	if(gameonlive){
-            	loadFeaturedStreamButton.setVisibility(View.VISIBLE);        		
+//            	loadFeaturedStreamButton.setVisibility(View.VISIBLE);
         	}
         }
 
@@ -523,7 +584,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 	void showUI(){
         //show UI widgets
         //header_container.setVisibility(View.VISIBLE);
-        navigation.setVisibility(View.VISIBLE);
+//        navigation.setVisibility(View.VISIBLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
         shownUI = true;
 	}
@@ -531,11 +592,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener
 		Log.d("Called", "hide ui");
         //hide UI widgets
         //header_container.setVisibility(View.GONE);
-        navigation.setVisibility(View.INVISIBLE);
+//        navigation.setVisibility(View.INVISIBLE);
         // hide open keyboards
 //        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(wvr.getWindowToken(), 0);
+//        imm.hideSoftInputFromWindow(wvr.getWindowToken(), 0);
 
         shownUI = false;
 	}

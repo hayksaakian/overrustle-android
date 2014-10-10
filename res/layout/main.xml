@@ -4,216 +4,53 @@
 	android:background="#111122"
 	android:id="@+id/lo"> 
 
-<!-- must be instantiated via java
- 	
-<com.mongoweb.chrome.WebView
-		android:id="@+id/wv"
-		android:layout_width="match_parent"
-		android:layout_height="fill_parent"
-		android:layout_below="@+id/video"
-		android:layout_alignParentBottom="true"
-		android:background="#00FFFFFF" /> -->
-
-<RelativeLayout 
-    android:id="@+id/everything_else"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    
-    
-<!-- 	<gg.destiny.app.YoutubeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-		android:layout_below="@+id/header_container"
-        android:id="@+id/youtubeLayout"
-        android:orientation="vertical"
-
-        android:visibility="visible">
-    
-	    
-	<gg.destiny.app.ResizingVideoView
-        android:id="@+id/video"
-        android:visibility="gone"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true" /> 
-
-	</gg.destiny.app.YoutubeLayout>
- -->
-	
- 
-
-	<!--
-		youtube layout was
-		android:layout_below="@+id/header_container"-->
-	
-	
-	<RelativeLayout 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-		android:gravity="top|right"
-        android:id="@+id/youtubeLayout"
-        android:orientation="vertical"
-        android:visibility="visible">
-	
-	   	<gg.destiny.app.ResizingVideoView
-	        android:id="@+id/video"
-	        android:visibility="gone"
-	        android:gravity="center"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"/>
-
-		<ProgressBar
-			android:id="@+id/video_loading"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content" 
-			style="?android:attr/progressBarStyleHorizontal" 
-			android:indeterminateOnly="true" 
-			android:layout_below="@+id/video"
-			android:layout_alignLeft="@+id/video"
-			android:layout_alignRight="@+id/video"
-		/>
-
-    </RelativeLayout>
-
-<!-- 	<gg.destiny.app.YoutubeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-		android:layout_below="@+id/header_container"
-        android:id="@+id/youtubeLayout"
-        android:orientation="vertical"
-        android:visibility="visible">
-	
-	   	<VideoView
-			android:id="@+id/video"
-			android:visibility="gone"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="#00FFFFFF" />
-
-    </gg.destiny.app.YoutubeLayout> -->
-	
-	<!--
-		replaced with action bar
-	<RelativeLayout
-		android:id="@+id/header_container"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="@drawable/header">
-
-
-		<TextView
-			android:id="@+id/header"
-			style="@android:style/TextAppearance.Large"
-			android:textColor="@drawable/color_text"
-			android:gravity="center_vertical"
-			android:text="Destiny\'s stream app"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:minHeight="50dip"
-			android:layout_alignParentTop="true"
-			android:paddingLeft="20dp"
-			android:paddingRight="66dp"
-
-			android:focusable="true"
-			android:focusableInTouchMode="true" 
-			android:clickable="true"
-			android:ellipsize="end"
-			android:maxLines="1" />
-
-
-		<Spinner
-			android:id="@+id/quality_picker"
-			android:layout_width="66dp"
-			android:layout_height="50dp"
-			android:color="@drawable/color_text"
-			android:gravity="center_vertical"
-			android:layout_alignParentRight="true"/>
-		
-	</RelativeLayout>
-	
-	navigation was 
-	android:layout_below="@+id/header_container"
- -->   
-	<RelativeLayout
-	    android:id="@+id/navigation"
-		
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    >
-		<!-- replaced with actionbar searchview
-		<EditText
-			android:id="@+id/et"
-			android:background="#AA333333"
-			android:text="destiny"
-			android:hint="ex: desrowfighting"
-			android:textColor="@drawable/color_text"
-			android:layout_width="match_parent"
-			android:layout_height="50dp"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="50dp"
-			android:paddingLeft="40dp"
-			android:singleLine="true"
-			android:visibility="gone"
-			android:imeActionLabel="Go" />
-		-->
-		<TextView
-			android:id="@+id/page_load_time"
-			android:layout_width="88dp"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:padding="2dp"
-			android:text="0ms"
-			style="@android:style/TextAppearance.Small"
-			android:textColor="#FF040F"/>
-		<Button
-		    android:id="@+id/back_button"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_below="@+id/et"
-		    android:layout_margin="4dp"
-		    android:text="Go Back to Chat"
-		    android:layout_alignParentRight="true"
-		    android:visibility="gone" />
-		<Button
-		    android:id="@+id/load_gameongg_stream"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_margin="4dp"
-		    android:text="Load Gameon.gg Stream"
-		    android:layout_alignParentLeft="true"
-		    android:layout_below="@+id/et"
-		    android:visibility="gone"
-		     />
-	</RelativeLayout>
-	
-	</RelativeLayout>
-	
     <RelativeLayout
-	    android:id="@+id/chat_container"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentBottom="true"
-        >
-        
-     <EditText
-     	android:id="@+id/input"
-     	android:hint="Enter a message to send to chat..."
-     	android:layout_alignParentBottom="true"
-     	android:layout_width="match_parent"
-     	android:layout_height="wrap_content"
-        android:singleLine="true"
-	    android:imeOptions="actionSend|flagNoExtractUi" 
-	    android:visibility="gone"
-     	/>
-     <WebView
-        android:id="@+id/webview"
-        android:layout_alignParentTop="true"
-        android:layout_above="@+id/input"
+        android:id="@+id/everything_else"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-        
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|right"
+            android:id="@+id/youtubeLayout"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <gg.destiny.app.ResizingVideoView
+                android:id="@+id/video"
+                android:visibility="gone"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                android:id="@+id/video_loading"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:indeterminateOnly="true"
+                android:layout_below="@+id/video"
+                android:layout_alignLeft="@+id/video"
+                android:layout_alignRight="@+id/video"
+            />
+
+        </RelativeLayout>
     </RelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v4.view.PagerTitleStrip
+            android:id="@+id/pager_title_strip"
+            style="@style/viepagertitlestrip"
+            android:gravity="left"
+            android:textAlignment="gravity"
+
+            />
+
+    </android.support.v4.view.ViewPager>
 </RelativeLayout>

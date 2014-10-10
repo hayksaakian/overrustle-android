@@ -174,7 +174,7 @@ public class WebViewer {
         else
         {
             long loadTime = (System.currentTimeMillis() - pageStartTime);
-            pageLoadTime.setText(String.format("%sms to load chat", loadTime));
+            pageLoadTime.setText(String.format("%sms to load page", loadTime));
             System.out.println(String.format("page load time: %sms", loadTime));
         }
 //        if(url != lastLoadedURL){
