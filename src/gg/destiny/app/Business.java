@@ -322,8 +322,7 @@ public class Business{
 		
 	}
 
-	public static String HttpGet(String url)
-	{ 
+	public static String HttpGet(String url) {
 		Log.d("GET ing", url);
 		//return "[200]";}
 		//public String baddoGet(String url) { 
