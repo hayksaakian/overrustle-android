@@ -203,7 +203,7 @@ public class Business{
 		}
 		
 		protected String checkStream(String url_or_channel_name){
-			String status = "";
+			String status = url_or_channel_name + " is offline or the app is broken";
 			try {
 				if(url_or_channel_name.equals("gameongg")){
 					url_or_channel_name = MLG_STREAMS_STATUS_URL;
@@ -234,13 +234,26 @@ public class Business{
 							break;
 						}
 					}
-					
-				}else{
+
+				}else if(url_or_channel_name.matches("-?\\d+(\\.\\d+)?")){
+                    // ustream channel names are just numbers (and channel names are different from
+                    // user names, so keep that in mind!!)
+                    // http://api.ustream.tv/channels/19068261.json
+                    String usurl = String.format("http://api.ustream.tv/channels/%s.json", url_or_channel_name);
+                    JSONObject usStatus = new JSONObject(HttpGet(usurl));
+                    String liveStatus = usStatus.getJSONObject("channel").getString("status");
+                    isLive = "live".equals(liveStatus);
+                    if(isLive){
+                        usStatus.getJSONObject("channel").getJSONObject("stream").getString("hls");
+                        status = usStatus.getJSONObject("channel").getString("title");
+                    }
+
+                }else{
 					jsno = getTwitchStatus(url_or_channel_name);
 					channelname = url_or_channel_name;
-					if(jsno != null && jsno.length() > 0){
+                    isLive = jsno != null && jsno.length() > 0;
+					if(isLive){
 						status = jsno.getString("status");
-						isLive = true;
 					}else{
 						status = channelname + " is offline. Type another channel\'s name below to watch something else.";
 					}
@@ -288,7 +301,12 @@ public class Business{
 						e.printStackTrace();
 					}
 				}
-			}else{
+			}else if(channel.matches("-?\\d+(\\.\\d+)?")) {
+                // ustream channels are just numbers
+                // (and channels are different from user ids
+                String usUrl = String.format("http://iphone-streaming.ustream.tv/uhls/%s/streams/live/iphone/playlist.m3u8", channel);
+                newQualities = parseQualitiesFromURL(usUrl);
+            }else{
 				String auth = getTwitchAuth(channel);
 				newQualities = getTwitchQualities(channel, auth);
 			}
@@ -427,6 +445,7 @@ public class Business{
 	public static HashMap parseQualitiesFromURL(String url){
 		HashMap mQualities = new HashMap<String, String>();
 		String qualityOptions = HttpGet(url);
+//        Log.d("Quality Response", qualityOptions);
 		String line=null; 
 		try
 		{
@@ -434,23 +453,48 @@ public class Business{
 			qualityOptions = qualityOptions.replace("#", "\n#").replace("http", "\nhttp");
 
 			String [] opA = qualityOptions.split("\n");
+//            Log.d("Quality Response Lines", Integer.toString(opA.length));
 			for (int i=0; i < opA.length; i++)
 			{
 				line = opA[i];
 				if (line.length() > 0)
 				{
+//                    Log.d("Quality Response Line", line);
 					if (line.startsWith("#EXT-X-STREAM"))
 					{
 						// descriptor, therefore parse quality
 						// example
 						// #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="high",NAME="High",AUTOSELECT=YES,DEFAULT=YES
-						
-						lastquality = line.split(",")[2];
-						//get text between quotes
-						lastquality = lastquality.split("=")[1];
-						if(lastquality.contains("\"")){
-							lastquality = lastquality.split("\"")[1];
-						}
+
+                        // ustream example:
+                        // #EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=352519, CODECS="avc1.77.30, mp4a.40.2",RESOLUTION=640x360
+
+                        HashMap<String, String> info = new HashMap<String, String>();
+                        String[] parts = line.split(",");
+                        for (int j = 0; j < parts.length; j++) {
+                            String[] pieces = parts[j].split("=");
+                            if(pieces.length < 2){
+                                continue;
+                            }
+                            if(pieces[1].contains("\"")){
+                                pieces[1] = pieces[1].split("\"")[1];
+                            }
+                            info.put(pieces[0], pieces[1]);
+                        }
+                        if(info.containsKey("NAME")){
+                            lastquality = info.get("NAME");
+                        }else if(info.containsKey("RESOLUTION")){
+                            lastquality = info.get("RESOLUTION");
+                        }else if(info.containsKey("VIDEO")){
+                            lastquality = info.get("VIDEO");
+                        }else{
+                            lastquality = parts[parts.length-1];
+                        }
+                        if(mQualities.containsKey(lastquality) && info.containsKey("BANDWIDTH")){
+                            int bw = Integer.parseInt(info.get("BANDWIDTH"));
+                            lastquality = lastquality + "@" + Integer.toString(bw/1000) + "kbps";
+                        }
+
 						Log.d("found quality", lastquality);
 					}
 					else if (line.startsWith("http") && lastquality != null)
@@ -460,12 +504,14 @@ public class Business{
 						lastquality = null;
 					}
 				}
-				Log.d("raw qualities", line);
+//				Log.d("raw qualities", line);
 
 			}
 		}
 		catch (Exception e)
-		{}
+		{
+            e.printStackTrace();
+        }
 		return mQualities;
 	}
 

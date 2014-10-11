@@ -114,6 +114,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
             	if(!lastQuality.startsWith(qualityName)){
 					Log.d("VideoView", "loading quality="+qualityName);
                     String url = (String)qualityOptions.get(qualityName);
+                    Log.d("VideoView", "loading URL="+url);
                     Business.PlayURL(video, url);
             	}else{
             		Log.d("VideoView", "avoiding loading the stream because that quality is already loaded");
