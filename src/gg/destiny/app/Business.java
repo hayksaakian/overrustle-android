@@ -16,6 +16,8 @@ import java.util.*;
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.impl.client.*;
 import org.json.*;
 
@@ -346,7 +348,12 @@ public class Business{
 		//public String baddoGet(String url) { 
 
 		StringBuilder builder = new StringBuilder(); 
-		HttpClient client = new DefaultHttpClient(); 
+		HttpClient client = new DefaultHttpClient();
+        // added because ustream tries to set a cookie on the stream domain even though
+        // with the playlist domain as the origin. this is technically against the RFC
+        // so we need a more permissive cookie policy
+        client.getParams().setParameter(ClientPNames.COOKIE_POLICY,
+                CookiePolicy.BROWSER_COMPATIBILITY);
 		HttpGet httpGet = new HttpGet(url); 
 		try
 		{ 
