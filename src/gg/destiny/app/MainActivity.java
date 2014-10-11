@@ -112,12 +112,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
             if(qualityOptions.containsKey(qualityName)){
             	// only reload if this is a different quality
             	if(!lastQuality.startsWith(qualityName)){
-					Log.d("VideoView", "loading quality="+qualityName);
+					Log.d("VideoView", "Loading quality="+qualityName);
                     String url = (String)qualityOptions.get(qualityName);
-                    Log.d("VideoView", "loading URL="+url);
+                    Log.d("VideoView", "Loading URL="+url);
                     Business.PlayURL(video, url);
             	}else{
             		Log.d("VideoView", "avoiding loading the stream because that quality is already loaded");
+
             	}
             }
             if(audioOnly){
@@ -342,6 +343,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
         // call this later to account for invokations of this activity via push notifications
 		//handleIntent(getIntent());
     }
+
+
+    // TODO: handle app urls from overrustle.com
 
     @Override
     protected void onNewIntent(Intent intent) {
