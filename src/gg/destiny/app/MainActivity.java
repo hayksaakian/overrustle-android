@@ -111,7 +111,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
             }
             if(qualityOptions.containsKey(qualityName)){
             	// only reload if this is a different quality
-            	if(!lastQuality.startsWith(qualityName)){
+                // this is an annoying premature optimization,
+                // the source of many bugs. consider killing it.
+            	if(!lastQuality.equals(qualityName) || channel != lastChannel){
 					Log.d("VideoView", "Loading quality="+qualityName);
                     String url = (String)qualityOptions.get(qualityName);
                     Log.d("VideoView", "Loading URL="+url);
@@ -164,6 +166,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     private Spinner mQualityPicker;
     public HashMap qualityOptions;
     String lastQuality = "";
+    String lastChannel = "";
     String channel;
 
 //    SystemUIHider uiHider;
@@ -472,6 +475,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	}
 
 	private void loadChannel(String channel) {
+        this.lastChannel = this.channel;
 		this.channel = channel;
         Business.DownloadTask dt = new Business.DownloadTask();
         dt.qualityPicker = mQualityPicker;
