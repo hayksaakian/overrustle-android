@@ -28,17 +28,17 @@ public final class R {
         public static final int action_settings=0x7f08000f;
         public static final int back_button=0x7f080004;
         public static final int chat_container=0x7f080000;
-        public static final int everything_else=0x7f080007;
+        public static final int everything_else=0x7f080009;
         public static final int input=0x7f080005;
         public static final int lo=0x7f080006;
         public static final int navigation=0x7f080002;
         public static final int page_load_time=0x7f080003;
-        public static final int pager=0x7f08000b;
-        public static final int pager_title_strip=0x7f08000c;
-        public static final int video=0x7f080009;
-        public static final int video_loading=0x7f08000a;
+        public static final int pager=0x7f080007;
+        public static final int pager_title_strip=0x7f080008;
+        public static final int video=0x7f08000b;
+        public static final int video_loading=0x7f08000c;
         public static final int webview=0x7f080001;
-        public static final int youtubeLayout=0x7f080008;
+        public static final int youtubeLayout=0x7f08000a;
     }
     public static final class layout {
         public static final int fragment_screen_slide_page=0x7f030000;

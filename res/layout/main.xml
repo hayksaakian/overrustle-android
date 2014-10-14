@@ -2,7 +2,20 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="#111122"
-	android:id="@+id/lo"> 
+	android:id="@+id/lo">
+
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v4.view.PagerTitleStrip
+            android:id="@+id/pager_title_strip"
+            style="@style/viepagertitlestrip"
+            />
+
+    </android.support.v4.view.ViewPager>
 
     <RelativeLayout
         android:id="@+id/everything_else"
@@ -37,17 +50,4 @@
 
         </RelativeLayout>
     </RelativeLayout>
-
-    <android.support.v4.view.ViewPager
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/pager"
-        android:layout_alignParentTop="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <android.support.v4.view.PagerTitleStrip
-            android:id="@+id/pager_title_strip"
-            style="@style/viepagertitlestrip"
-            />
-
-    </android.support.v4.view.ViewPager>
 </RelativeLayout>

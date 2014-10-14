@@ -367,6 +367,7 @@ public class Business {
         return "";
     }
 
+    // TODO: Deprecate
     public static String OldHttpGet(String url) {
         Log.d("GET ing", url);
         //return "[200]";}
@@ -374,30 +375,6 @@ public class Business {
 
         StringBuilder builder = new StringBuilder();
         HttpClient client = new DefaultHttpClient();
-        // added because ustream tries to set a cookie on the stream domain even though
-        // with the playlist domain as the origin. this is technically against the RFC
-        // so we need a more permissive cookie policy
-        // Create a local instance of cookie store
-//        CookieStore cookieStore = new BasicCookieStore();
-//
-//        // Bind custom cookie store to the local context
-//        client.setCookieStore(cookieStore);
-//        CookieSpecFactory csf = new CookieSpecFactory() {
-//            public CookieSpec newInstance(HttpParams params) {
-//                return new BrowserCompatSpec() {
-//                    @Override
-//                    public void validate(Cookie cookie, CookieOrigin origin)
-//                            throws MalformedCookieException {
-//                        // Oh, I am easy.
-//                        // Allow all cookies
-//                        Log.d("permissive cookie", "lets all through");
-//                    }
-//                };
-//            }
-//        };
-//        client.getCookieSpecs().register("easy", csf);
-//        client.getParams().setParameter(ClientPNames.COOKIE_POLICY,
-//                CookiePolicy.);
 
         HttpGet httpGet = new HttpGet(url);
         try {

@@ -15,7 +15,7 @@
     <style name="viepagertitlestrip">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">bottom</item>
+        <item name="android:layout_gravity">top</item>
         <item name="android:textColor">#FEFEFE</item>
         <item name="android:background">#080808</item>
         <item name="android:paddingTop">4dp</item>
