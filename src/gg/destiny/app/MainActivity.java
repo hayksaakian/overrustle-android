@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.*;
+import android.support.v4.widget.DrawerLayout;
 import android.text.*;
 import android.util.*;
 import android.view.*;
@@ -27,11 +28,30 @@ import java.util.*;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 
-import gg.destiny.app.ResizingVideoView;
+import gg.destiny.app.support.NavigationDrawerFragment;
 
 
-public class MainActivity extends FragmentActivity implements OnItemSelectedListener
-{
+public class MainActivity extends FragmentActivity
+        implements OnItemSelectedListener, NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private NavigationDrawerFragment mNavigationDrawerFragment;
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+        // update the main content by replacing fragments
+        if(mNavigationDrawerFragment == null)
+            return;
+        String selected = mNavigationDrawerFragment.getItem(position);
+        Toast.makeText(getApplicationContext(), Integer.toString(position)+": "+selected, Toast.LENGTH_SHORT).show();
+
+        if(position == 0){
+            Business.GetRustlers(this, mNavigationDrawerFragment);
+        }else{
+            loadChannel(selected);
+        }
+    }
+
+
     private static final int NUM_PAGES = 2;
     private ViewPager chatPager;
     private PagerAdapter chatPagerAdapter;
@@ -188,6 +208,16 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	public void onCreate(Bundle savedInstanceState)	{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mNavigationDrawerFragment.setDrawerItems(new String[]{"Loading Rustlers..."});
+        Business.GetRustlers(this, mNavigationDrawerFragment);
 
         // Instantiate a ViewPager and a PagerAdapter.
         chatPager = (ViewPager) findViewById(R.id.pager);
@@ -365,6 +395,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			//planetSearchView.co
             //use the query to search your data somehow
 			return true;
+        }else{
+            Log.d("Unhandled Intent", intent.getAction());
         }
         return false;
     }

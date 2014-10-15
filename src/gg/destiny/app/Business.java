@@ -11,6 +11,8 @@ import android.util.*;
 import android.view.*;
 import android.widget.*;
 
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -27,6 +29,8 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.impl.client.*;
 import org.json.*;
+
+import gg.destiny.app.support.NavigationDrawerFragment;
 
 public class Business {
     final static String GAMEONGG_QUALITIES_URL = "http://mlghds-lh.akamaihd.net/i/mlg17_1@167001/master.m3u8";
@@ -347,8 +351,8 @@ public class Business {
 
     public static String HttpGet(String url){
         Log.d("GET ing with OkHTTP", url);
-        OkHttpClient client = new OkHttpClient();
 
+        final OkHttpClient client = new OkHttpClient();
         try{
             Request request = new Request.Builder()
                     .url(url)
@@ -449,10 +453,8 @@ public class Business {
     }
 
     public static String getTwitchAuth(String channel) {
-        String auth = "";
         String authurl = "http://api.twitch.tv/api/channels/" + channel + "/access_token";
-        auth = HttpGet(authurl);
-        return auth;
+        return HttpGet(authurl);
     }
 
     public static HashMap parseQualitiesFromURL(String url) {
@@ -537,6 +539,8 @@ public class Business {
     }
 
 
+
+
     static public boolean SetCachedHash(String key, HashMap value, Context cn) {
         Log.d("business", "caching qualities=" + String.valueOf(value.size()));
         SharedPreferences prefs = cn.getSharedPreferences("prefs", 0);
@@ -602,6 +606,71 @@ public class Business {
     public static boolean isKitkat() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
+
+
+    private static final OkHttpClient rustleClient = new OkHttpClient();
+    static void GetRustlers(final Activity activity, final NavigationDrawerFragment frag){
+        String api_endpoint = "http://overrustle.com:9998/api";
+
+        Request request = new Request.Builder()
+                .url(api_endpoint)
+                .build();
+
+        Call call = rustleClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override public void onFailure(Request request, IOException e) {
+                Log.d("HTTP FAIL", "Failed to execute " + request, e);
+            }
+
+            @Override public void onResponse(Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                }
+                final String retval = response.body().string();
+                final String[] items = ParseJsonToList(retval);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        frag.setDrawerItems(items);
+                    }
+                });
+            }
+        });
+    }
+
+    static String[] ParseJsonToList(String jString) {
+        String[] retval = new String[]{};
+
+        try {
+            JSONObject j = new JSONObject(jString);
+
+            int totalviewers = (Integer) j.get("totalviewers");
+
+            // loop array
+            JSONObject streamsObj = (JSONObject) j.get("streams");
+            Iterator<String> streams = streamsObj.keys();
+            retval = new String[streamsObj.length()+1];
+            int i = 0;
+            retval[i] = Integer.toString(totalviewers) +" Rustlers Watching:";
+
+            while (streams.hasNext()) {
+                i = i + 1;
+                String key = streams.next();
+                String[] parts = key.split("=");
+                if(parts.length > 0) {
+                    retval[i] = parts[parts.length - 1];
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return retval;
+    }
+
+
+
+
+
 
 
     // NOTE HACK using the shortcut field
@@ -756,6 +825,9 @@ public class Business {
 //		may be more efficient
         return (mCursor != null && mCursor.getCount() > 0);
     }
+
+
+
 
 
     // Push Notifications!!
