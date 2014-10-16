@@ -25,8 +25,6 @@ import org.apache.http.*;
 //import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.impl.client.*;
 import org.json.*;
 
@@ -220,7 +218,7 @@ public class Business {
                 if (url_or_channel_name.equals("gameongg")) {
                     url_or_channel_name = MLG_STREAMS_STATUS_URL;
                 }
-                JSONObject jsno = new JSONObject();
+                JSONObject jsno;
                 if (url_or_channel_name.contains("mlg") || url_or_channel_name.contains("majorleaguegaming")) {
                     String mlgStatuses = HttpGet(url_or_channel_name);
                     channelname = "GameOn.gg";
@@ -419,6 +417,7 @@ public class Business {
             mQualities = parseQualitiesFromURL(qualitiesURL);
 
         } catch (JSONException e) {
+            e.printStackTrace();
         }
         return mQualities;
     }
@@ -482,8 +481,8 @@ public class Business {
 
                         HashMap<String, String> info = new HashMap<String, String>();
                         String[] parts = line.split(",");
-                        for (int j = 0; j < parts.length; j++) {
-                            String[] pieces = parts[j].split("=");
+                        for (String part : parts) {
+                            String[] pieces = part.split("=");
                             if (pieces.length < 2) {
                                 continue;
                             }
@@ -607,10 +606,11 @@ public class Business {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
-
+    // Get a list of other streams to show in the navigation drawer
     private static final OkHttpClient rustleClient = new OkHttpClient();
+
     static void GetRustlers(final Activity activity, final NavigationDrawerFragment frag){
-        String api_endpoint = "http://overrustle.com:9998/api";
+        final String api_endpoint = "http://overrustle.com:9998/api";
 
         Request request = new Request.Builder()
                 .url(api_endpoint)
@@ -626,20 +626,21 @@ public class Business {
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 }
-                final String retval = response.body().string();
-                final String[] items = ParseJsonToList(retval);
+                final String rv = response.body().string();
+                final List<Pair<String, String>> mm = ParseJsonToList(rv);
+
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        frag.setDrawerItems(items);
+                    frag.setLabelValueList(mm);
                     }
                 });
             }
         });
     }
 
-    static String[] ParseJsonToList(String jString) {
-        String[] retval = new String[]{};
+    static List<Pair<String, String>> ParseJsonToList(String jString) {
+        List<Pair<String, String>> retval = new ArrayList<Pair<String, String>>();
 
         try {
             JSONObject j = new JSONObject(jString);
@@ -649,16 +650,21 @@ public class Business {
             // loop array
             JSONObject streamsObj = (JSONObject) j.get("streams");
             Iterator<String> streams = streamsObj.keys();
-            retval = new String[streamsObj.length()+1];
-            int i = 0;
-            retval[i] = Integer.toString(totalviewers) +" Rustlers Watching:";
-
+//            retval[0] = "Destiny";
+//            int i = 0;
+            retval.add(new Pair<String, String>(Integer.toString(totalviewers) +" Rustlers Watching:", "1"));
+            retval.add(new Pair<String, String>("Destiny", "destiny"));
+//            if(streamsObj.length() > 0){
+//                hm.clear();
+//            }
             while (streams.hasNext()) {
-                i = i + 1;
+//                i = i + 1;
                 String key = streams.next();
                 String[] parts = key.split("=");
                 if(parts.length > 0) {
-                    retval[i] = parts[parts.length - 1];
+                    String stream = parts[parts.length - 1];
+                    //retval[i] = stream;//
+                    retval.add(new Pair<String, String>(String.format("%s %s", Integer.toString(streamsObj.getInt(key)), stream), stream));
                 }
             }
         } catch (Exception e) {

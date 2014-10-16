@@ -35,20 +35,25 @@ public class MainActivity extends FragmentActivity
         implements OnItemSelectedListener, NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    //Map<String, String> overRustlers = new HashMap<String, String>();
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        if(mNavigationDrawerFragment == null)
+        if(mNavigationDrawerFragment == null || isOnCreateDone == false)
             return;
-        String selected = mNavigationDrawerFragment.getItem(position);
-        Toast.makeText(getApplicationContext(), Integer.toString(position)+": "+selected, Toast.LENGTH_SHORT).show();
-
+        String selected = mNavigationDrawerFragment.getKey(position);
         if(position == 0){
+            //loadChannel(DEFAULT_CHANNEL);
+            selected = "Reloading Rustlers... NoTears";
             Business.GetRustlers(this, mNavigationDrawerFragment);
-        }else{
-            loadChannel(selected);
+        }else {
+            String selectedValue = mNavigationDrawerFragment.getValue(position);
+            if (position > 0 && selectedValue != null && selectedValue.length() > 0) {
+                loadChannel(selectedValue);
+            }
         }
+        Toast.makeText(getApplicationContext(), selected, Toast.LENGTH_SHORT).show();
     }
 
 
@@ -216,7 +221,7 @@ public class MainActivity extends FragmentActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-        mNavigationDrawerFragment.setDrawerItems(new String[]{"Loading Rustlers..."});
+
         Business.GetRustlers(this, mNavigationDrawerFragment);
 
         // Instantiate a ViewPager and a PagerAdapter.
@@ -330,8 +335,18 @@ public class MainActivity extends FragmentActivity
             }
         };
         video.setOnTouchListener(vlistener);
-		
-		video.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
+//        video.setOnErrorListener(new MediaPlayer.OnErrorListener(){
+//
+//            @Override
+//            public boolean onError(MediaPlayer mp, int what, int extra) {
+//                final String human = String.format("what: %s, extra: %s", what, extra);
+//                Log.e("MediaPlayer Error", human);
+//                Toast.makeText(getApplicationContext(), "Android MediaPlayer Error: "+human, Toast.LENGTH_SHORT).show();
+//                // return false because we haven't really handled the error, let it bubble up the stack.
+//                return false;
+//            }
+//        });
+        video.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
 
 				@Override
 				public void onPrepared(MediaPlayer p1){

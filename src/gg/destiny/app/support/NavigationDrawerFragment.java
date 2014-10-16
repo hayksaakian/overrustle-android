@@ -13,16 +13,16 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -88,10 +88,37 @@ public class NavigationDrawerFragment extends Fragment {
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
     }
+
+    //TreeMap<String, String> labelValueMap = new TreeMap<String, String>();
+    List<Pair<String, String>> labelValueList = new ArrayList<Pair<String, String>>();
+
+    public void setLabelValueList(List<Pair<String, String>> lvm){
+        labelValueList = lvm;
+        rawDrawerItems.clear();
+        for(Pair<String, String> p : labelValueList){
+            rawDrawerItems.add(p.first);
+        }
+        setDrawerItems(rawDrawerItems);
+    }
+
+//    public List<Pair<String, String>> getLabelValueMap(){
+//        return labelValueList;
+//    }
+
+    public String getKey(int index){
+        return rawDrawerItems.get(index);
+    }
+
+    public String getValue(int index){
+        return labelValueList.get(index).second;
+    }
+
     ArrayAdapter<String> drawerItems;
 
-    String[] rawDrawerItems = {};
-    public void setDrawerItems(String[] items){
+//    String[] rawDrawerItems = {};
+    List<String> rawDrawerItems = new ArrayList<String>();
+
+    private void setDrawerItems(List<String> items){
         rawDrawerItems = items;
         drawerItems = new ArrayAdapter<String>(
                 getActionBar().getThemedContext(),
@@ -103,13 +130,13 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerListView.setAdapter(drawerItems);
         }
     }
-    public String getItem(int position){
-        return rawDrawerItems[position];
-    }
-
-    String[] getDrawerItems(){
-        return rawDrawerItems;
-    }
+//    private String getItem(int position){
+//        return rawDrawerItems.get(position);
+//    }
+//
+//    String[] getDrawerItems(){
+//        return rawDrawerItems;
+//    }
 
     String[] arbitraryItems() {
         return new String[]{
@@ -130,7 +157,7 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        setDrawerItems(rawDrawerItems);
+        setLabelValueList(labelValueList);
 
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
