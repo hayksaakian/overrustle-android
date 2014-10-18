@@ -138,7 +138,7 @@ public class MainActivity extends FragmentActivity
             	// only reload if this is a different quality
                 // this is an annoying premature optimization,
                 // the source of many bugs. consider killing it.
-            	if(!lastQuality.equals(qualityName) || channel != lastChannel){
+            	if(video.isPlaying() == false || (!lastQuality.equals(qualityName) || channel != lastChannel)){
 					Log.d("VideoView", "Loading quality="+qualityName);
                     String url = (String)qualityOptions.get(qualityName);
                     Log.d("VideoView", "Loading URL="+url);
