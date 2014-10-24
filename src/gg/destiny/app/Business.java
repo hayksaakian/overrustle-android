@@ -26,6 +26,7 @@ import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
+import org.apache.http.protocol.HTTP;
 import org.json.*;
 
 import gg.destiny.app.support.NavigationDrawerFragment;
@@ -257,18 +258,32 @@ public class Business {
                     String liveStatus = usStatus.getJSONObject("channel").getString("status");
                     isLive = "live".equals(liveStatus);
                     if (isLive) {
-                        usStatus.getJSONObject("channel").getJSONObject("stream").getString("hls");
                         status = usStatus.getJSONObject("channel").getString("title");
                     }
 
                 } else {
+                    //try twitch first. if twitch is not live, check hitbox
                     jsno = getTwitchStatus(url_or_channel_name);
                     channelname = url_or_channel_name;
                     isLive = jsno != null && jsno.length() > 0;
                     if (isLive) {
                         status = jsno.getString("status");
                     } else {
-                        status = channelname + " is offline. Type another channel\'s name below to watch something else.";
+                        status = channelname + " is offline. Type another channel\'s name to watch something else.";
+                    }
+
+                    // check hitbox unless twitch was good
+                    if(isLive == false){
+                        JSONObject hbStatus = getHitboxStatus(url_or_channel_name);
+                        // because hitbox is bad and does not actually 404 from bad channel names
+                        if(hbStatus.length() > 0) {
+                            String liveStatus = hbStatus.getString("media_is_live");
+                            isLive = "0".equals(liveStatus);
+                            if (isLive) {
+                                status = hbStatus.getString("media_status");
+                            }
+                        }
+
                     }
                 }
 
@@ -322,6 +337,20 @@ public class Business {
             } else {
                 String auth = getTwitchAuth(channel);
                 newQualities = getTwitchQualities(channel, auth);
+
+                // check hitbox if twitch doesn't have anything
+                if(newQualities.size() == 0){
+                    try {
+                        JSONObject hbStatus = getHitboxStatus(channel);
+                        if(hbStatus.length() > 0){
+                            // unfortunately, getting the list of qualities
+                            // does not truthfully tell us if the stream is live
+                            newQualities = getHitboxQualities(channel);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             //String readURL = HttpGet(url);
@@ -426,6 +455,44 @@ public class Business {
         return mQualities;
     }
 
+    public static HashMap getHitboxQualities(String media_id){
+        HashMap mQualities = new HashMap<String, String>();
+        String endpoint = String.format("http://www.hitbox.tv/api/player/config/live/%s?embed=false&showHidden=true", media_id);
+        String strConfig = HttpGet(endpoint);
+        try {
+            JSONObject jConfig = new JSONObject(strConfig);
+            //check if stream exists and is live
+            boolean nonexistant = jConfig.getJSONObject("clip").isNull("url");
+            if(nonexistant)
+                return mQualities;
+
+            // TODO: consider using the base hitbox url directly
+            // rtmp://edge.live.hitbox.tv/live
+            // it may be better quality or something as opposed to the CDNs
+
+            JSONArray playlists = jConfig.getJSONArray("playlist");
+            int length = playlists.length();
+            for (int i = 0; i < length; i++) {
+                JSONObject playlist = playlists.getJSONObject(i);
+                String baseUrl = playlist.getString("netConnectionUrl");
+                JSONArray bitrates = playlist.getJSONArray("bitrates");
+                int blength = bitrates.length();
+                for (int j = 0; j < blength; j++) {
+                    JSONObject bitrate = bitrates.getJSONObject(j);
+                    String label = bitrate.getString("label");
+                    String url = bitrate.getString("url");
+                    mQualities.put(label, baseUrl+"/"+url);
+                }
+                
+//                mQualities.put(playlist.get)
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return mQualities;
+    }
+
     public static JSONObject getTwitchStatus(String channel) throws JSONException {
         JSONObject channelStatus = new JSONObject();
         //maybe put this in another task...
@@ -435,12 +502,27 @@ public class Business {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if(strStatus.length() == 0){
+            return channelStatus;
+        }
         JSONObject jsnStatus = new JSONObject(strStatus);
         if (!jsnStatus.isNull("stream")) {
             //statusMessage = "";
             channelStatus = jsnStatus.getJSONObject("stream").getJSONObject("channel");
         }
 
+        return channelStatus;
+    }
+
+    public static JSONObject getHitboxStatus(String channel) throws JSONException{
+        JSONObject channelStatus = new JSONObject();
+
+        String hburl = String.format("http://hitbox.tv/api/media/live/%s?showHidden=true", channel);
+        String hbretval = HttpGet(hburl);
+        // because hitbox is bad and does not actually 404 from bad channel names
+        if(hbretval.startsWith("{")) {
+            channelStatus = new JSONObject(hbretval).getJSONObject("livestream");
+        }
         return channelStatus;
     }
 
@@ -460,6 +542,7 @@ public class Business {
         return HttpGet(authurl);
     }
 
+    // works for HLS
     public static HashMap parseQualitiesFromURL(String url) {
         HashMap mQualities = new HashMap<String, String>();
         String qualityOptions = HttpGet(url);
