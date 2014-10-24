@@ -518,6 +518,10 @@ public class Business {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if(mQualities.size() == 0){
+            Log.d("Qualities", "Could not parse any qualities from the following respons:");
+            Log.d("Qualities", qualityOptions);
+        }
         return mQualities;
     }
 
