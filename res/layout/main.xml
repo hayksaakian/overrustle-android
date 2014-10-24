@@ -39,7 +39,7 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <gg.destiny.app.ResizingVideoView
+                <io.vov.vitamio.widget.VideoView
                     android:id="@+id/video"
                     android:visibility="gone"
                     android:gravity="center"

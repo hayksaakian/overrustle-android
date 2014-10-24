@@ -29,6 +29,10 @@ import org.apache.http.impl.client.*;
 import org.json.*;
 
 import gg.destiny.app.support.NavigationDrawerFragment;
+import io.vov.vitamio.LibsChecker;
+import io.vov.vitamio.widget.*;
+import io.vov.vitamio.widget.MediaController;
+import io.vov.vitamio.widget.VideoView;
 
 public class Business {
     final static String GAMEONGG_QUALITIES_URL = "http://mlghds-lh.akamaihd.net/i/mlg17_1@167001/master.m3u8";
@@ -280,7 +284,7 @@ public class Business {
         Activity mActivity;
         public Spinner qualityPicker;
         public int spinner_item;
-        public ResizingVideoView video;
+        public VideoView video;
         public Context context;
 
         String channel;
@@ -440,15 +444,15 @@ public class Business {
         return channelStatus;
     }
 
-    public static void PlayURL(ResizingVideoView video, String url) {
+    public static void PlayURL(io.vov.vitamio.widget.VideoView video, String url) {
         video.setVisibility(View.VISIBLE);
-        video.showProgress();
+//        video.showProgress();
         //video.progressBar.setVisibility(View.VISIBLE);
-        video.setVideoURI(Uri.parse(url));
+        video.setVideoPath(url);
 
-        //video.setMediaController(new MediaController(context));
+//        video.setMediaController(new MediaController(video.getContext()));
         video.requestFocus();
-        video.start();
+//        video.start();
     }
 
     public static String getTwitchAuth(String channel) {

@@ -1,10 +1,11 @@
 package gg.destiny.app;
 
-import android.content.*;
-import android.media.*;
-import android.util.*;
-import android.widget.*;
-import android.view.*;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.ProgressBar;
+import android.view.View;
+import io.vov.vitamio.widget.VideoView;
+import io.vov.vitamio.widget.*;
 
 public class ResizingVideoView extends VideoView {
 	

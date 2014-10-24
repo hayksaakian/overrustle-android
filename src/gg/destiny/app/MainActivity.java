@@ -6,7 +6,7 @@ import android.app.*;
 import android.content.*;
 import android.content.res.*;
 import android.graphics.*;
-import android.media.*;
+//import android.media.*;
 import android.os.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,6 +29,10 @@ import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 
 import gg.destiny.app.support.NavigationDrawerFragment;
+import io.vov.vitamio.LibsChecker;
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.widget.*;
+import io.vov.vitamio.widget.VideoView;
 
 
 public class MainActivity extends FragmentActivity
@@ -178,7 +182,7 @@ public class MainActivity extends FragmentActivity
    // LinearLayout youtubeLayout;
 	RelativeLayout youtubeLayout;
     
-    ResizingVideoView video;
+    VideoView video;
 	
 	MenuItem actionSearchItem;
 	
@@ -212,6 +216,12 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState)	{
         super.onCreate(savedInstanceState);
+        if(LibsChecker.checkVitamioLibs(this)){
+            Log.d("VITAMIO", "Libs are available");
+        }else{
+            Log.d("VITAMIO", "Libs are missing!!!!");
+            return;
+        }
         setContentView(R.layout.main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -244,8 +254,8 @@ public class MainActivity extends FragmentActivity
 //                wv = (WebView) findViewById(R.id.wv);
 //        youtubeLayout = (YoutubeLayout) findViewById(R.id.youtubeLayout);
         youtubeLayout = (RelativeLayout) findViewById(R.id.youtubeLayout);
-        video = (ResizingVideoView)findViewById(R.id.video);
-		video.progressBar = (ProgressBar)findViewById(R.id.video_loading);
+        video = (io.vov.vitamio.widget.VideoView)findViewById(R.id.video);
+//		video.progressBar = (ProgressBar)findViewById(R.id.video_loading);
         ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
         ogheight = ogparams.height;
         ogwidth = ogparams.width;
@@ -346,11 +356,13 @@ public class MainActivity extends FragmentActivity
 //                return false;
 //            }
 //        });
+
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
 
 				@Override
 				public void onPrepared(MediaPlayer p1){
-					video.progressBar.setVisibility(View.GONE);
+                    p1.start();
+					//video.progressBar.setVisibility(View.GONE);
 				}
 			});
 		
