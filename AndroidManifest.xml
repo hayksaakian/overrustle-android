@@ -22,7 +22,6 @@
 
   <permission android:name="gg.destiny.app.gcm.permission.C2D_MESSAGE"
       android:protectionLevel="signature" />
-  <uses-permission android:name="gg.destiny.app.permission.C2D_MESSAGE" />
 
   <application
     android:name="gg.destiny.app.DestinyApplication"

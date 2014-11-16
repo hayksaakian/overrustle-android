@@ -649,7 +649,7 @@ public class Business {
         try {
             JSONObject j = new JSONObject(jString);
 
-            int totalviewers = (Integer) j.get("totalviewers");
+            int totalviewers = (Integer) j.get("viewercount");
 
             // loop array
             JSONObject streamsObj = (JSONObject) j.get("streams");
