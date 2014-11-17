@@ -648,6 +648,18 @@ public class Business {
 
         try {
             JSONObject j = new JSONObject(jString);
+            retval = ParseJsonToList(j);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return retval;
+    }
+
+
+    public static List<Pair<String, String>> ParseJsonToList(JSONObject j) {
+        List<Pair<String, String>> retval = new ArrayList<Pair<String, String>>();
+
+        try {
 
             int totalviewers = (Integer) j.get("viewercount");
 
@@ -676,8 +688,6 @@ public class Business {
         }
         return retval;
     }
-
-
 
 
 

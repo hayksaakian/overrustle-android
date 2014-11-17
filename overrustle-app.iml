@@ -76,8 +76,11 @@
     <orderEntry type="jdk" jdkName="Android API 20 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="android-support-v4" level="project" />
+    <orderEntry type="library" exported="" name="Java-WebSocket-1.3.0" level="project" />
     <orderEntry type="library" exported="" name="okio-1.0.0-REPACKAGED" level="project" />
+    <orderEntry type="library" exported="" name="socket.io-client-0.3.0" level="project" />
     <orderEntry type="library" exported="" name="okhttp-2.0.0-REPACKAGED-OKIO" level="project" />
+    <orderEntry type="library" exported="" name="engine.io-client-0.3.1" level="project" />
   </component>
 </module>
 

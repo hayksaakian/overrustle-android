@@ -22,17 +22,31 @@ import android.view.inputmethod.*;
 import android.webkit.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
+
+import java.net.URISyntaxException;
 import java.util.*;
 
 
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.engineio.client.Transport;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Manager;
+import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONObject;
+
 import gg.destiny.app.support.NavigationDrawerFragment;
 
 
 public class MainActivity extends FragmentActivity
         implements OnItemSelectedListener, NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    Activity thisActivity;
+
+    Socket overrustle_socket = null;
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     //Map<String, String> overRustlers = new HashMap<String, String>();
@@ -46,7 +60,7 @@ public class MainActivity extends FragmentActivity
         if(position == 0){
             //loadChannel(DEFAULT_CHANNEL);
             selected = "Reloading Rustlers... NoTears";
-            Business.GetRustlers(this, mNavigationDrawerFragment);
+            //Business.GetRustlers(this, mNavigationDrawerFragment);
         }else {
             String selectedValue = mNavigationDrawerFragment.getValue(position);
             if (position > 0 && selectedValue != null && selectedValue.length() > 0) {
@@ -57,7 +71,7 @@ public class MainActivity extends FragmentActivity
     }
 
 
-    private static final int NUM_PAGES = 2;
+    private static final int NUM_PAGES = 3;
     private ViewPager chatPager;
     private PagerAdapter chatPagerAdapter;
     /**
@@ -213,6 +227,7 @@ public class MainActivity extends FragmentActivity
 	public void onCreate(Bundle savedInstanceState)	{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        thisActivity = this;
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -222,7 +237,6 @@ public class MainActivity extends FragmentActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        Business.GetRustlers(this, mNavigationDrawerFragment);
 
         // Instantiate a ViewPager and a PagerAdapter.
         chatPager = (ViewPager) findViewById(R.id.pager);
@@ -377,6 +391,53 @@ public class MainActivity extends FragmentActivity
 //        if(!Business.isKitkat()){
 //        	alert(this);
 //        }
+
+        //Business.GetRustlers(this, mNavigationDrawerFragment);
+
+        if(overrustle_socket == null) {
+            try {
+                Log.d("Socket.IO", "Creating overrustle socket");
+                overrustle_socket = IO.socket("http://overrustle.com:9998");
+                // Receiving an object
+                overrustle_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Transport transport = (Transport)args[0];
+                        transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
+                            @Override
+                            public void call(Object... args) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, String> headers = (Map<String, String>) args[0];
+                                headers.put("Referer", "http://overrustle.com/strims");
+                            }
+                        });
+                    }
+                });
+
+
+                overrustle_socket.on("strims", new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Log.d("Socket.IO", "Recieved data from socket");
+                        JSONObject obj = (JSONObject)args[0];
+                        final List<Pair<String,String>> mm = Business.ParseJsonToList(obj);
+                        thisActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mNavigationDrawerFragment.setLabelValueList(mm);
+                            }
+                        });
+                    }
+                });
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        if(overrustle_socket.connected() == false) {
+            Log.d("Socket.IO", "Connecting overrustle socket");
+            overrustle_socket.connect();
+        }
+
         isOnCreateDone  = true;
         
         configProportions();

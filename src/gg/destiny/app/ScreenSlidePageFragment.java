@@ -49,7 +49,7 @@ public class ScreenSlidePageFragment extends Fragment{
         }else if(TAB_NUM == 1) {
             home_url = "https://kiwiirc.com/client/irc.twitch.tv/#destiny";
         }else{
-            home_url = "http://www.example.com/";
+            home_url = "http://www.google.com/";
         }
 
         wvr.LoadURL(home_url);
