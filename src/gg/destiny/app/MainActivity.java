@@ -394,10 +394,11 @@ public class MainActivity extends FragmentActivity
 
         //Business.GetRustlers(this, mNavigationDrawerFragment);
 
-        if(overrustle_socket == null) {
-            try {
+        try {
+            if(overrustle_socket == null) {
+
                 Log.d("Socket.IO", "Creating overrustle socket");
-                overrustle_socket = IO.socket("http://overrustle.com:9998");
+                overrustle_socket = IO.socket("http://api.overrustle.com");
                 // Receiving an object
                 overrustle_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
                     @Override
@@ -418,7 +419,7 @@ public class MainActivity extends FragmentActivity
                 overrustle_socket.on("strims", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
-                        Log.d("Socket.IO", "Recieved data from socket");
+                        //Log.d("Socket.IO", "Recieved data from socket");
                         JSONObject obj = (JSONObject)args[0];
                         final List<Pair<String,String>> mm = Business.ParseJsonToList(obj);
                         thisActivity.runOnUiThread(new Runnable() {
@@ -429,13 +430,13 @@ public class MainActivity extends FragmentActivity
                         });
                     }
                 });
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
             }
-        }
-        if(overrustle_socket.connected() == false) {
-            Log.d("Socket.IO", "Connecting overrustle socket");
-            overrustle_socket.connect();
+            if(overrustle_socket.connected() == false) {
+                Log.d("Socket.IO", "Connecting overrustle socket");
+                overrustle_socket.connect();
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
 
         isOnCreateDone  = true;
@@ -453,6 +454,13 @@ public class MainActivity extends FragmentActivity
 		//handleIntent(getIntent());
     }
 
+
+    @Override
+    protected void onDestroy() {
+        if(overrustle_socket != null)
+            overrustle_socket.disconnect();
+        super.onDestroy();
+    }
 
     // TODO: handle app urls from overrustle.com
 
@@ -610,6 +618,7 @@ public class MainActivity extends FragmentActivity
         //InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         //imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
     }
+
 
     //helper methods
 	//UI modes:
