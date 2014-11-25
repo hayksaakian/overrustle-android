@@ -409,7 +409,7 @@ public class MainActivity extends FragmentActivity
                             public void call(Object... args) {
                                 @SuppressWarnings("unchecked")
                                 Map<String, String> headers = (Map<String, String>) args[0];
-                                headers.put("Referer", "http://overrustle.com/strims");
+                                headers.put("Referer", "http://overrustle.com/strims?android=true");
                             }
                         });
                     }
