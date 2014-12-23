@@ -660,12 +660,26 @@ public class Business {
         List<Pair<String, String>> retval = new ArrayList<Pair<String, String>>();
 
         try {
+            JSONObject metadata = j.getJSONObject("metadata");
+            JSONObject metaindex = j.getJSONObject("metaindex");
 
             int totalviewers = (Integer) j.get("viewercount");
 
             // loop array
             JSONObject streamsObj = (JSONObject) j.get("streams");
             Iterator<String> streams = streamsObj.keys();
+            List<Pair<String, Integer>> sorted = new ArrayList<Pair<String, Integer>>();
+            while ((streams.hasNext())){
+                String key = streams.next();
+                sorted.add(new Pair<String, Integer>(key, streamsObj.getInt(key)));
+            }
+            Collections.sort(sorted, new Comparator<Pair<String, Integer>>() {
+                @Override
+                public int compare(Pair<String, Integer> lhs, Pair<String, Integer> rhs) {
+                    return Integer.valueOf(lhs.second).compareTo(Integer.valueOf(rhs.second));
+                }
+            });
+            Collections.reverse(sorted);
 //            retval[0] = "Destiny";
 //            int i = 0;
             retval.add(new Pair<String, String>(Integer.toString(totalviewers) +" Rustlers Watching:", "1"));
@@ -673,14 +687,22 @@ public class Business {
 //            if(streamsObj.length() > 0){
 //                hm.clear();
 //            }
-            while (streams.hasNext()) {
+            Iterator<Pair<String, Integer>> sortedstreams = sorted.iterator();
+            while (sortedstreams.hasNext()) {
 //                i = i + 1;
-                String key = streams.next();
+                Pair<String, Integer> pair = sortedstreams.next();
+                String key = pair.first;
+//                TODO: replace with a less naive implementation in case we add querystring parameters
                 String[] parts = key.split("=");
                 if(parts.length > 0) {
                     String stream = parts[parts.length - 1];
+                    String streamid = stream;
                     //retval[i] = stream;//
-                    retval.add(new Pair<String, String>(String.format("%s %s", Integer.toString(streamsObj.getInt(key)), stream), stream));
+                    if(key.startsWith("/channel")){
+                        JSONObject md = metadata.getJSONObject(metaindex.getString(key));
+                        streamid = md.getString("channel");
+                    }
+                    retval.add(new Pair<String, String>(String.format("%s %s", Integer.toString(pair.second), stream), streamid));
                 }
             }
         } catch (Exception e) {
