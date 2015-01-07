@@ -266,6 +266,18 @@ public class Business {
                     } else {
                         status = channelname + " is offline. Type another channel\'s name below to watch something else.";
                     }
+                    // check hitbox unless twitch was good
+                    if(isLive == false){
+                        JSONObject hbStatus = getHitboxStatus(url_or_channel_name);
+                        // because hitbox is bad and does not actually 404 from bad channel names
+                        if(hbStatus.length() > 0) {
+                            String liveStatus = hbStatus.getString("media_is_live");
+                            isLive = "1".equals(liveStatus);
+                            if (isLive) {
+                                status = hbStatus.getString("media_status");
+                            }
+                        }
+                    }
                 }
 
             } catch (JSONException e) {
@@ -318,6 +330,27 @@ public class Business {
             } else {
                 String auth = getTwitchAuth(channel);
                 newQualities = getTwitchQualities(channel, auth);
+
+                // check hitbox if twitch doesn't have anything
+                if(newQualities.size() == 0){
+                    try {
+                        // unfortunately, getting the list of qualities
+                        // does not truthfully tell us if the stream is live
+                        // so we have to GET the status API too
+                        // TODO: cache this maybe
+                        JSONObject hbStatus = getHitboxStatus(channel);
+
+                        if(hbStatus.length() > 0) {
+                            String liveStatus = hbStatus.getString("media_is_live");
+                            if ("1".equals(liveStatus)) {
+                                String streams_url = String.format("http://api.hitbox.tv/player/hls/%s.m3u8", channel);
+                                newQualities = parseQualitiesFromURL(streams_url);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             //String readURL = HttpGet(url);
@@ -422,6 +455,18 @@ public class Business {
         return mQualities;
     }
 
+    public static JSONObject getHitboxStatus(String channel) throws JSONException{
+        JSONObject channelStatus = new JSONObject();
+
+        String hburl = String.format("http://hitbox.tv/api/media/live/%s?showHidden=true", channel);
+        String hbretval = HttpGet(hburl);
+        // because hitbox is bad and does not actually 404 from bad channel names
+        if(hbretval.startsWith("{")) {
+            channelStatus = new JSONObject(hbretval).getJSONArray("livestream").getJSONObject(0);
+        }
+        return channelStatus;
+    }
+
     public static JSONObject getTwitchStatus(String channel) throws JSONException {
         JSONObject channelStatus = new JSONObject();
         //maybe put this in another task...
@@ -430,6 +475,9 @@ public class Business {
             strStatus = HttpGet("https://api.twitch.tv/kraken/streams/" + channel);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if(strStatus.length() == 0){
+            return channelStatus;
         }
         JSONObject jsnStatus = new JSONObject(strStatus);
         if (!jsnStatus.isNull("stream")) {
@@ -507,6 +555,14 @@ public class Business {
 
                         Log.d("found quality", lastquality);
                     } else if (line.startsWith("http") && lastquality != null) {
+                        // we need to pull the quality name out of the URL for hitbox m3u8 streams
+                        if(line.contains("hitbox.tv/hls/") && line.contains("/index.m3u8")){
+                            lastquality = line.substring(line.indexOf("hitbox.tv/hls/") + 1, line.indexOf("/index.m3u8"));
+                            if (lastquality.contains("_")){
+                                String[] parts = lastquality.split("_");
+                                lastquality = parts[parts.length-1];
+                            }
+                        }
                         Log.d("quality url", line);
                         mQualities.put(lastquality, line);
                         lastquality = null;
