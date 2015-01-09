@@ -398,7 +398,7 @@ public class MainActivity extends FragmentActivity
             if(overrustle_socket == null) {
 
                 Log.d("Socket.IO", "Creating overrustle socket");
-                overrustle_socket = IO.socket("http://api.overrustle.com");
+                overrustle_socket = IO.socket("http://api.overrustle.com/streams");
                 // Receiving an object
                 overrustle_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
                     @Override

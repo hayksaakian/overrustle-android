@@ -9,7 +9,8 @@
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/input"/>
 
     <RelativeLayout
         android:id="@+id/navigation"
@@ -44,6 +45,6 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:imeOptions="actionSend|flagNoExtractUi"
-        android:visibility="gone"
+        android:visibility="visible"
         />
 </RelativeLayout>
