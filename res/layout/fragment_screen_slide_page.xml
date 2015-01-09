@@ -45,6 +45,6 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:imeOptions="actionSend|flagNoExtractUi"
-        android:visibility="visible"
+        android:visibility="gone"
         />
 </RelativeLayout>

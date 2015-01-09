@@ -40,6 +40,10 @@ public class ScreenSlidePageFragment extends Fragment{
         //wvr.loparams.addRule(RelativeLayout.BELOW, R.id.youtubeLayout);
         wvr.backToLoadedURLButton = (Button)rootView.findViewById(R.id.back_button);
         wvr.chatInput = (EditText)rootView.findViewById(R.id.input);
+        if (Business.isKitkat() == false){
+            wvr.chatInput.setVisibility(View.VISIBLE);
+        }
+
         wvr.nativeWV = (WebView)rootView.findViewById(R.id.webview);
         wvr.pageLoadTime = (TextView)rootView.findViewById(R.id.page_load_time);
         wvr.Make(getActivity().getApplicationContext());
