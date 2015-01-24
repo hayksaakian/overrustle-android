@@ -523,7 +523,7 @@ public class MainActivity extends FragmentActivity
 		mQualityPicker.setOnItemSelectedListener(this); // (optional) 
 		
 		// set up the autocomplete checkbox
-		boolean hasAutocomplete = Business.hasAutocomplete(this);
+		boolean hasAutocomplete = EmoteDownloader.hasAutocomplete(this);
 		menu.findItem(R.id.action_settings).setChecked(hasAutocomplete);
 		
 		// TODO find a better place for this call
@@ -556,7 +556,7 @@ public class MainActivity extends FragmentActivity
 	}
 	
 	private void setAutocomplete(boolean newSetting){
-		Business.EmoteDownloader ed = new Business.EmoteDownloader();
+		EmoteDownloader ed = new EmoteDownloader();
 		ed.mContext = this;
 		String onoff = newSetting ? "on" : "off";
 		Log.d("Autocomplete Setting", "turning autocomplete "+onoff);
