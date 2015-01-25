@@ -19,7 +19,9 @@ import com.squareup.okhttp.Response;
 
 import java.io.*;
 import java.text.*;
-import java.util.*;;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;;
 import org.apache.http.*;
 
 //import org.apache.http.*;
@@ -152,26 +154,31 @@ public class Business {
                     }
 
                 } else {
+                    // 1) check twitch
                     jsno = getTwitchStatus(url_or_channel_name);
                     channelname = url_or_channel_name;
                     isLive = jsno != null && jsno.length() > 0;
                     if (isLive) {
-                        status = jsno.getString("status");
-                    } else {
-                        status = channelname + " is offline. Type another channel\'s name below to watch something else.";
+                        return jsno.getString("status");
                     }
-                    // check hitbox unless twitch was good
-                    if(isLive == false){
-                        JSONObject hbStatus = getHitboxStatus(url_or_channel_name);
-                        // because hitbox is bad and does not actually 404 from bad channel names
-                        if(hbStatus.length() > 0) {
-                            String liveStatus = hbStatus.getString("media_is_live");
-                            isLive = "1".equals(liveStatus);
-                            if (isLive) {
-                                status = hbStatus.getString("media_status");
-                            }
+                    // 2) check hitbox unless twitch was good
+                    jsno = getHitboxStatus(url_or_channel_name);
+                    // because hitbox is bad and does not actually 404 from bad channel names
+                    if(jsno.length() > 0) {
+                        String liveStatus = jsno.getString("media_is_live");
+                        isLive = "1".equals(liveStatus);
+                        if (isLive) {
+                            return jsno.getString("media_status");
                         }
                     }
+                    // 3) check azubu
+                    jsno = getAzubuStatus(url_or_channel_name);
+                    isLive = false;
+                    if (jsno.length() > 0){
+                        isLive = true;
+                        return jsno.getString("title");
+                    }
+                    return channelname + " is offline. Type another channel\'s name below to watch something else.";
                 }
 
             } catch (JSONException e) {
@@ -225,26 +232,35 @@ public class Business {
                 String auth = getTwitchAuth(channel);
                 newQualities = getTwitchQualities(channel, auth);
 
-                // check hitbox if twitch doesn't have anything
-                if(newQualities.size() == 0){
-                    try {
-                        // unfortunately, getting the list of qualities
-                        // does not truthfully tell us if the stream is live
-                        // so we have to GET the status API too
-                        // TODO: cache this maybe
-                        JSONObject hbStatus = getHitboxStatus(channel);
-
-                        if(hbStatus.length() > 0) {
-                            String liveStatus = hbStatus.getString("media_is_live");
-                            if ("1".equals(liveStatus)) {
-                                String streams_url = String.format("http://api.hitbox.tv/player/hls/%s.m3u8", channel);
-                                newQualities = parseQualitiesFromURL(streams_url);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                if(newQualities.size() > 0){
+                    return newQualities;
                 }
+
+                // check hitbox if twitch doesn't have anything
+                try {
+                    // unfortunately, getting the list of qualities
+                    // does not truthfully tell us if the stream is live
+                    // so we have to GET the status API too
+                    // TODO: cache this maybe
+                    JSONObject hbStatus = getHitboxStatus(channel);
+
+                    if(hbStatus.length() > 0) {
+                        String liveStatus = hbStatus.getString("media_is_live");
+                        if ("1".equals(liveStatus)) {
+                            String streams_url = String.format("http://api.hitbox.tv/player/hls/%s.m3u8", channel);
+                            newQualities = parseQualitiesFromURL(streams_url);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if(newQualities.size() > 0){
+                    return newQualities;
+                }
+
+                // check azubu if hitbox doesn't have anything
+                newQualities = getAzubuQualities(channel);
             }
 
             //String readURL = HttpGet(url);
@@ -348,6 +364,66 @@ public class Business {
         }
         return mQualities;
     }
+    public static HashMap getAzubuQualities(String channel) {
+        try {
+            JSONObject status = getAzubuStatus(channel);
+            if (status.length() > 0) {
+                return getAzubuQualities(channel, status);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return new HashMap<String, String>();
+    }
+
+    // this seems like a constant, but might not be
+    public static String AZUBU_PUB_ID = "3361910549001";
+
+    public static HashMap getAzubuQualities(String channel, JSONObject status) {
+        HashMap mQualities = new HashMap<String, String>();
+        try {
+
+            String keyContainingHtml = HttpGet("http://www.azubu.tv/"+channel);
+            // found here:
+            // https://github.com/chrippa/livestreamer/blob/da58e4a05405e0e23bbefb1f9d83a6dd88d1d454/src/livestreamer/plugins/azubutv.py#L135
+            Pattern pattern = Pattern.compile("name=\"playerKey\" value=\"(.+)\"");
+            Matcher matcher = pattern.matcher(keyContainingHtml);
+            matcher.find();
+
+            String playerKey = matcher.group(1);
+            String refId = "video" + status.getString("id") + "CH" + channel.replace("_", "");
+
+            String streamApiUrl = "http://c.brightcove.com/services/json/player/media/?command=find_media_by_reference_id" +
+                    "&playerKey=" + playerKey +
+                    "&refId=" + refId +
+                    "&pubId=" + AZUBU_PUB_ID;
+
+            String sStreamApiData = HttpGet(streamApiUrl);
+            JSONObject json = new JSONObject(sStreamApiData);
+            String qualitiesURL = json.getString("FLVFullLengthURL");
+            if (!qualitiesURL.endsWith("m3u8")){
+                qualitiesURL = json.getJSONArray("IOSRenditions").getJSONObject(0).getString("defaultURL");
+            }
+
+            // their qualities are not prefixed by a proper url
+            mQualities = parseQualitiesFromURL(qualitiesURL, refId);
+
+            List<String> list = new ArrayList<String>();
+            list.addAll(mQualities.keySet());
+
+            String urlprefix = qualitiesURL.replace(refId+".m3u8", "");
+
+            for (int i = 0; i < list.size(); i++) {
+                String mq = list.get(i);
+                String mqpath = (String)mQualities.get(mq);
+                mQualities.put(mq, urlprefix + mqpath);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return mQualities;
+    }
 
     public static JSONObject getAzubuStatus(String channel) throws JSONException{
         String hburl = String.format("http://www.azubu.tv/api/video/active-stream/%s", channel);
@@ -358,6 +434,8 @@ public class Business {
         }
         return json.getJSONArray("data").getJSONObject(0);
     }
+
+
 
     public static JSONObject getHitboxStatus(String channel) throws JSONException{
         JSONObject channelStatus = new JSONObject();
@@ -409,6 +487,9 @@ public class Business {
     }
 
     public static HashMap parseQualitiesFromURL(String url) {
+        return parseQualitiesFromURL(url, "http");
+    }
+    public static HashMap<String, String> parseQualitiesFromURL(String url, String urlPrefix) {
         HashMap mQualities = new HashMap<String, String>();
         String qualityOptions = HttpGet(url);
 //        Log.d("Quality Response", qualityOptions);
@@ -455,10 +536,13 @@ public class Business {
                         if (mQualities.containsKey(lastquality) && info.containsKey("BANDWIDTH")) {
                             int bw = Integer.parseInt(info.get("BANDWIDTH"));
                             lastquality = lastquality + "@" + Integer.toString(bw / 1000) + "kbps";
+                        }else if(lastquality.contains("BANDWIDTH=")){
+                            int bw = Integer.parseInt(info.get("BANDWIDTH"));
+                            lastquality = Integer.toString(bw / 1000) + "kbps";
                         }
 
                         Log.d("found quality", lastquality);
-                    } else if (line.startsWith("http") && lastquality != null) {
+                    } else if (line.startsWith(urlPrefix) && lastquality != null) {
                         // we need to pull the quality name out of the URL for hitbox m3u8 streams
                         if(line.contains("hitbox.tv/hls/") && line.contains("/index.m3u8")){
                             lastquality = line.substring(line.indexOf("hitbox.tv/hls/") + 1, line.indexOf("/index.m3u8"));

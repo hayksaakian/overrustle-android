@@ -74,6 +74,7 @@ public class EmoteDownloader extends AsyncTask<String, Void, String[]> {
     protected String[] doInBackground(String... notes) {
         String[] emotes = EMOTICON_LIST;
         //if(false){
+
         if (notes.length > 0) {
             note = notes[0];
 
