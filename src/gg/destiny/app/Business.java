@@ -164,20 +164,23 @@ public class Business {
                     // 2) check hitbox unless twitch was good
                     jsno = getHitboxStatus(url_or_channel_name);
                     // because hitbox is bad and does not actually 404 from bad channel names
-                    if(jsno.length() > 0) {
-                        String liveStatus = jsno.getString("media_is_live");
-                        isLive = "1".equals(liveStatus);
-                        if (isLive) {
-                            return jsno.getString("media_status");
-                        }
+                    isLive = jsno.length() > 0 && "1".equals(jsno.getString("media_is_live"));
+                    if(isLive) {
+                        return jsno.getString("media_status");
                     }
                     // 3) check azubu
                     jsno = getAzubuStatus(url_or_channel_name);
-                    isLive = false;
-                    if (jsno.length() > 0){
-                        isLive = true;
+                    isLive = jsno.length() > 0;
+                    if (isLive){
                         return jsno.getString("title");
                     }
+                    // 4) check cb
+                    jsno = getCBStatus(url_or_channel_name);
+                    isLive = (jsno.length() > 0) && !(jsno.get("total_viewers") instanceof Integer) && (Integer.parseInt(jsno.getString("total_viewers")) > 0);
+                    if(isLive){
+                        return channelname + " NSFW for " + jsno.getString("total_viewers") + " viewers";
+                    }
+
                     return channelname + " is offline. Type another channel\'s name below to watch something else.";
                 }
 
@@ -212,6 +215,7 @@ public class Business {
             //String retval = "";
             channel = channels[0];
             //String url = "";
+//  TODO: instead of checking every platform, use a dict and only check the relevant platorm
             if (channel.equals("gameongg")) {
                 newQualities = parseQualitiesFromURL(GAMEONGG_QUALITIES_URL);
                 if (newQualities.size() > 0) {
@@ -261,6 +265,19 @@ public class Business {
 
                 // check azubu if hitbox doesn't have anything
                 newQualities = getAzubuQualities(channel);
+
+                if(newQualities.size() > 0){
+                    return newQualities;
+                }
+
+                // check cb if azubu doesn't have anything
+                newQualities = getCBQualities(channel);
+
+                if(newQualities.size() > 0){
+                    Log.d("testing", "found some for CB");
+                    return newQualities;
+                }
+
             }
 
             //String readURL = HttpGet(url);
@@ -290,7 +307,7 @@ public class Business {
 
     }
 
-    public static String HttpGet(String url){
+    public static Response RawHttpGet(String url){
         Log.d("GET ing with OkHTTP", url);
 
         final OkHttpClient client = new OkHttpClient();
@@ -300,16 +317,28 @@ public class Business {
                     .build();
 
             Response response = client.newCall(request).execute();
-            if(response.isSuccessful()) {
-                return response.body().string();
-            }else{
-                Log.e(Business.class.toString(), "Failed to download file");
-            }
-
+            return response;
         }catch(IOException e){
             e.printStackTrace();
         }
+        return null;
+    }
+
+    public static String HttpGet(String url){
+        Response r = RawHttpGet(url);
+        if(r == null){
+            return "";
+        }
+        if(r.isSuccessful()) {
+            try {
+                return r.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.e(Business.class.toString(), "Failed to download file");
         return "";
+
     }
 
     // TODO: Deprecate
@@ -364,6 +393,53 @@ public class Business {
         }
         return mQualities;
     }
+
+
+    public static HashMap getCBQualities(String channel) {
+        try {
+            JSONObject jsno = getCBStatus(channel);
+            if ((jsno.length() > 0) && !(jsno.get("total_viewers") instanceof Integer) && (Integer.parseInt(jsno.getString("total_viewers")) > 0)) {
+                return getCBQualities(channel, jsno);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return new HashMap<String, String>();
+    }
+
+    public static HashMap getCBQualities(String channel, JSONObject status) {
+        HashMap mQualities = new HashMap<String, String>();
+
+        String rawhtml = HttpGet("https://www.chaturbate.com/"+channel);
+
+        Pattern pattern = Pattern.compile("http.*playlist.m3u8", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(rawhtml);
+        if(matcher.find()){
+            Log.d("found matches", "some matches");
+        }else{
+            Log.d("found matches", "no/0 matches");
+            return mQualities;
+        }
+
+        String qualitiesURL  = matcher.group(0);
+
+        // their qualities are not prefixed by a proper url
+        mQualities = parseQualitiesFromURL(qualitiesURL, "chunklist");
+
+        List<String> list = new ArrayList<String>();
+        list.addAll(mQualities.keySet());
+
+        String urlprefix = qualitiesURL.replace("playlist.m3u8", "");
+
+        for (int i = 0; i < list.size(); i++) {
+            String mq = list.get(i);
+            String mqpath = (String)mQualities.get(mq);
+            mQualities.put(mq, urlprefix + mqpath);
+        }
+
+        return mQualities;
+    }
+
     public static HashMap getAzubuQualities(String channel) {
         try {
             JSONObject status = getAzubuStatus(channel);
@@ -425,6 +501,15 @@ public class Business {
         return mQualities;
     }
 
+    public static JSONObject getCBStatus(String channel) throws JSONException{
+        String hburl = String.format("https://chaturbate.com/contest/log_presence/%s", channel);
+        String hbretval = HttpGet(hburl);
+        if(hbretval.length() == 0){
+            return new JSONObject();
+        }
+        return new JSONObject(hbretval);
+    }
+
     public static JSONObject getAzubuStatus(String channel) throws JSONException{
         String hburl = String.format("http://www.azubu.tv/api/video/active-stream/%s", channel);
         String hbretval = HttpGet(hburl);
@@ -452,12 +537,8 @@ public class Business {
     public static JSONObject getTwitchStatus(String channel) throws JSONException {
         JSONObject channelStatus = new JSONObject();
         //maybe put this in another task...
-        String strStatus = "";
-        try {
-            strStatus = HttpGet("https://api.twitch.tv/kraken/streams/" + channel);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String strStatus = HttpGet("https://api.twitch.tv/kraken/streams/" + channel);
+
         if(strStatus.length() == 0){
             return channelStatus;
         }
@@ -563,7 +644,7 @@ public class Business {
             e.printStackTrace();
         }
         if(mQualities.size() == 0){
-            Log.d("Qualities", "Could not parse any qualities from the following respons:");
+            Log.d("Qualities", "Could not parse any qualities from the following response:");
             Log.d("Qualities", qualityOptions);
         }
         return mQualities;
