@@ -51,10 +51,11 @@ public class ScreenSlidePageFragment extends Fragment{
         if(TAB_NUM == 0) {
             home_url = "http://www.destiny.gg/embed/chat";
         }else if(TAB_NUM == 1) {
-            home_url = "https://kiwiirc.com/client/irc.twitch.tv/#destiny";
-        }else{
             home_url = "http://www.google.com/";
+        }else{
+            home_url = "https://kiwiirc.com/client/irc.twitch.tv/#destiny";
         }
+        // TODO: load the chat room appropriate to the current stream
 
         wvr.LoadURL(home_url);
 

@@ -2,6 +2,8 @@ package gg.destiny.app.support;
 
 // BAD IMPORT:
 import gg.destiny.app.R;
+import gg.destiny.app.ThumbnailAdapter;
+import gg.destiny.app.platforms.Metadata;
 
 import android.app.Activity;
 import android.app.ActionBar;
@@ -90,40 +92,35 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     //TreeMap<String, String> labelValueMap = new TreeMap<String, String>();
-    List<Pair<String, String>> labelValueList = new ArrayList<Pair<String, String>>();
+//    List<Metadata> labelValueList = new ArrayList<Metadata>();
 
-    public void setLabelValueList(List<Pair<String, String>> lvm){
-        labelValueList = lvm;
-        rawDrawerItems.clear();
-        for(Pair<String, String> p : labelValueList){
-            rawDrawerItems.add(p.first);
-        }
-        setDrawerItems(rawDrawerItems);
+    public void setLabelValueList(List<Metadata> lvm){
+        setDrawerItems(lvm);
     }
 
 //    public List<Pair<String, String>> getLabelValueMap(){
 //        return labelValueList;
 //    }
 
-    public String getKey(int index){
+    public Metadata getValue(int index){
         return rawDrawerItems.get(index);
     }
 
-    public String getValue(int index){
-        return labelValueList.get(index).second;
-    }
-
-    ArrayAdapter<String> drawerItems;
+    ThumbnailAdapter drawerItems;
 
 //    String[] rawDrawerItems = {};
-    List<String> rawDrawerItems = new ArrayList<String>();
+    List<Metadata> rawDrawerItems = new ArrayList<Metadata>();
 
-    private void setDrawerItems(List<String> items){
+    private void setDrawerItems(List<Metadata> items){
         rawDrawerItems = items;
-        drawerItems = new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
+        ActionBar ab = getActionBar();
+        if(ab == null){
+            return;
+        }
+        drawerItems = new ThumbnailAdapter(
+                ab.getThemedContext(),
+                R.layout.thumbnail,
+                R.id.thumbnail,
                 rawDrawerItems
         );
         if(mDrawerListView != null) {
@@ -157,7 +154,7 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        setLabelValueList(labelValueList);
+        setLabelValueList(rawDrawerItems);
 
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
@@ -295,7 +292,10 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private ActionBar getActionBar() {
-        return getActivity().getActionBar();
+        if(getActivity() != null) {
+            return getActivity().getActionBar();
+        }
+        return null;
     }
 
     /**

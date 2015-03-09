@@ -9,14 +9,14 @@ buildscript {
 apply plugin: 'android'
 
 repositories {
-    maven { url "https://raw.github.com/tommyd3mdi/mvn/master" }
     mavenCentral()
 }
 
 dependencies {
 //    compile group: 'com.squareup.okhttp' , name: 'okhttp' , version: '2.0.0', changing: true
-    compile 'com.squareup.okhttp:okhttp:2.0.0-REPACKAGED-OKIO'
-    compile 'com.squareup.okio:okio:1.0.0-REPACKAGED'
+    compile 'com.squareup.okhttp:okhttp:+'
+    compile 'com.squareup.okio:okio:1.1.0'
+    compile 'com.squareup.picasso:picasso:2.5.0'
     compile('com.github.nkzawa:socket.io-client:0.3.0'){
         exclude group: 'org.json'
     }

@@ -38,6 +38,7 @@ import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONObject;
 
+import gg.destiny.app.platforms.Metadata;
 import gg.destiny.app.support.NavigationDrawerFragment;
 
 
@@ -56,18 +57,14 @@ public class MainActivity extends FragmentActivity
         // update the main content by replacing fragments
         if(mNavigationDrawerFragment == null || isOnCreateDone == false)
             return;
-        String selected = mNavigationDrawerFragment.getKey(position);
-        if(position == 0){
-            //loadChannel(DEFAULT_CHANNEL);
-            selected = "Reloading Rustlers... NoTears";
-            //Business.GetRustlers(this, mNavigationDrawerFragment);
-        }else {
-            String selectedValue = mNavigationDrawerFragment.getValue(position);
-            if (position > 0 && selectedValue != null && selectedValue.length() > 0) {
-                loadChannel(selectedValue);
+        if(position != 0){
+            Metadata selectedValue = mNavigationDrawerFragment.getValue(position);
+            Log.d("DrawerValue", selectedValue.channel);
+            if (position > 0 && selectedValue.channel != null && selectedValue.channel.length() > 0) {
+                loadChannel(selectedValue.channel, selectedValue.platform);
+                Toast.makeText(getApplicationContext(), selectedValue.channel, Toast.LENGTH_SHORT).show();
             }
         }
-        Toast.makeText(getApplicationContext(), selected, Toast.LENGTH_SHORT).show();
     }
 
 
@@ -394,6 +391,9 @@ public class MainActivity extends FragmentActivity
 
         //Business.GetRustlers(this, mNavigationDrawerFragment);
 
+//        TODO: fix the multitasking bug
+//        sometimes, re-opening the app will crash because of the websocket
+
         try {
             if(overrustle_socket == null) {
 
@@ -421,7 +421,7 @@ public class MainActivity extends FragmentActivity
                     public void call(Object... args) {
                         //Log.d("Socket.IO", "Recieved data from socket");
                         JSONObject obj = (JSONObject)args[0];
-                        final List<Pair<String,String>> mm = Business.ParseJsonToList(obj);
+                        final List<Metadata> mm = Business.ParseJsonToList(obj);
                         thisActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -528,9 +528,9 @@ public class MainActivity extends FragmentActivity
 		
 		// TODO find a better place for this call
 		if(!handleIntent(getIntent())){
-			loadChannel(DEFAULT_CHANNEL);
+			loadChannel(DEFAULT_CHANNEL, "twitch");
 			// and this one
-			checkStatus("gameongg");
+//			checkStatus("gameongg");
 		}
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -590,31 +590,36 @@ public class MainActivity extends FragmentActivity
         chkgameon.execute(channel_name_or_mlg_urls);		
 	}
 
-	private void loadChannel(String channel) {
+    private void loadChannel(String channel) {
+        loadChannel(channel, null);
+    }
+
+    private void loadChannel(String channel, String platform){
         this.lastChannel = this.channel;
-		this.channel = channel;
+        this.channel = channel;
         Business.DownloadTask dt = new Business.DownloadTask();
+        dt.platform = platform;
         dt.qualityPicker = mQualityPicker;
         dt.spinner_item = R.layout.simple_spinner_item;
         dt.qualities = qualityOptions;
         dt.video = video;
-		// TODO find a cleaner way to set title from asynctask
-		dt.mActivity = this;
+        // TODO find a cleaner way to set title from asynctask
+        dt.mActivity = this;
         //dt.header = header;
         //dt.channelSearch = et;
         dt.context = this;// getApplicationContext();
         dt.execute(channel);
-        
+
         if(channel.equals("gameongg")){
 //        	loadFeaturedStreamButton.setVisibility(View.GONE);
         }else{
-        	if(gameonlive){
+            if(gameonlive){
 //            	loadFeaturedStreamButton.setVisibility(View.VISIBLE);
-        	}
+            }
         }
 
-		// TODO figure out what this code was for
-		// delete if pointless
+        // TODO figure out what this code was for
+        // delete if pointless
         //InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         //imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
     }
