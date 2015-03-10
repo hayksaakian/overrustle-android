@@ -1,6 +1,7 @@
 package gg.destiny.app.platforms;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,8 +39,10 @@ public class Twitch extends Platform {
 
         try {
             json = status(channel);
-            if(json != null && json.length() > 0){
+            if(json != null && json.length() > 0 && json.has("status")){
                 return new LiveStream(json.getString("status"), true);
+            }else{
+                return new LiveStream(channel+" is not live on Twitch", false);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -79,6 +82,10 @@ public class Twitch extends Platform {
         String auth = getTwitchAuth(channel);
         HashMap mQualities = new HashMap<String, String>();
         try {
+            Log.d("Twitch Auth", auth);
+            if (auth.length() == 0){
+                return mQualities;
+            }
             JSONObject authObj = new JSONObject(auth);
             String token = authObj.getString("token");
             String sig = authObj.getString("sig");

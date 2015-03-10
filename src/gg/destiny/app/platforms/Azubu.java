@@ -37,7 +37,7 @@ public class Azubu extends Platform{
         try {
             LiveStream ls = new LiveStream();
             json = status(channel);
-            ls.live = json.length() > 0;
+            ls.live = json.length() > 0 && json.has("user") && json.getJSONObject("user").getJSONObject("channel").getBoolean("is_live");
             if (ls.live){
                 ls.title = json.getString("title");
             }

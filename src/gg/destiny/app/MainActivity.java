@@ -41,7 +41,10 @@ import org.json.JSONObject;
 import gg.destiny.app.platforms.Metadata;
 import gg.destiny.app.support.NavigationDrawerFragment;
 
-
+/*
+* CONSIDER: moving options to a popup instead of having a bunch of buttons on the top
+*
+* */
 public class MainActivity extends FragmentActivity
         implements OnItemSelectedListener, NavigationDrawerFragment.NavigationDrawerCallbacks {
 

@@ -1,5 +1,7 @@
 package gg.destiny.app.platforms;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,9 +91,10 @@ public class Mlg extends Platform {
         try {
             json = status(channel);
             String status =  channel + " is offline";
-            if(json == null && json.length() == 0){
+            if(json == null || json.length() == 0 || !json.has("stream_name")){
                 return new LiveStream(status, false);
             }
+            Log.d("MLG DEBUG", json.toString());
             String mlgchannel = json.getString("stream_name");
             // there are cases where the live endpoint will return a 503 json object
             // even though the other APIs claim the stream is Live
@@ -124,7 +127,7 @@ public class Mlg extends Platform {
         HashMap<String, String> mQualities = new HashMap<String, String>();
         try {
             JSONObject cStatus = status(channel);
-            if (cStatus == null){
+            if(cStatus == null || cStatus.length() == 0 || !cStatus.has("stream_name")){
                 return mQualities;
             }
             String mlgchannel = cStatus.getString("stream_name");

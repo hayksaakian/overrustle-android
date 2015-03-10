@@ -43,7 +43,7 @@ public class Ustream extends Platform {
             ls.live = "live".equals(json.getString("status"));
             ls.title = channel+" (aka "+json.getJSONObject("owner").getString("username")+") is offline";
             if (ls.live) {
-                ls.title = json.getJSONObject("channel").getString("title");
+                ls.title = json.getString("title");
             }
             return ls;
         } catch (JSONException e) {

@@ -55,6 +55,12 @@ public class Business {
     final static Map<String, Platform> Platforms;
     static
     {
+//        WONTDO: castamp
+//        TODO: twitch vods
+//        TODO: youtube
+//        TODO: youtube playlist
+//        TODO: dailymotion
+//        TODO: picarto
         Platforms = new HashMap<String, Platform>();
         Platforms.put("twitch", TwitchAPI);
         Platforms.put("ustream", UstreamAPI);
@@ -112,6 +118,7 @@ public class Business {
 //            String status = url_or_channel_name + " is offline or the app is broken";
 //            ls = new LiveStream(url_or_channel_name + " is offline. Type another channel\'s name below to watch something else.", false);
 
+            Log.d("LC platform,channel", url_or_channel_name+" on "+String.valueOf(platform));
             if(platform != null && Platforms.containsKey(platform)){
                 return Platforms.get(platform).liveStatus(url_or_channel_name);
             }
@@ -160,6 +167,7 @@ public class Business {
         @Override
         protected HashMap doInBackground(String... channels) {
             channel = channels[0];
+            Log.d("DT platform,channel", channel+" on "+String.valueOf(platform));
             if(platform != null && Platforms.containsKey(platform)){
                 return Platforms.get(platform).qualities(channel);
             }
@@ -207,9 +215,13 @@ public class Business {
             // get the stream status
             // TODO: consider not doing this, since we just found out whether or not there are any streams
             // consider: return "x is offline" if no_qualities
+//            if(qualities.size() == 0){
+//                return;
+//            }
             Business nb = new Business();
             LiveChecker lc = nb.new LiveChecker();
             lc.mActivity = mActivity;
+            lc.platform = this.platform;
             lc.execute(channel);
         }
         //Note, url should be good and proper before hand
@@ -242,10 +254,12 @@ public class Business {
             try {
                 return r.body().string();
             } catch (IOException e) {
+                Log.e(Business.class.toString(), "Failed to download file, IO Error");
                 e.printStackTrace();
             }
+        }else{
+            Log.w(Business.class.toString(), "Failed to download file, HTTP Error");
         }
-        Log.e(Business.class.toString(), "Failed to download file");
         return "";
 
     }
