@@ -21,18 +21,6 @@ uses-permission#android.permission.INTERNET
 ADDED from AndroidManifest.xml:12:3
 	android:name
 		ADDED from AndroidManifest.xml:12:20
-uses-permission#android.permission.ACCESS_NETWORK_STATE
-ADDED from AndroidManifest.xml:13:3
-	android:name
-		ADDED from AndroidManifest.xml:13:20
-uses-permission#android.permission.ACCESS_FINE_LOCATION
-ADDED from AndroidManifest.xml:14:3
-	android:name
-		ADDED from AndroidManifest.xml:14:20
-uses-permission#android.permission.ACCESS_COARSE_LOCATION
-ADDED from AndroidManifest.xml:15:3
-	android:name
-		ADDED from AndroidManifest.xml:15:20
 uses-permission#android.permission.WRITE_USER_DICTIONARY
 ADDED from AndroidManifest.xml:16:3
 	android:name
@@ -41,24 +29,10 @@ uses-permission#android.permission.READ_USER_DICTIONARY
 ADDED from AndroidManifest.xml:17:3
 	android:name
 		ADDED from AndroidManifest.xml:17:20
-uses-permission#android.permission.GET_ACCOUNTS
-ADDED from AndroidManifest.xml:19:3
-	android:name
-		ADDED from AndroidManifest.xml:19:20
 uses-permission#android.permission.WAKE_LOCK
 ADDED from AndroidManifest.xml:20:3
 	android:name
 		ADDED from AndroidManifest.xml:20:20
-uses-permission#com.google.android.c2dm.permission.RECEIVE
-ADDED from AndroidManifest.xml:21:3
-	android:name
-		ADDED from AndroidManifest.xml:21:20
-permission#gg.destiny.app.gcm.permission.C2D_MESSAGE
-ADDED from AndroidManifest.xml:23:3
-	android:protectionLevel
-		ADDED from AndroidManifest.xml:24:7
-	android:name
-		ADDED from AndroidManifest.xml:23:15
 application
 ADDED from AndroidManifest.xml:26:3
 	android:label
