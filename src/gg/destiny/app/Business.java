@@ -450,7 +450,7 @@ public class Business {
                     String stream = parts[parts.length - 1];
                     String streamid = stream;
                     //retval[i] = stream;//
-                    if(!metadata.has(metaindex.getString(key))){
+                    if(!metaindex.has(key) || !metadata.has(metaindex.getString(key))){
                         continue;
                     }
                     JSONObject jmd = metadata.getJSONObject(metaindex.getString(key));

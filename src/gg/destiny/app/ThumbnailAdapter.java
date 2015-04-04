@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,13 +32,31 @@ public class ThumbnailAdapter extends ArrayAdapter<Metadata> {
     Context context;
     int layoutResourceId;
     List<Metadata> metadatas;
+    DisplayMetrics metrics;
+    int thumb_width = 0;
 
     public ThumbnailAdapter(Context context, int resource, int viewResourceId, List<Metadata> objects) {
         super(context, resource, viewResourceId, objects);
         this.layoutResourceId = resource;
         this.context = context;
         this.metadatas = objects;
+        this.metrics = context.getResources().getDisplayMetrics();
+        this.thumb_width = Math.round(this.metrics.density*80f);
+//        Log.d("THUMB_WIDTH", String.valueOf(this.thumb_width));
+//        Log.d("DENSITY_DPI", String.valueOf(this.metrics.densityDpi));
+//        Log.d("DENSITY", String.valueOf(this.metrics.density));
+//        Log.d("SCALED_DENSITY", String.valueOf(this.metrics.scaledDensity));
     }
+
+//    n5
+// 04-04 16:00:04.740  12004-12004/gg.destiny.app D/DENSITY_DPI﹕ 480
+// 04-04 16:00:04.740  12004-12004/gg.destiny.app D/DENSITY﹕ 3.0
+// 04-04 16:00:04.740  12004-12004/gg.destiny.app D/SCALED_DENSITY﹕ 3.0
+
+//    n7
+// 04-04 16:07:46.824    8809-8809/gg.destiny.app D/DENSITY_DPI﹕ 213
+// 04-04 16:07:46.824    8809-8809/gg.destiny.app D/DENSITY﹕ 1.3312501
+// 04-04 16:07:46.824    8809-8809/gg.destiny.app D/SCALED_DENSITY﹕ 1.3312501
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -74,12 +93,12 @@ public class ThumbnailAdapter extends ArrayAdapter<Metadata> {
         if(metadata.live){
             Picasso.with(context)
                     .load(metadata.image_url)
-                    .resize(180, 0)
+                    .resize(this.thumb_width, 0)
                     .into(holder.image);
         }else if (position > 0){
             Picasso.with(context)
                     .load(R.drawable.onebyone)
-                    .resize(180, 90)
+                    .resize(this.thumb_width, this.thumb_width/2)
                     .into(holder.image);
         }
         if(position == 0){

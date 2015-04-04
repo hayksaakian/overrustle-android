@@ -82,6 +82,8 @@ public class NavigationDrawerFragment extends Fragment {
 
         // Select either the default item (0) or the last selected item.
         selectItem(mCurrentSelectedPosition);
+//        this.mDrawerLayout.getScrollY();
+//        this.mDrawerLayout.setScrollY();
     }
 
     @Override
@@ -93,6 +95,9 @@ public class NavigationDrawerFragment extends Fragment {
 
     //TreeMap<String, String> labelValueMap = new TreeMap<String, String>();
 //    List<Metadata> labelValueList = new ArrayList<Metadata>();
+
+//    TODO: figure out some way to remember the scroll position between list reloads
+//    int scrollPos = 0;
 
     public void setLabelValueList(List<Metadata> lvm){
         setDrawerItems(lvm);
