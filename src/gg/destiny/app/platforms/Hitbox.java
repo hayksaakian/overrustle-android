@@ -43,6 +43,8 @@ public class Hitbox extends Platform {
 
     @Override
     public HashMap<String, String> qualities(String channel){
+        // hitbox is case insensitive
+        channel = channel.toLowerCase();
         try {
             // unfortunately, getting the list of qualities
             // does not truthfully tell us if the stream is live

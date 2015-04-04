@@ -58,6 +58,8 @@ public class Business {
 //        WONTDO: castamp
 //        TODO: twitch vods
 //        TODO: youtube
+//        https://developers.google.com/youtube/android/player/
+//        https://developers.google.com/youtube/android/player/downloads/YouTubeAndroidPlayerApi-1.2.1.zip
 //        TODO: youtube playlist
 //        TODO: dailymotion
 //        TODO: picarto
@@ -272,7 +274,7 @@ public class Business {
 
         //video.setMediaController(new MediaController(context));
         video.requestFocus();
-        video.start();
+//        video.start();
     }
 
     public static void LoadQualities(Spinner qualityPicker, HashMap qualities, Context context, int spinnerItemId) {

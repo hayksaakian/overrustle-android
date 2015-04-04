@@ -364,6 +364,7 @@ public class MainActivity extends FragmentActivity
 
 				@Override
 				public void onPrepared(MediaPlayer p1){
+                    video.start();
 					video.progressBar.setVisibility(View.GONE);
 				}
 			});

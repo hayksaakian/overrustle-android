@@ -79,6 +79,8 @@ public class Twitch extends Platform {
 
     @Override
     public HashMap<String, String> qualities(String channel) {
+        // qualities API expects lowercase only
+        channel = channel.toLowerCase();
         String auth = getTwitchAuth(channel);
         HashMap mQualities = new HashMap<String, String>();
         try {
