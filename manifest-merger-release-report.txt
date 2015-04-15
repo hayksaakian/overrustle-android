@@ -13,6 +13,7 @@ ADDED from AndroidManifest.xml:2:1
 		INJECTED from AndroidManifest.xml:0:0
 uses-sdk
 ADDED from AndroidManifest.xml:8:3
+MERGED from AndroidManifest.xml:3:13
 	android:targetSdkVersion
 		ADDED from AndroidManifest.xml:10:5
 	android:minSdkVersion
@@ -39,6 +40,7 @@ ADDED from AndroidManifest.xml:18:5
 		ADDED from AndroidManifest.xml:18:22
 application
 ADDED from AndroidManifest.xml:30:3
+MERGED from AndroidManifest.xml:4:5
 	android:label
 		ADDED from AndroidManifest.xml:34:5
 	android:icon
@@ -103,3 +105,9 @@ ADDED from AndroidManifest.xml:62:3
 		ADDED from AndroidManifest.xml:63:4
 	android:name
 		ADDED from AndroidManifest.xml:62:14
+meta-data#com.google.android.wearable.beta.app
+ADDED from AndroidManifest.xml:5:9
+	android:resource
+		ADDED from AndroidManifest.xml:6:20
+	android:name
+		ADDED from AndroidManifest.xml:5:20

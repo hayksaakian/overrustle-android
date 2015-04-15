@@ -104,7 +104,7 @@ public class MainActivity extends FragmentActivity
             if(position == 0) {
                 return "Destiny Chat";
             }else if (position == 1) {
-                return "Twitch Chat";
+                return "Web Browser";
             }else {
                 return "OBJECT " + Integer.toString(position);
             }
