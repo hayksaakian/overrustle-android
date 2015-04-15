@@ -8,6 +8,6 @@ public final class BuildConfig {
   public static final String APPLICATION_ID = "gg.destiny.app";
   public static final String BUILD_TYPE = "debug";
   public static final String FLAVOR = "";
-  public static final int VERSION_CODE = 590;
+  public static final int VERSION_CODE = 591;
   public static final String VERSION_NAME = "";
 }

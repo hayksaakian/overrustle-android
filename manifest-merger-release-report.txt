@@ -18,84 +18,88 @@ ADDED from AndroidManifest.xml:8:3
 	android:minSdkVersion
 		ADDED from AndroidManifest.xml:9:5
 uses-permission#android.permission.INTERNET
-ADDED from AndroidManifest.xml:12:3
+ADDED from AndroidManifest.xml:12:5
 	android:name
-		ADDED from AndroidManifest.xml:12:20
+		ADDED from AndroidManifest.xml:12:22
 uses-permission#android.permission.WRITE_USER_DICTIONARY
-ADDED from AndroidManifest.xml:16:3
+ADDED from AndroidManifest.xml:13:5
 	android:name
-		ADDED from AndroidManifest.xml:16:20
+		ADDED from AndroidManifest.xml:13:22
 uses-permission#android.permission.READ_USER_DICTIONARY
-ADDED from AndroidManifest.xml:17:3
+ADDED from AndroidManifest.xml:14:5
 	android:name
-		ADDED from AndroidManifest.xml:17:20
+		ADDED from AndroidManifest.xml:14:22
+uses-permission#com.google.android.permission.PROVIDE_BACKGROUND
+ADDED from AndroidManifest.xml:16:5
+	android:name
+		ADDED from AndroidManifest.xml:17:5
 uses-permission#android.permission.WAKE_LOCK
-ADDED from AndroidManifest.xml:20:3
+ADDED from AndroidManifest.xml:18:5
 	android:name
-		ADDED from AndroidManifest.xml:20:20
+		ADDED from AndroidManifest.xml:18:22
 application
-ADDED from AndroidManifest.xml:26:3
+ADDED from AndroidManifest.xml:30:3
 	android:label
-		ADDED from AndroidManifest.xml:30:5
+		ADDED from AndroidManifest.xml:34:5
 	android:icon
-		ADDED from AndroidManifest.xml:29:5
+		ADDED from AndroidManifest.xml:33:5
 	android:theme
-		ADDED from AndroidManifest.xml:31:4
+		ADDED from AndroidManifest.xml:35:4
 	android:hardwareAccelerated
-		ADDED from AndroidManifest.xml:28:5
+		ADDED from AndroidManifest.xml:32:5
 	android:name
-		ADDED from AndroidManifest.xml:27:5
+		ADDED from AndroidManifest.xml:31:5
 activity#gg.destiny.app.MainActivity
-ADDED from AndroidManifest.xml:33:5
+ADDED from AndroidManifest.xml:37:5
 	android:label
-		ADDED from AndroidManifest.xml:34:7
+		ADDED from AndroidManifest.xml:38:7
 	android:configChanges
-		ADDED from AndroidManifest.xml:36:4
+		ADDED from AndroidManifest.xml:40:4
 	android:name
-		ADDED from AndroidManifest.xml:35:7
+		ADDED from AndroidManifest.xml:39:7
 	android:launchMode
-		ADDED from AndroidManifest.xml:37:4
+		ADDED from AndroidManifest.xml:41:4
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:39:3
-action#android.intent.action.MAIN
-ADDED from AndroidManifest.xml:40:4
-	android:name
-		ADDED from AndroidManifest.xml:40:12
-category#android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:41:4
-	android:name
-		ADDED from AndroidManifest.xml:41:14
-intent-filter#android.intent.action.SEARCH
 ADDED from AndroidManifest.xml:43:3
-action#android.intent.action.SEARCH
+action#android.intent.action.MAIN
 ADDED from AndroidManifest.xml:44:4
 	android:name
 		ADDED from AndroidManifest.xml:44:12
+category#android.intent.category.LAUNCHER
+ADDED from AndroidManifest.xml:45:4
+	android:name
+		ADDED from AndroidManifest.xml:45:14
+intent-filter#android.intent.action.SEARCH
+ADDED from AndroidManifest.xml:47:3
+action#android.intent.action.SEARCH
+ADDED from AndroidManifest.xml:48:4
+	android:name
+		ADDED from AndroidManifest.xml:48:12
 intent-filter#android.intent.action.VIEW+android.intent.category.BROWSABLE+android.intent.category.DEFAULT
-ADDED from AndroidManifest.xml:46:9
+ADDED from AndroidManifest.xml:50:9
 	android:priority
-		ADDED from AndroidManifest.xml:46:24
+		ADDED from AndroidManifest.xml:50:24
 action#android.intent.action.VIEW
-ADDED from AndroidManifest.xml:47:13
+ADDED from AndroidManifest.xml:51:13
 	android:name
-		ADDED from AndroidManifest.xml:47:21
+		ADDED from AndroidManifest.xml:51:21
 category#android.intent.category.DEFAULT
-ADDED from AndroidManifest.xml:48:13
+ADDED from AndroidManifest.xml:52:13
 	android:name
-		ADDED from AndroidManifest.xml:48:23
+		ADDED from AndroidManifest.xml:52:23
 category#android.intent.category.BROWSABLE
-ADDED from AndroidManifest.xml:49:13
+ADDED from AndroidManifest.xml:53:13
 	android:name
-		ADDED from AndroidManifest.xml:49:23
+		ADDED from AndroidManifest.xml:53:23
 data
-ADDED from AndroidManifest.xml:50:13
+ADDED from AndroidManifest.xml:54:13
 	android:host
-		ADDED from AndroidManifest.xml:50:19
+		ADDED from AndroidManifest.xml:54:19
 	android:scheme
-		ADDED from AndroidManifest.xml:50:49
+		ADDED from AndroidManifest.xml:54:49
 meta-data#android.app.searchable
-ADDED from AndroidManifest.xml:58:3
+ADDED from AndroidManifest.xml:62:3
 	android:resource
-		ADDED from AndroidManifest.xml:59:4
+		ADDED from AndroidManifest.xml:63:4
 	android:name
-		ADDED from AndroidManifest.xml:58:14
+		ADDED from AndroidManifest.xml:62:14

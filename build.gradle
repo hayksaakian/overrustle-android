@@ -23,6 +23,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
 //    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.1.3', changing: true
 //    compile "org.apache.httpcomponents:httpmime:4.2.3"
+    wearApp project(':wear')
 }
 
 android {
