@@ -27,6 +27,7 @@ import gg.destiny.app.platforms.Azubu;
 import gg.destiny.app.platforms.Cb;
 import gg.destiny.app.platforms.Hitbox;
 import gg.destiny.app.platforms.LiveStream;
+import gg.destiny.app.platforms.Livestreamdotcom;
 import gg.destiny.app.platforms.Metadata;
 import gg.destiny.app.platforms.Mlg;
 import gg.destiny.app.platforms.Platform;
@@ -41,6 +42,7 @@ public class Business {
     final static Azubu AzubuAPI = new Azubu();
     final static Hitbox HitboxAPI = new Hitbox();
     final static Mlg MlgAPI = new Mlg();
+    final static Livestreamdotcom LivestreamAPI = new Livestreamdotcom();
     final static Cb CbAPI = new Cb();
 
     final static Platform[] PLATFORM_LIST = {
@@ -49,6 +51,7 @@ public class Business {
             AzubuAPI,
             HitboxAPI,
             MlgAPI,
+            LivestreamAPI,
             CbAPI
     };
 
@@ -69,6 +72,7 @@ public class Business {
         Platforms.put("azubu", AzubuAPI);
         Platforms.put("hitbox", HitboxAPI);
         Platforms.put("mlg", MlgAPI);
+        Platforms.put("livestream", LivestreamAPI);
         Platforms.put("nsfw-chaturbate", CbAPI);
 
     }

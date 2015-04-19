@@ -105,6 +105,8 @@ public class MainActivity extends FragmentActivity
                 return "Destiny Chat";
             }else if (position == 1) {
                 return "Web Browser";
+            }else if (position == 2) {
+                return "IRC Chat";
             }else {
                 return "OBJECT " + Integer.toString(position);
             }

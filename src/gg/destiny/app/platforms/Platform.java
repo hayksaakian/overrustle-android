@@ -82,7 +82,12 @@ public class Platform {
                             lastquality = lastquality + "@" + Integer.toString(bw / 1000) + "kbps";
                         }else if(lastquality.contains("BANDWIDTH=")){
                             int bw = Integer.parseInt(info.get("BANDWIDTH"));
-                            lastquality = Integer.toString(bw / 1000) + "kbps";
+                            // low bandwidth stream is probably audio only
+                            if (bw < 1000){
+                                lastquality = Integer.toString(bw)+"bps Audio Only";
+                            }else{
+                                lastquality = Integer.toString(bw / 1000) + "kbps";
+                            }
                         }
 
                         Log.d("found quality", lastquality);
