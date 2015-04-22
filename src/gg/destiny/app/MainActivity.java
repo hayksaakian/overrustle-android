@@ -35,6 +35,7 @@ import com.github.nkzawa.engineio.client.Transport;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Manager;
 import com.github.nkzawa.socketio.client.Socket;
+import com.parse.ParsePush;
 
 import org.json.JSONObject;
 
@@ -126,7 +127,8 @@ public class MainActivity extends FragmentActivity
 //        }
     }
 
-	final static String DEFAULT_CHANNEL = "destiny";
+    final static String DEFAULT_CHANNEL = "destiny";
+    final static String DEFAULT_PLATFORM = "twitch";
 	
 	@Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -531,10 +533,13 @@ public class MainActivity extends FragmentActivity
 		// set up the autocomplete checkbox
 		boolean hasAutocomplete = EmoteDownloader.hasAutocomplete(this);
 		menu.findItem(R.id.action_settings).setChecked(hasAutocomplete);
-		
+
+        boolean getsNoficiations = PushConfig.get(this);
+        menu.findItem(R.id.action_notifications).setChecked(getsNoficiations);
+
 		// TODO find a better place for this call
 		if(!handleIntent(getIntent())){
-			loadChannel(DEFAULT_CHANNEL, "twitch");
+			loadChannel(DEFAULT_CHANNEL, DEFAULT_PLATFORM);
 			// and this one
 //			checkStatus("gameongg");
 		}
@@ -552,10 +557,12 @@ public class MainActivity extends FragmentActivity
 	            else item.setChecked(true);
 				setAutocomplete(item.isChecked());
 				return true;
-//			case R.id.action_notifications:
-//
-//				Business.sendNotification(this, "Test Notification");
-//				return true;
+			case R.id.action_notifications:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+//                TODO: modularize this so people can favorite different channels
+                PushConfig.set(this, item.isChecked());
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

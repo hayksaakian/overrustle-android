@@ -23,14 +23,34 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Wearable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Hayk on 4/11/2015.
  */
-public class AnalogWatchFaceService extends CanvasWatchFaceService {
+public class AnalogWatchFaceService extends CanvasWatchFaceService implements
+        MessageApi.MessageListener,
+        DataApi.DataListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "AnalogWatchFaceService";
+    public static final String DATA_UPDATE_PATH = "/set_live";
 
     /**
      * Update rate in milliseconds for interactive mode. We update once a second to advance the
@@ -38,10 +58,99 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
+    Engine mEngine;
+    GoogleApiClient mGoogleApiClient;
+
+    AnalogWatchFaceService thisService;
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        thisService = this;
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        .addOnConnectionFailedListener(this)
+        .addConnectionCallbacks(this)
+        // Request access only to the Wearable API
+        .addApi(Wearable.API)
+        .build();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent){
+        Wearable.DataApi.removeListener(mGoogleApiClient, this);
+        Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+        mGoogleApiClient.disconnect();
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+    }
+
     @Override
     public Engine onCreateEngine() {
         /* provide your watch face implementation */
-        return new Engine();
+        mEngine = new Engine();
+        return mEngine;
+    }
+
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+        boolean i = false;
+        Log.d(TAG, "Got Message!");
+        if (messageEvent.getPath().equals(DATA_UPDATE_PATH)) {
+            byte[] raw_bytes = messageEvent.getData();
+            String raw_data = new String(raw_bytes);
+            Log.d(TAG, String.valueOf(raw_bytes.length)+" Bytes of Raw Data: "+raw_data);
+            handleNotification(raw_data);
+        }
+    }
+
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Wearable.MessageApi.addListener(mGoogleApiClient, this);
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.d(TAG, "onConnectionSuspended: " + cause);
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                // DataItem changed
+                DataItem item = event.getDataItem();
+                if (item.getUri().getPath().compareTo(DATA_UPDATE_PATH) == 0) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    handleNotification(dataMap.getString("raw_notification_data"));
+                }
+            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                // DataItem deleted
+            }
+        }
+    }
+
+    public void handleNotification(String raw_notification_data){
+        try{
+            JSONObject status = new JSONObject(raw_notification_data);
+            mEngine.isLive = status.getBoolean("is_live");
+            Log.d("Got Live State!", mEngine.isLive+" == isLive?");
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.d(TAG, "onConnectionFailed: " + result);
     }
 
     /* implement service callback methods */
@@ -101,6 +210,8 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
         boolean mBurnInProtection;
 
         Bitmap mBackgroundBitmap;
+        Bitmap liveBackgroundBitmap;
+        Bitmap offlineBackgroundBitmap;
         Bitmap mBackgroundScaledBitmap;
 
         Bitmap minuteArm;
@@ -112,6 +223,7 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
+
             /* initialize your watch face */
 
             /* configure the system UI */
@@ -124,9 +236,15 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
 
             /* load the background image */
             Resources resources = AnalogWatchFaceService.this.getResources();
-            int i = 0;
-            Drawable backgroundDrawable = resources.getDrawable(R.drawable.le_ruse);
-            mBackgroundBitmap = ((BitmapDrawable) backgroundDrawable).getBitmap();
+
+
+            Drawable liveBackgroundDrawable = resources.getDrawable(R.drawable.le_ruse);
+            liveBackgroundBitmap = ((BitmapDrawable) liveBackgroundDrawable).getBitmap();
+
+            Drawable offlineBackgroundDrawable = resources.getDrawable(R.drawable.da_feels);
+            offlineBackgroundBitmap = ((BitmapDrawable) offlineBackgroundDrawable).getBitmap();
+
+            mBackgroundBitmap = offlineBackgroundBitmap;
 
             Drawable minuteArmDrawable = resources.getDrawable(R.drawable.long_arm);
             minuteArm = ((BitmapDrawable)minuteArmDrawable).getBitmap();
@@ -222,6 +340,9 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
             }
         }
 
+        boolean isLive = false;
+        boolean lastLive = false;
+
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             /* draw your watch face */
@@ -231,10 +352,23 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
             int width = bounds.width();
             int height = bounds.height();
 
+            // if live changed. simulate with ambient mode.
+            // TODO: implement true live checking via push notifications from parse
+
+            if(lastLive != isLive){
+                mBackgroundScaledBitmap = null;
+                lastLive = isLive;
+            }
+
             // Draw the background, scaled to fit.
             if (mBackgroundScaledBitmap == null
                     || mBackgroundScaledBitmap.getWidth() != width
                     || mBackgroundScaledBitmap.getHeight() != height) {
+                // choose the right picture based on live/offline
+                if(mBackgroundScaledBitmap == null){
+                    mBackgroundBitmap = isLive ? liveBackgroundBitmap : offlineBackgroundBitmap;
+                }
+
                 mBackgroundScaledBitmap = Bitmap.createScaledBitmap(mBackgroundBitmap,
                         width, height, true /* filter */);
 //
@@ -291,9 +425,9 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
 //                float secY = (float) -Math.cos(secRot) * secLength;
 
                 Matrix secondMatrix = new Matrix();
-                Log.d("Raw Second Arm Rotation", String.valueOf(secRot));
+//                Log.d("Raw Second Arm Rotation", String.valueOf(secRot));
                 float csr  = ((float) Math.toDegrees((double)secRot)-90.f);
-                Log.d("Comp. Second. Rotation", String.valueOf(csr));
+//                Log.d("Comp. Second. Rotation", String.valueOf(csr));
                 secondMatrix.postRotate(csr, 0f, (0.5f*(float)minuteArmScaled.getHeight()));
                 secondMatrix.postTranslate(centerX, centerY-(0.5f*(float)minuteArmScaled.getHeight()));
                 canvas.drawBitmap(minuteArmScaled, secondMatrix, null);
@@ -308,18 +442,18 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService {
 
             // minute hand
             Matrix minuteMatrix = new Matrix();
-            Log.d("Raw Minute Arm Rotation", String.valueOf(minRot));
+//            Log.d("Raw Minute Arm Rotation", String.valueOf(minRot));
             float cmr  = ((float) Math.toDegrees((double)minRot)-90.f);
-            Log.d("Comp. Mint. Rotation", String.valueOf(cmr));
+//            Log.d("Comp. Mint. Rotation", String.valueOf(cmr));
             minuteMatrix.postRotate(cmr, 0f, (0.5f*(float)minuteArmScaled.getHeight()));
             minuteMatrix.postTranslate(centerX, centerY-(0.5f*(float)minuteArmScaled.getHeight()));
             canvas.drawBitmap(minuteArmScaled, minuteMatrix, null);
 
             // hour hand
             Matrix hourMatrix = new Matrix();
-            Log.d("Raw Hour Arm Rotation", String.valueOf(hrRot));
+//            Log.d("Raw Hour Arm Rotation", String.valueOf(hrRot));
             float chr = ((float) Math.toDegrees((double)hrRot)-90.f);
-            Log.d("Comp. Hour Rotation", String.valueOf(chr));
+//            Log.d("Comp. Hour Rotation", String.valueOf(chr));
             hourMatrix.postRotate(chr, 0f, (0.5f*(float)hourArmScaled.getHeight()));
             hourMatrix.postTranslate(centerX, centerY-(0.5f*(float)hourArmScaled.getHeight()));
             canvas.drawBitmap(hourArmScaled, hourMatrix, null);

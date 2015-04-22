@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 //import com.mogoweb.chrome.ChromeInitializer;
 import com.parse.Parse;
+import com.parse.ParseCrashReporting;
 import com.parse.ParseInstallation;
 
 import org.json.JSONException;
@@ -32,7 +33,7 @@ public class DestinyApplication extends Application {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
+        ParseCrashReporting.enable(this);
         Parse.initialize(this, parse_app_id, parse_client_key);
         ParseInstallation.getCurrentInstallation().saveInBackground();
     }
