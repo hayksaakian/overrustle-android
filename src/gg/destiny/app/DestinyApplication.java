@@ -6,12 +6,14 @@ import android.util.Log;
 import com.parse.Parse;
 import com.parse.ParseCrashReporting;
 import com.parse.ParseInstallation;
+import com.parse.ParsePush;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class DestinyApplication extends Application {
 	@Override
@@ -35,6 +37,22 @@ public class DestinyApplication extends Application {
         }
         ParseCrashReporting.enable(this);
         Parse.initialize(this, parse_app_id, parse_client_key);
+
+
+//        List<String> subscribedChannels = ParseInstallation.getCurrentInstallation().getList("channels");
+//        if(subscribedChannels != null && subscribedChannels.size() > 0) {
+//            for (String item : subscribedChannels) {
+//                Log.d("SubbedChannels", item);
+//            }
+//        }else{
+//            Log.d("PushConfigData", "No Channels Retrieved!");
+//        }
+//        // end parse stuff
+
+        // parse stuff
+        // TODO: modularize this so people can favorite different channels
+        String channel = MainActivity.DEFAULT_PLATFORM + "-_-" + MainActivity.DEFAULT_CHANNEL;
+        ParsePush.subscribeInBackground(channel);
         ParseInstallation.getCurrentInstallation().saveInBackground();
     }
     public static String readInputStream(InputStream in) throws IOException {

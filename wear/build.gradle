@@ -9,8 +9,8 @@ android {
         applicationId "gg.destiny.app"
         minSdkVersion 20
         targetSdkVersion 22
-        versionCode 610
-        versionName "6.10"
+        versionCode 612
+        versionName "6.12"
     }
     buildTypes {
         release {

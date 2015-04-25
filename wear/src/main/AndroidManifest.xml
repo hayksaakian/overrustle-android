@@ -9,9 +9,36 @@
     <uses-permission
         android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- these are all for parse.com push notifications -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission android:protectionLevel="signature"
+        android:name="gg.destiny.app.permission.C2D_MESSAGE" />
+    <uses-permission android:name="gg.destiny.app.permission.C2D_MESSAGE" />
+
 
     <application android:allowBackup="true" android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher" android:theme="@android:style/Theme.DeviceDefault">
+        <service android:name=".WatchFaceConfigListenerService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
+        <activity
+            android:name=".WatchFaceWearableConfig"
+            android:label="OverRustle Watch Face Configuration">
+            <intent-filter>
+                <action android:name="gg.destiny.app.wearable.watchface.CONFIG" />
+                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <service
             android:name=".AnalogWatchFaceService"
             android:label="LeRuse"
@@ -27,9 +54,14 @@
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
                 android:resource="@drawable/le_ruse" />
-            <!--<meta-data-->
-            <!--android:name="com.google.android.wearable.watchface.companionConfigurationAction"-->
-            <!--android:value="com.example.android.wearable.watchface.CONFIG_ANALOG" />-->
+
+            <meta-data
+                android:name="com.google.android.wearable.watchface.companionConfigurationAction"
+                android:value="gg.destiny.app.wearable.watchface.CONFIG" />
+
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="gg.destiny.app.wearable.watchface.CONFIG" />
 
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />

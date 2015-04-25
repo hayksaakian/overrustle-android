@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -143,6 +144,12 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
             JSONObject status = new JSONObject(raw_notification_data);
             mEngine.isLive = status.getBoolean("is_live");
             Log.d("Got Live State!", mEngine.isLive+" == isLive?");
+            if (!status.has("alert")){
+                // vibrate in case there's no visual alert
+                final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                long[] pattern = { 0, 800 };
+                v.vibrate( pattern, -1 );
+            }
         }catch (JSONException e){
             e.printStackTrace();
         }

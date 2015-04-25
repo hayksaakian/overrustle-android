@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wearableApp package="gg.destiny.app">
+    <versionCode>612</versionCode>
+    <versionName>6.12</versionName>
+    <rawPathResId>android_wear_micro_apk</rawPathResId>
+</wearableApp>

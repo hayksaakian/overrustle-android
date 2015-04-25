@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <manifest
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:versionCode="610"
-  android:versionName="6.1"
+  android:versionCode="612"
+  android:versionName="6.12"
   package="gg.destiny.app">
 
   <uses-sdk
-    android:minSdkVersion="17"
+    android:minSdkVersion="19"
     android:targetSdkVersion="22"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -16,6 +16,7 @@
     <uses-permission
     android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- these are all for parse.com push notifications -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -92,5 +93,15 @@
       <service
           android:name="gg.destiny.app.WatchPushService"
           android:exported="false"/>
+
+      <activity
+          android:name=".WatchFaceCompanionConfig"
+          android:label="OverRustle Watch Face Configuration">
+          <intent-filter>
+              <action android:name="gg.destiny.app.wearable.watchface.CONFIG" />
+              <category android:name="com.google.android.wearable.watchface.category.COMPANION_CONFIGURATION" />
+              <category android:name="android.intent.category.DEFAULT" />
+          </intent-filter>
+      </activity>
   </application>
 </manifest>

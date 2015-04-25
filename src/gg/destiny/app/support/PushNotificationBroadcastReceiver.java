@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import gg.destiny.app.PushConfig;
 import gg.destiny.app.WatchNotifier;
 import gg.destiny.app.WatchPushService;
 
@@ -43,21 +44,27 @@ public class PushNotificationBroadcastReceiver extends ParsePushBroadcastReceive
         Log.d(TAG, raw_notification_data);
         try{
             JSONObject j = new JSONObject(raw_notification_data);
-            // TODO set a preference for getting notified when it goes offline
-            if(!(j.has("is_live") && !j.getBoolean("is_live"))){
-                super.onPushReceive(context, intent);
+
+            if(!PushConfig.getHandset(context) || (j.has("is_live") && !j.getBoolean("is_live")) ) {
+                j.remove("alert");
+                raw_notification_data = j.toString();
+                intent.removeExtra(PARSE_DATA_KEY);
+                intent.putExtra(PARSE_DATA_KEY, raw_notification_data);
             }
+            super.onPushReceive(context, intent);
         }catch(JSONException e){
             e.printStackTrace();
         }
 
-        if(!isMyServiceRunning(context)){
-            Intent mServiceIntent = new Intent(context, WatchPushService.class);
-            mServiceIntent.putExtra("raw_notification_data", raw_notification_data);
-            context.startService(mServiceIntent);
+        if(PushConfig.getWear(context)){
+            if(!isMyServiceRunning(context)){
+                Intent mServiceIntent = new Intent(context, WatchPushService.class);
+                mServiceIntent.putExtra("raw_notification_data", raw_notification_data);
+                context.startService(mServiceIntent);
 //            new WatchNotifier(raw_notification_data, context);
-        }else{
-            Log.d(TAG, "Service is Already Running!!");
+            }else{
+                Log.d(TAG, "Service is Already Running!!");
+            }
         }
 
     }

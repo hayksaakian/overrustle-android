@@ -534,8 +534,11 @@ public class MainActivity extends FragmentActivity
 		boolean hasAutocomplete = EmoteDownloader.hasAutocomplete(this);
 		menu.findItem(R.id.action_settings).setChecked(hasAutocomplete);
 
-        boolean getsNoficiations = PushConfig.get(this);
+        boolean getsNoficiations = PushConfig.getHandset(this);
         menu.findItem(R.id.action_notifications).setChecked(getsNoficiations);
+
+        boolean getsSubtleNoficiations = PushConfig.getWear(this);
+        menu.findItem(R.id.action_subtle_notifications).setChecked(getsSubtleNoficiations);
 
 		// TODO find a better place for this call
 		if(!handleIntent(getIntent())){
@@ -557,12 +560,18 @@ public class MainActivity extends FragmentActivity
 	            else item.setChecked(true);
 				setAutocomplete(item.isChecked());
 				return true;
-			case R.id.action_notifications:
+            case R.id.action_notifications:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
 //                TODO: modularize this so people can favorite different channels
-                PushConfig.set(this, item.isChecked());
-				return true;
+                PushConfig.setHandset(this, item.isChecked());
+                return true;
+            case R.id.action_subtle_notifications:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+//                TODO: modularize this so people can favorite different channels
+                PushConfig.setWear(this, item.isChecked());
+                return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

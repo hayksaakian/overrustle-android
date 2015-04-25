@@ -19,36 +19,35 @@ public class PushConfig {
     final static String PREFS_FILE = "notification_prefs";
 
 
-    public static boolean get(Context cn) {
+    public static boolean getHandset(Context cn) {
         SharedPreferences settings;
         settings = cn.getSharedPreferences(PREFS_FILE, 0);
         return settings.getBoolean("gets_live_notifications", false);
     }
 
-    public static boolean set(Context cn, boolean newSetting){
+    public static boolean getWear(Context cn) {
+        SharedPreferences settings;
+        settings = cn.getSharedPreferences(PREFS_FILE, 0);
+        return settings.getBoolean("gets_subtle_notifications", false);
+    }
+    public static boolean setWear(Context cn, boolean newSetting){
         // TODO: modularize this so people can favorite different channels
-        String channel = MainActivity.DEFAULT_PLATFORM + "-_-" + MainActivity.DEFAULT_CHANNEL;
+        SharedPreferences prefs = cn.getSharedPreferences(PREFS_FILE, 0);
+        SharedPreferences.Editor edit = prefs.edit();
+
+        edit.putBoolean("gets_subtle_notifications", newSetting);
+
+        Log.d("PushConfigData", "New Wear Setting: " + String.valueOf(newSetting));
+        return edit.commit();
+    }
+
+    public static boolean setHandset(Context cn, boolean newSetting){
 
         SharedPreferences prefs = cn.getSharedPreferences(PREFS_FILE, 0);
         SharedPreferences.Editor edit = prefs.edit();
 
         edit.putBoolean("gets_live_notifications", newSetting);
-
-        Log.d("PushConfigData", "New Setting: " + String.valueOf(newSetting));
-
-        if (newSetting){
-            ParsePush.subscribeInBackground(channel);
-        }else{
-            ParsePush.unsubscribeInBackground(channel);
-        }
-        List<String> subscribedChannels = ParseInstallation.getCurrentInstallation().getList("channels");
-        if(subscribedChannels != null && subscribedChannels.size() > 0) {
-            for (String item : subscribedChannels) {
-                Log.d("SubbedChannels", item);
-            }
-        }else{
-            Log.d("PushConfigData", "No Channels Retrieved!");
-        }
+        Log.d("PushConfigData", "New Handset Setting: " + String.valueOf(newSetting));
 
         return edit.commit();
     }
