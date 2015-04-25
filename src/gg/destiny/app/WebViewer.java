@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.WebBackForwardList;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +34,10 @@ public class WebViewer {
 	public TextView pageLoadTime;
 	public RelativeLayout.LayoutParams loparams;
 	public RelativeLayout contentContainer;
-	public Button backToLoadedURLButton;
+
+    public Button backButton;
+    public Button homeButton;
+
 	public EditText chatInput;
 	
 	boolean loadWebSocketShim;
@@ -44,10 +48,18 @@ public class WebViewer {
 	private ViewGroup vagueWebView;
 	
 	private String lastLoadedURL = "";
+    public String homeURL = "";
+
+    private WebViewer self;
+    public int page_num;
+
+    // leaky abstraction
+    public ScreenSlidePageFragment parentFragment;
 
 	WebViewer(){
 //		load the websocket code if we dont have kitkat
 		this.loadWebSocketShim = !Business.isKitkat();
+        self = this;
 	}
 	public void Make(Context context){
 		boolean needToMake = nativeWV == null;
@@ -66,17 +78,23 @@ public class WebViewer {
 			SetUpWebSockets(context);
 		}
 		
-		backToLoadedURLButton.setOnClickListener(new View.OnClickListener() {
+		backButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(lastLoadedURL.length() > 0){
-					LoadURL(lastLoadedURL);
-				}
+				nativeWV.goBack();
 			}
 		});
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoadURL(homeURL);
+            }
+        });
 		
 	}
-	
+
+    // this is only called on clients which need websockets
 	void SetUpWebSockets(Context context){
 		// configure the input used to send messages to chat
 		chatInput.setVisibility(View.VISIBLE);
@@ -122,7 +140,7 @@ public class WebViewer {
 	}	
 	
 //	native version
-	private WebView configureNativeWebView(WebView webView, Context context){
+	private WebView configureNativeWebView(final WebView webView, Context context){
 		
         webView.setWebChromeClient(new android.webkit.WebChromeClient());
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -139,8 +157,24 @@ public class WebViewer {
         webView.setWebViewClient(new android.webkit.WebViewClient() {
             @Override
             public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon){
-                super.onPageStarted(view, url, favicon);
-                genericOnPageStarted(view, url, favicon);
+                // if the "brower" exists and we are in "chat" then load load links in the browser
+                // Log.d("WV_VARS0", String.valueOf(page_num) +": "+url);
+                // Log.d("WV_VARS1", String.valueOf(parentFragment != null));
+                // Log.d("WV_VARS2", String.valueOf(parentFragment.targetV != null));
+                // Log.d("WV_VARS3", String.valueOf(parentFragment.mainV == self));
+                // Log.d("WV_VARS4", String.valueOf(!url.startsWith(homeURL)));
+                if(parentFragment != null
+                        && parentFragment.targetV != null
+                        && parentFragment.mainV == self
+                        && !url.startsWith(homeURL)){
+                    webView.stopLoading();
+                    parentFragment.targetV.LoadURL(url);
+                    // also animate, and page to page 2
+                    parentFragment.pager.setCurrentItem(1);
+                }else{
+                    super.onPageStarted(view, url, favicon);
+                    genericOnPageStarted(view, url, favicon);
+                }
             }
 
             @Override
@@ -156,15 +190,27 @@ public class WebViewer {
 	// generic methods
 	private void genericOnPageStarted(View view, String url, Bitmap favicon){
         //et.setText(url);
+        lastLoadedURL = url;
         pageStartTime = System.currentTimeMillis();
         pageLoadTime.setText("0ms");
-        if(!url.startsWith(lastLoadedURL)){
-        	//shoe back button
-        	backToLoadedURLButton.setVisibility(View.VISIBLE);
+        if(url.startsWith(homeURL)){
+            //hide back button
+            backButton.setVisibility(View.GONE);
+            homeButton.setVisibility(View.INVISIBLE);
         }else{
-        	//hide back button
-        	backToLoadedURLButton.setVisibility(View.GONE);
+            //show back button
+            backButton.setVisibility(View.VISIBLE);
+            // if we're more than 1 page away from home, show a home button
+            if(nativeWV != null){
+                WebBackForwardList history = nativeWV.copyBackForwardList();
+                if(history.getSize() > 0
+                        && history.getCurrentIndex() > 0
+                        && !history.getItemAtIndex(history.getCurrentIndex()-1).getUrl().startsWith(homeURL) ){
+                    homeButton.setVisibility(View.VISIBLE);
+                }
+            }
         }
+
 	}
 	
 	private void genericOnPageFinished(View view, String url){

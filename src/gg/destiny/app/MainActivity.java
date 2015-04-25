@@ -72,48 +72,9 @@ public class MainActivity extends FragmentActivity
     }
 
 
-    private static final int NUM_PAGES = 3;
+    public static final int NUM_PAGES = 3;
     private ViewPager chatPager;
-    private PagerAdapter chatPagerAdapter;
-    /**
-     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
-     * sequence.
-     */
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
-        public ScreenSlidePagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Fragment fragment = new ScreenSlidePageFragment();
-            Bundle args = new Bundle();
-            // Our object is just an integer :-P
-            args.putInt(ScreenSlidePageFragment.ARG_OBJECT, position);
-            fragment.setArguments(args);
-
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return NUM_PAGES;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            if(position == 0) {
-                return "Destiny Chat";
-            }else if (position == 1) {
-                return "Web Browser";
-            }else if (position == 2) {
-                return "IRC Chat";
-            }else {
-                return "OBJECT " + Integer.toString(position);
-            }
-        }
-    }
-
+    private ScreenSlidePagerAdapter chatPagerAdapter;
 
     @Override
     public void onBackPressed() {
@@ -255,7 +216,9 @@ public class MainActivity extends FragmentActivity
 //                    }
 //                });
         chatPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        chatPagerAdapter.parentPager = chatPager;
         chatPager.setAdapter(chatPagerAdapter);
+
 
         Log.i("POKE", "PROD");
 
