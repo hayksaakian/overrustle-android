@@ -7,4 +7,6 @@
     <string name="action_subtle_notifications">Watch Face on live/offline</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_no_device_connected">No wearable device is currently connected</string>
+    <string name="ok_no_device_connected">OK</string>
 </resources>

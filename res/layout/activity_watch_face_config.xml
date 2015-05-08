@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <!--todo: make sure this orientation is correct-->
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="14dp"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:text="Watch Face Background Settings"
+            android:fontFamily="sans-serif-condensed-light"/>
+        <TextView
+            android:id="@+id/default_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="14dp"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:text="Default Watch Background"
+            android:fontFamily="sans-serif-condensed-light"/>
+        <Spinner
+            android:id="@+id/default_background_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/offline_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="14dp"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:text="Offline Watch Background"
+            android:fontFamily="sans-serif-condensed-light"/>
+        <Spinner
+            android:id="@+id/offline_background_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</LinearLayout>

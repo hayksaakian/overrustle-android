@@ -45,11 +45,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Hayk on 4/11/2015.
  */
-public class AnalogWatchFaceService extends CanvasWatchFaceService implements
-        MessageApi.MessageListener,
-        DataApi.DataListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class AnalogWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "AnalogWatchFaceService";
     public static final String DATA_UPDATE_PATH = "/set_live";
 
@@ -60,36 +56,6 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
     Engine mEngine;
-    GoogleApiClient mGoogleApiClient;
-
-    AnalogWatchFaceService thisService;
-
-    @Override
-    public void onCreate(){
-        super.onCreate();
-        thisService = this;
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-        .addOnConnectionFailedListener(this)
-        .addConnectionCallbacks(this)
-        // Request access only to the Wearable API
-        .addApi(Wearable.API)
-        .build();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent){
-        Wearable.DataApi.removeListener(mGoogleApiClient, this);
-        Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-        mGoogleApiClient.disconnect();
-        return super.onUnbind(intent);
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-    }
 
     @Override
     public Engine onCreateEngine() {
@@ -98,71 +64,20 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
         return mEngine;
     }
 
-    @Override
-    public void onMessageReceived(MessageEvent messageEvent) {
-        boolean i = false;
-        Log.d(TAG, "Got Message!");
-        if (messageEvent.getPath().equals(DATA_UPDATE_PATH)) {
-            byte[] raw_bytes = messageEvent.getData();
-            String raw_data = new String(raw_bytes);
-            Log.d(TAG, String.valueOf(raw_bytes.length)+" Bytes of Raw Data: "+raw_data);
-            handleNotification(raw_data);
-        }
-    }
-
-
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Wearable.MessageApi.addListener(mGoogleApiClient, this);
-        Wearable.DataApi.addListener(mGoogleApiClient, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        Log.d(TAG, "onConnectionSuspended: " + cause);
-    }
-
-    @Override
-    public void onDataChanged(DataEventBuffer dataEvents) {
-        for (DataEvent event : dataEvents) {
-            if (event.getType() == DataEvent.TYPE_CHANGED) {
-                // DataItem changed
-                DataItem item = event.getDataItem();
-                if (item.getUri().getPath().compareTo(DATA_UPDATE_PATH) == 0) {
-                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                    handleNotification(dataMap.getString("raw_notification_data"));
-                }
-            } else if (event.getType() == DataEvent.TYPE_DELETED) {
-                // DataItem deleted
-            }
-        }
-    }
-
-    public void handleNotification(String raw_notification_data){
-        try{
-            JSONObject status = new JSONObject(raw_notification_data);
-            mEngine.isLive = status.getBoolean("is_live");
-            Log.d("Got Live State!", mEngine.isLive+" == isLive?");
-            if (!status.has("alert")){
-                // vibrate in case there's no visual alert
-                final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                long[] pattern = { 0, 800 };
-                v.vibrate( pattern, -1 );
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Log.d(TAG, "onConnectionFailed: " + result);
-    }
-
+    AnalogWatchFaceService thisService;
     /* implement service callback methods */
-    private class Engine extends CanvasWatchFaceService.Engine {
+    private class Engine extends CanvasWatchFaceService.Engine  implements
+            MessageApi.MessageListener,
+            DataApi.DataListener,
+            GoogleApiClient.ConnectionCallbacks,
+            GoogleApiClient.OnConnectionFailedListener  {
+
         static final int MSG_UPDATE_TIME = 0;
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(AnalogWatchFaceService.this)
+                .addOnConnectionFailedListener(this)
+                .addConnectionCallbacks(this)
+                .addApi(Wearable.API)
+                .build();
 
         /* a time object */
         Time mTime;
@@ -251,7 +166,7 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
             Drawable offlineBackgroundDrawable = resources.getDrawable(R.drawable.da_feels);
             offlineBackgroundBitmap = ((BitmapDrawable) offlineBackgroundDrawable).getBitmap();
 
-            mBackgroundBitmap = offlineBackgroundBitmap;
+            mBackgroundBitmap = liveBackgroundBitmap;
 
             Drawable minuteArmDrawable = resources.getDrawable(R.drawable.long_arm);
             minuteArm = ((BitmapDrawable)minuteArmDrawable).getBitmap();
@@ -347,8 +262,8 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
             }
         }
 
-        boolean isLive = false;
-        boolean lastLive = false;
+        boolean isLive = true;
+        boolean lastLive = true;
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
@@ -379,13 +294,31 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
                 mBackgroundScaledBitmap = Bitmap.createScaledBitmap(mBackgroundBitmap,
                         width, height, true /* filter */);
 //
-                int mx = Math.round(((float)width)*((float)minuteArm.getWidth())/((float)mBackgroundBitmap.getWidth()));
-                int my = Math.round(((float)height)*((float)minuteArm.getHeight())/((float)mBackgroundBitmap.getHeight()));
+                float mSscaleFactor = 0.45f;
+
+                int shortestSideLength = width;
+                if(height < width){
+                    shortestSideLength = height;
+                }
+
+                // minute hand
+                int mx = Math.round(
+                        mSscaleFactor * shortestSideLength
+                );
+
+                final float minHwRatio = (float)minuteArm.getHeight() / (float)minuteArm.getWidth() ;
+                int my = Math.round(
+                        mSscaleFactor * shortestSideLength * minHwRatio
+                );
 
                 minuteArmScaled = Bitmap.createScaledBitmap(minuteArm, mx, my, true);
 
-                int hx = Math.round(((float)width)*((float)hourArm.getWidth())/((float)mBackgroundBitmap.getWidth()));
-                int hy = Math.round(((float)height)*((float)hourArm.getHeight())/((float)mBackgroundBitmap.getHeight()));
+                // hour hand
+                float hSscaleFactor = 0.25f;
+                final float hourHwRatio = (float)hourArm.getHeight() / (float)hourArm.getWidth() ;
+
+                int hx = Math.round(hSscaleFactor * shortestSideLength);
+                int hy = Math.round(hSscaleFactor * shortestSideLength * hourHwRatio);
 
                 hourArmScaled = Bitmap.createScaledBitmap(hourArm, hx, hy, true);
             }
@@ -465,7 +398,7 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
             hourMatrix.postTranslate(centerX, centerY-(0.5f*(float)hourArmScaled.getHeight()));
             canvas.drawBitmap(hourArmScaled, hourMatrix, null);
 
-            Log.d("DUBS", "I drew them at "+mTime.toString());
+//            Log.d("DUBS", "I drew them at "+mTime.toString());
 
 //            float hrX = (float) Math.sin(hrRot) * hrLength;
 //            float hrY = (float) -Math.cos(hrRot) * hrLength;
@@ -476,11 +409,13 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
         @Override
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+//            if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onVisibilityChanged: " + visible);
-            }
+//            }
 
             if (visible) {
+                mGoogleApiClient.connect();
+
                 registerReceiver();
 
                 // Update time zone in case it changed while we weren't visible.
@@ -488,6 +423,12 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
                 mTime.setToNow();
             } else {
                 unregisterReceiver();
+
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                    Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                    Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                    mGoogleApiClient.disconnect();
+                }
             }
 
             // Whether the timer should be running depends on whether we're visible and
@@ -525,6 +466,192 @@ public class AnalogWatchFaceService extends CanvasWatchFaceService implements
         private boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
         }
+
+        private void updateConfigDataItemAndUiOnStartup() {
+            Log.d(TAG, "updateConfigDataItemAndUiOnStartup");
+            WatchFaceUtil.fetchConfigDataMap(
+                    WatchFaceUtil.PATH_WITH_FEATURE,
+                    mGoogleApiClient,
+                    new WatchFaceUtil.FetchConfigDataMapCallback() {
+                        @Override
+                        public void onConfigDataMapFetched(DataMap startupConfig) {
+                            Log.d(TAG, "CB.onConfigDataMapFetched." + WatchFaceUtil.PATH_WITH_FEATURE);
+                            // If the DataItem hasn't been created yet or some keys are missing,
+                            // use the default values.
+
+                            setDefaultValuesForMissingConfigKeys(startupConfig);
+                            WatchFaceUtil.putConfigDataItem(WatchFaceUtil.PATH_WITH_FEATURE,
+                                    mGoogleApiClient, startupConfig, null);
+
+                            updateUiForConfigDataMap(startupConfig);
+                        }
+                    }
+            );
+
+            WatchFaceUtil.fetchConfigDataMap(DATA_UPDATE_PATH,
+                    mGoogleApiClient,
+
+                    new WatchFaceUtil.FetchConfigDataMapCallback() {
+                        @Override
+                        public void onConfigDataMapFetched(DataMap startupConfig) {
+                            Log.d(TAG, "CB.onConfigDataMapFetched." + DATA_UPDATE_PATH);
+                            // TODO: get an old notification and paste here
+                            String demo_notification = "";
+                            addKeyIfMissing(startupConfig, "raw_notification", demo_notification);
+                            WatchFaceUtil.putConfigDataItem(DATA_UPDATE_PATH,
+                                    mGoogleApiClient, startupConfig, null);
+                            if (startupConfig.getString("raw_notification").length() > 0) {
+                                handleNotification(startupConfig.getString("raw_notification"));
+                            }
+                        }
+                    });
+
+        }
+
+        private void setDefaultValuesForMissingConfigKeys(DataMap config) {
+            addKeyIfMissing(config, WatchFaceUtil.KEY_DEFAULT_BACKGROUND,
+                    "le_ruse");
+            addKeyIfMissing(config, WatchFaceUtil.KEY_OFFLINE_BACKGROUND,
+                    "da_feels");
+        }
+
+        private void addKeyIfMissing(DataMap config, String key, String value) {
+            if (!config.containsKey(key)) {
+                config.putString(key, value);
+            }
+        }
+
+        @Override
+        public void onMessageReceived(MessageEvent messageEvent) {
+            boolean i = false;
+            Log.d(TAG, "Got Message!");
+            if (messageEvent.getPath().equals(DATA_UPDATE_PATH)) {
+                byte[] raw_bytes = messageEvent.getData();
+                String raw_data = new String(raw_bytes);
+                Log.d(TAG, String.valueOf(raw_bytes.length)+" Bytes of Raw Data: "+raw_data);
+                handleNotification(raw_data);
+            }
+        }
+
+
+
+        @Override
+        public void onConnected(Bundle connectionHint) {
+            Log.d(TAG, "AWFS.onConnected: " + connectionHint);
+            Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
+            Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
+            updateConfigDataItemAndUiOnStartup();
+        }
+
+        @Override
+        public void onConnectionSuspended(int cause) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnectionSuspended: " + cause);
+            }
+        }
+
+        @Override
+        public void onConnectionFailed(ConnectionResult result) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnectionFailed: " + result);
+            }
+        }
+
+        @Override
+        public void onDataChanged(DataEventBuffer dataEvents) {
+            Log.d(TAG, "onDataChanged!!!");
+            try{
+                for (DataEvent event : dataEvents) {
+                    if (event.getType() == DataEvent.TYPE_CHANGED) {
+                        // DataItem changed
+                        DataItem item = event.getDataItem();
+                        if (item.getUri().getPath().compareTo(DATA_UPDATE_PATH) == 0) {
+                            DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                            String rn = dataMap.getString("raw_notification_data");
+                            if(rn != null && rn.length() > 0){
+                                handleNotification(rn);
+                            }
+                        }else if (item.getUri().getPath().equals(
+                                WatchFaceUtil.PATH_WITH_FEATURE)) {
+                            DataMapItem dataMapItem = DataMapItem.fromDataItem(item);
+                            DataMap config = dataMapItem.getDataMap();
+                            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                Log.d(TAG, "Config DataItem updated:" + config);
+                            }
+                            updateUiForConfigDataMap(config);
+                        }
+                    } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                        // DataItem deleted
+                    }
+                }
+            }finally{
+                dataEvents.close();
+            }
+
+        }
+
+        public void handleNotification(String raw_notification_data){
+            try{
+                JSONObject status = new JSONObject(raw_notification_data);
+                mEngine.isLive = status.getBoolean("is_live");
+                Log.d("Got Live State!", mEngine.isLive + " == isLive?");
+                if (!status.has("alert")){
+                    // vibrate in case there's no visual alert
+                    final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    long[] pattern = { 0, 800 };
+                    v.vibrate( pattern, -1 );
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+
+        private void updateUiForConfigDataMap(final DataMap config) {
+            boolean uiUpdated = false;
+            for (String configKey : config.keySet()) {
+                if (!config.containsKey(configKey)) {
+                    continue;
+                }
+                String image = config.getString(configKey);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found watch face config key: " + configKey + " -> "
+                            + image);
+                }
+                if (updateUiForKey(configKey, image)) {
+                    uiUpdated = true;
+                }
+            }
+            if (uiUpdated) {
+                invalidate();
+            }
+            Log.d(TAG, "updateUiForConfigDataMap. uiUpdated? " + String.valueOf(uiUpdated));
+        }
+
+        /**
+         * Updates the color of a UI item according to the given {@code configKey}. Does nothing if
+         * {@code configKey} isn't recognized.
+         *
+         * @return whether UI has been updated
+         */
+        private boolean updateUiForKey(String configKey, String filename) {
+            // TODO: make sure these contexts are right...
+            if (configKey.equals(WatchFaceUtil.KEY_DEFAULT_BACKGROUND)) {
+                Drawable d = WatchFaceUtil.getImage(AnalogWatchFaceService.this, filename);
+                liveBackgroundBitmap = ((BitmapDrawable) d).getBitmap();
+                mBackgroundScaledBitmap = null;
+            } else if (configKey.equals(WatchFaceUtil.KEY_OFFLINE_BACKGROUND)) {
+                Drawable d = WatchFaceUtil.getImage(AnalogWatchFaceService.this, filename);
+                offlineBackgroundBitmap = ((BitmapDrawable) d).getBitmap();
+                mBackgroundScaledBitmap = null;
+            } else {
+                Log.w(TAG, "Ignoring unknown config key: " + configKey);
+                return false;
+            }
+            return true;
+        }
+
+
     }
 
 

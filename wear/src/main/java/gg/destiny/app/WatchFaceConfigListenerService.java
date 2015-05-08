@@ -52,7 +52,7 @@ public class WatchFaceConfigListenerService extends WearableListenerService
             }
         }
 
-        WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
+        WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite, null);
     }
 
     @Override // GoogleApiClient.ConnectionCallbacks

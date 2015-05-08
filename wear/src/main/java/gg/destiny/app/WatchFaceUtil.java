@@ -3,11 +3,15 @@ package gg.destiny.app;
 /**
  * Created by Hayk on 4/23/2015.
  */
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
@@ -20,65 +24,13 @@ import com.google.android.gms.wearable.Wearable;
 public final class WatchFaceUtil {
     private static final String TAG = "WatchFaceUtil";
 
-    /**
-     * The {@link DataMap} key for {@link AnalogWatchFaceService} background color name.
-     * The color name must be a {@link String} recognized by {@link android.graphics.Color#parseColor}.
-     */
-    public static final String KEY_BACKGROUND_COLOR = "BACKGROUND_COLOR";
-
-    /**
-     * The {@link DataMap} key for {@link AnalogWatchFaceService} hour digits color name.
-     * The color name must be a {@link String} recognized by {@link android.graphics.Color#parseColor}.
-     */
-    public static final String KEY_HOURS_COLOR = "HOURS_COLOR";
-
-    /**
-     * The {@link DataMap} key for {@link AnalogWatchFaceService} minute digits color name.
-     * The color name must be a {@link String} recognized by {@link android.graphics.Color#parseColor}.
-     */
-    public static final String KEY_MINUTES_COLOR = "MINUTES_COLOR";
-
-    /**
-     * The {@link DataMap} key for {@link AnalogWatchFaceService} second digits color name.
-     * The color name must be a {@link String} recognized by {@link android.graphics.Color#parseColor}.
-     */
-    public static final String KEY_SECONDS_COLOR = "SECONDS_COLOR";
+    public static final String KEY_DEFAULT_BACKGROUND = "default";
+    public static final String KEY_OFFLINE_BACKGROUND = "offline";
 
     /**
      * The path for the {@link DataItem} containing {@link AnalogWatchFaceService} configuration.
      */
     public static final String PATH_WITH_FEATURE = "/watch_face_config";
-
-    /**
-     * Name of the default interactive mode background color and the ambient mode background color.
-     */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "Black";
-    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND =
-            parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-
-    /**
-     * Name of the default interactive mode hour digits color and the ambient mode hour digits
-     * color.
-     */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_HOUR_DIGITS = "White";
-    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS =
-            parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_HOUR_DIGITS);
-
-    /**
-     * Name of the default interactive mode minute digits color and the ambient mode minute digits
-     * color.
-     */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_MINUTE_DIGITS = "White";
-    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_MINUTE_DIGITS =
-            parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_MINUTE_DIGITS);
-
-    /**
-     * Name of the default interactive mode second digits color and the ambient mode second digits
-     * color.
-     */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_SECOND_DIGITS = "Gray";
-    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_SECOND_DIGITS =
-            parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_SECOND_DIGITS);
 
     /**
      * Callback interface to perform an action with the current config {@link DataMap} for
@@ -103,23 +55,33 @@ public final class WatchFaceUtil {
      * If the current config {@link DataItem} doesn't exist, it isn't created and the callback
      * receives an empty DataMap.
      */
-    public static void fetchConfigDataMap(final GoogleApiClient client,
-                                          final FetchConfigDataMapCallback callback) {
-        Wearable.NodeApi.getLocalNode(client).setResultCallback(
-                new ResultCallback<NodeApi.GetLocalNodeResult>() {
-                    @Override
-                    public void onResult(NodeApi.GetLocalNodeResult getLocalNodeResult) {
-                        String localNode = getLocalNodeResult.getNode().getId();
-                        Uri uri = new Uri.Builder()
-                                .scheme("wear")
-                                .path(WatchFaceUtil.PATH_WITH_FEATURE)
-                                .authority(localNode)
-                                .build();
-                        Wearable.DataApi.getDataItem(client, uri)
-                                .setResultCallback(new DataItemResultCallback(callback));
-                    }
-                }
-        );
+    public static void fetchConfigDataMap(
+            final String path,
+            final GoogleApiClient client,
+            final FetchConfigDataMapCallback callback) {
+        Log.d(TAG, "fetchConfigDataMap");
+        Log.d(TAG, "connected? " + String.valueOf(client.isConnected()));
+        if(!client.isConnected()){
+            Log.e(TAG, "NOT CONNECTED FOR SOME REASON!!");
+        }
+
+        Wearable.NodeApi.getLocalNode(client).setResultCallback(new ResultCallback<NodeApi.GetLocalNodeResult>() {
+            @Override
+            public void onResult(NodeApi.GetLocalNodeResult getLocalNodeResult) {
+                Log.d(TAG, " Wearable.NodeApi.getLocalNode.onResult");
+                String localNode = getLocalNodeResult.getNode().getId();
+                Uri backgrounds_uri = new Uri.Builder()
+                        .scheme("wear")
+                        .path(path)
+                        .authority(localNode)
+                        .build();
+                Wearable.DataApi.getDataItem(client, backgrounds_uri)
+                        .setResultCallback(new DataItemResultCallback(callback));
+
+
+            }
+        });
+
     }
 
     /**
@@ -131,18 +93,26 @@ public final class WatchFaceUtil {
      * {@code configKeysToOverwrite}. The rest of the keys remains unmodified in this case.
      */
     public static void overwriteKeysInConfigDataMap(final GoogleApiClient googleApiClient,
-                                                    final DataMap configKeysToOverwrite) {
-
-        WatchFaceUtil.fetchConfigDataMap(googleApiClient,
-                new FetchConfigDataMapCallback() {
-                    @Override
-                    public void onConfigDataMapFetched(DataMap currentConfig) {
-                        DataMap overwrittenConfig = new DataMap();
-                        overwrittenConfig.putAll(currentConfig);
-                        overwrittenConfig.putAll(configKeysToOverwrite);
-                        WatchFaceUtil.putConfigDataItem(googleApiClient, overwrittenConfig);
-                    }
+                                                    final DataMap configKeysToOverwrite,
+                                                    final Activity activityToFinish
+                                                    ) {
+        Log.d(TAG, "overwriteKeysInConfigDataMap");
+        WatchFaceUtil.fetchConfigDataMap(
+            PATH_WITH_FEATURE,
+            googleApiClient,
+            new FetchConfigDataMapCallback() {
+                @Override
+                public void onConfigDataMapFetched(DataMap currentConfig) {
+                    Log.d(TAG, "onConfigDataMapFetched");
+                    DataMap overwrittenConfig = new DataMap();
+                    overwrittenConfig.putAll(currentConfig);
+                    overwrittenConfig.putAll(configKeysToOverwrite);
+                    WatchFaceUtil.putConfigDataItem(PATH_WITH_FEATURE,
+                            googleApiClient,
+                            overwrittenConfig,
+                            activityToFinish);
                 }
+            }
         );
     }
 
@@ -150,19 +120,26 @@ public final class WatchFaceUtil {
      * Overwrites the current config {@link DataItem}'s {@link DataMap} with {@code newConfig}.
      * If the config DataItem doesn't exist, it's created.
      */
-    public static void putConfigDataItem(GoogleApiClient googleApiClient, DataMap newConfig) {
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(PATH_WITH_FEATURE);
+    public static void putConfigDataItem(String path,
+                                         GoogleApiClient googleApiClient,
+                                         DataMap newConfig, final Activity activityToFinish) {
+        Log.d(TAG, "putConfigDataItem");
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
         DataMap configToPut = putDataMapRequest.getDataMap();
         configToPut.putAll(newConfig);
         Wearable.DataApi.putDataItem(googleApiClient, putDataMapRequest.asPutDataRequest())
-                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                    @Override
-                    public void onResult(DataApi.DataItemResult dataItemResult) {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "putDataItem result status: " + dataItemResult.getStatus());
-                        }
-                    }
-                });
+        .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(DataApi.DataItemResult dataItemResult) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "putDataItem result status: " + dataItemResult.getStatus());
+                }
+                Log.d(TAG, "activityToFinish? "+String.valueOf(activityToFinish != null));
+                if (activityToFinish != null) {
+                    activityToFinish.finish();
+                }
+            }
+        });
     }
 
     private static class DataItemResultCallback implements ResultCallback<DataApi.DataItemResult> {
@@ -186,6 +163,10 @@ public final class WatchFaceUtil {
                 }
             }
         }
+    }
+
+    public static Drawable getImage(Context context, String name) {
+        return context.getResources().getDrawable(context.getResources().getIdentifier(name, "drawable", context.getPackageName()));
     }
 
     private WatchFaceUtil() { }
