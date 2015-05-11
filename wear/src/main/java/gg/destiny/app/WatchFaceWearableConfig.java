@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.BoxInsetLayout;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -14,10 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.Wearable;
 
 import java.util.Arrays;
 
@@ -34,6 +29,7 @@ public class WatchFaceWearableConfig extends Activity implements WearableListVie
 
         WearableListView menuPicker = (WearableListView) findViewById(R.id.item_picker);
         ((TextView) findViewById(R.id.default_header)).setText("OverRustle Settings");
+
         menuPicker.setClickListener(this);
 
         menuPicker.setAdapter(new MenuListAdapter(this));

@@ -52,7 +52,7 @@ public class WatchFaceWearableConfigSubMenu extends Activity implements Wearable
         mHeader = (TextView)findViewById(R.id.default_header);
         mHeader.setText(pretty_list_name);
 
-        WearableListView mPicker = (WearableListView) findViewById(R.id.item_picker);
+        final WearableListView mPicker = (WearableListView) findViewById(R.id.item_picker);
         mPicker.setClickListener(this);
         mPicker.setAdapter(new ImageListAdapter(this, background_ids, list_name));
 
@@ -63,6 +63,9 @@ public class WatchFaceWearableConfigSubMenu extends Activity implements Wearable
                     public void onConnected(Bundle connectionHint) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "onConnected: " + connectionHint);
+                            // TODO: pull in the current settings and display the default
+                            // equivalent of mPicker.setSelection()
+
                         }
                     }
 

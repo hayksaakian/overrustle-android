@@ -16,7 +16,7 @@ dependencies {
 //    compile group: 'com.squareup.okhttp' , name: 'okhttp' , version: '2.0.0', changing: true
     compile 'com.google.android.gms:play-services:7.0.0'
     compile 'com.google.android.support:wearable:1.1.0'
-    compile 'com.android.support:recyclerview-v7:21.0.+'
+    compile 'com.android.support:cardview-v7:+'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.squareup.okhttp:okhttp:+'
     compile 'com.squareup.okio:okio:1.1.0'

@@ -24,8 +24,8 @@ import com.google.android.gms.wearable.Wearable;
 public final class WatchFaceUtil {
     private static final String TAG = "WatchFaceUtil";
 
-    public static final String KEY_DEFAULT_BACKGROUND = "default";
-    public static final String KEY_OFFLINE_BACKGROUND = "offline";
+    public static final String KEY_DEFAULT_BACKGROUND = "DEFAULT_BACKGROUND";
+    public static final String KEY_OFFLINE_BACKGROUND = "OFFLINE_BACKGROUND";
 
     /**
      * The path for the {@link DataItem} containing {@link AnalogWatchFaceService} configuration.
@@ -42,10 +42,6 @@ public final class WatchFaceUtil {
          * {@link AnalogWatchFaceService}.
          */
         void onConfigDataMapFetched(DataMap config);
-    }
-
-    private static int parseColor(String colorName) {
-        return Color.parseColor(colorName.toLowerCase());
     }
 
     /**

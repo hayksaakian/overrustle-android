@@ -1,11 +1,11 @@
 package gg.destiny.app;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -52,8 +52,8 @@ public class ImageListAdapter extends WearableListView.Adapter {
         String sTag = this.listName+"|"+String.valueOf(imageId);
         itemViewHolder.mImageView.setTag(sTag);
 
-        RecyclerView.LayoutParams layoutParams =
-                new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams layoutParams =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
 
         int colorPickerItemMargin = 42;// (int) getResources().getDimension(R.dimen.digital_config_color_picker_item_margin);
