@@ -8,6 +8,7 @@ import android.content.res.*;
 import android.graphics.*;
 import android.media.*;
 import android.os.*;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentActivity;
@@ -54,6 +55,7 @@ public class MainActivity extends FragmentActivity
     Socket overrustle_socket = null;
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private ActionBarDrawerToggle mDrawerToggle;
     //Map<String, String> overRustlers = new HashMap<String, String>();
 
     @Override
@@ -198,7 +200,7 @@ public class MainActivity extends FragmentActivity
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
+        mDrawerToggle =  mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
@@ -514,6 +516,9 @@ public class MainActivity extends FragmentActivity
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_settings:
