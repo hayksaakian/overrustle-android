@@ -33,6 +33,7 @@ import gg.destiny.app.platforms.Mlg;
 import gg.destiny.app.platforms.Platform;
 import gg.destiny.app.platforms.Twitch;
 import gg.destiny.app.platforms.Ustream;
+import gg.destiny.app.platforms.YoutubeLive;
 import gg.destiny.app.support.NavigationDrawerFragment;
 
 public class Business {
@@ -43,6 +44,7 @@ public class Business {
     final static Hitbox HitboxAPI = new Hitbox();
     final static Mlg MlgAPI = new Mlg();
     final static Livestreamdotcom LivestreamAPI = new Livestreamdotcom();
+    final static YoutubeLive YoutubeAPI = new YoutubeLive();
     final static Cb CbAPI = new Cb();
 
     final static Platform[] PLATFORM_LIST = {
@@ -52,6 +54,7 @@ public class Business {
             HitboxAPI,
             MlgAPI,
             LivestreamAPI,
+            YoutubeAPI,
             CbAPI
     };
 
@@ -73,6 +76,7 @@ public class Business {
         Platforms.put("hitbox", HitboxAPI);
         Platforms.put("mlg", MlgAPI);
         Platforms.put("livestream", LivestreamAPI);
+        Platforms.put("youtube", YoutubeAPI);
         Platforms.put("nsfw-chaturbate", CbAPI);
 
     }
