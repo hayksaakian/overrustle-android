@@ -158,7 +158,7 @@ public class Business {
     }
 
     public static class DownloadTask extends AsyncTask<String, Void, HashMap> {
-        Activity mActivity;
+        MainActivity mActivity;
         public Spinner qualityPicker;
         public int spinner_item;
         public ResizingVideoView video;
@@ -192,18 +192,21 @@ public class Business {
                 if (channel.toLowerCase().contains("gameon")) {
                     channel = MlgAPI.GAMEONGG_STREAM_NAME;
                 }
+                platform = "mlg";
                 return MlgAPI.qualities(channel);
             }
 
             // ustream channels are just numbers
             // (and channels are different from user ids
             if (channel.matches("-?\\d+(\\.\\d+)?")) {
+                platform = "ustream";
                 return UstreamAPI.qualities(channel);
             }
 
             for (int i = 0; i < PLATFORM_LIST.length; i++) {
                 newQualities = PLATFORM_LIST[i].qualities(channel);
                 if(newQualities.size() > 0){
+                    platform = getKeyByValue(Platforms, PLATFORM_LIST[i]);
                     return newQualities;
                 }
             }
@@ -219,6 +222,7 @@ public class Business {
             if (qualities.size() > 0) {
                 LoadQualities(qualityPicker, qualities, context, spinner_item);
 //				if(qualityPicker.)
+                mActivity.setWatcherSocket(platform, channel);
             }
             SetCachedHash(channel + "|cache", qualities, context);
 
@@ -236,6 +240,15 @@ public class Business {
         }
         //Note, url should be good and proper before hand
 
+    }
+
+    public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
+        for (Map.Entry<T, E> entry : map.entrySet()) {
+            if (Objects.equals(value, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     public static Response RawHttpGet(String url){

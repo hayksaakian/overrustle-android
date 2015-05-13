@@ -50,9 +50,14 @@ import gg.destiny.app.support.NavigationDrawerFragment;
 public class MainActivity extends FragmentActivity
         implements OnItemSelectedListener, NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    public static String TAG = "MainOverRustle";
+
     Activity thisActivity;
 
-    Socket overrustle_socket = null;
+    // pulls the stream list
+    Socket overrustle_browser_socket = null;
+    // receives rustler counts for the currently opened stream
+    Socket overrustle_watcher_socket = null;
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -181,7 +186,7 @@ public class MainActivity extends FragmentActivity
     private int ogwidth;
     private int ogheight;
     
-    final private float minimodeRatio = 3f; 
+    static private float MINIMODE_RATIO = 3f;
     
     private int screenLongSide = 960;
     private int screenShortSide = 540;
@@ -229,7 +234,7 @@ public class MainActivity extends FragmentActivity
         youtubeLayout = (RelativeLayout) findViewById(R.id.youtubeLayout);
         video = (ResizingVideoView)findViewById(R.id.video);
 		video.progressBar = (ProgressBar)findViewById(R.id.video_loading);
-        ViewGroup.LayoutParams ogparams = (ViewGroup.LayoutParams) video.getLayoutParams();
+        ViewGroup.LayoutParams ogparams = video.getLayoutParams();
         ogheight = ogparams.height;
         ogwidth = ogparams.width;
         //header_container = (RelativeLayout)findViewById(R.id.header_container);
@@ -248,20 +253,20 @@ public class MainActivity extends FragmentActivity
         everythingelse.bringToFront();
 
 //      setup events
-        OnFocusChangeListener toggle = new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus){
-                if (hasFocus){
-                    //header.setMaxLines(Integer.MAX_VALUE);
-                    //header.setEllipsize(null);
-                    Toast.makeText(getApplicationContext(), "got the focus", Toast.LENGTH_LONG).show();
-                }else{
-                    //header.setMaxLines(1);
-                    //header.setEllipsize(TextUtils.TruncateAt.END);
-                    Toast.makeText(getApplicationContext(), "lost the focus", Toast.LENGTH_LONG).show();
-                }
-            }
-        };
+//        OnFocusChangeListener toggle = new OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus){
+//                if (hasFocus){
+//                    //header.setMaxLines(Integer.MAX_VALUE);
+//                    //header.setEllipsize(null);
+//                    Toast.makeText(getApplicationContext(), "got the focus", Toast.LENGTH_LONG).show();
+//                }else{
+//                    //header.setMaxLines(1);
+//                    //header.setEllipsize(TextUtils.TruncateAt.END);
+//                    Toast.makeText(getApplicationContext(), "lost the focus", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        };
         
         //header.setOnFocusChangeListener(toggle);
 		// search on submit
@@ -368,12 +373,12 @@ public class MainActivity extends FragmentActivity
 //        sometimes, re-opening the app will crash because of the websocket
 
         try {
-            if(overrustle_socket == null) {
+            if(overrustle_browser_socket == null) {
 
-                Log.d("Socket.IO", "Creating overrustle socket");
-                overrustle_socket = IO.socket("http://api.overrustle.com/streams");
+                Log.d("Socket.IO", "Creating overrustle_browser_socket socket");
+                overrustle_browser_socket = IO.socket("http://api.overrustle.com/streams");
                 // Receiving an object
-                overrustle_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
+                overrustle_browser_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         Transport transport = (Transport)args[0];
@@ -389,7 +394,7 @@ public class MainActivity extends FragmentActivity
                 });
 
 
-                overrustle_socket.on("strims", new Emitter.Listener() {
+                overrustle_browser_socket.on("strims", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         //Log.d("Socket.IO", "Recieved data from socket");
@@ -404,12 +409,13 @@ public class MainActivity extends FragmentActivity
                     }
                 });
             }
-            if(overrustle_socket.connected() == false) {
-                Log.d("Socket.IO", "Connecting overrustle socket");
-                overrustle_socket.connect();
+            if(!overrustle_browser_socket.connected()) {
+                Log.d("Socket.IO", "Connecting overrustle_browser_socket socket");
+                overrustle_browser_socket.connect();
             }
         } catch (URISyntaxException e) {
             e.printStackTrace();
+
         }
 
         isOnCreateDone  = true;
@@ -430,8 +436,13 @@ public class MainActivity extends FragmentActivity
 
     @Override
     protected void onDestroy() {
-        if(overrustle_socket != null)
-            overrustle_socket.disconnect();
+        if(overrustle_browser_socket != null) {
+            overrustle_browser_socket.disconnect();
+        }
+        if(overrustle_watcher_socket != null) {
+            overrustle_watcher_socket.disconnect();
+        }
+
         super.onDestroy();
     }
 
@@ -548,8 +559,7 @@ public class MainActivity extends FragmentActivity
 	private void setAutocomplete(boolean newSetting){
 		EmoteDownloader ed = new EmoteDownloader();
 		ed.mContext = this;
-		String onoff = newSetting ? "on" : "off";
-		Log.d("Autocomplete Setting", "turning autocomplete "+onoff);
+		Log.d("Autocomplete Setting", "turning autocomplete "+(newSetting ? "on" : "off") );
 		if(newSetting){
 			ed.execute();	
 		}else{
@@ -571,14 +581,63 @@ public class MainActivity extends FragmentActivity
 			screenShortSide = width;
 		}
 	}
-	
-	private void checkStatus(String... channel_name_or_mlg_urls){
-        Business.LiveChecker chkgameon = new Business().new LiveChecker();
-//        chkgameon.goToStreamButton = loadFeaturedStreamButton;
-		chkgameon.mActivity = this;
-        //chkgameon.channelSearch = et;
-        chkgameon.execute(channel_name_or_mlg_urls);		
-	}
+
+    public void setWatcherSocket(final String platform, final String newChannel){
+        try {
+            if(overrustle_watcher_socket == null || !newChannel.equals(lastChannel) ) {
+                if(overrustle_watcher_socket != null){
+                    overrustle_watcher_socket.disconnect();
+                }
+
+                Log.d("Socket.IO", "Creating overrustle_watcher_socket socket");
+                overrustle_watcher_socket = IO.socket("http://api.overrustle.com/stream");
+                // Receiving an object
+                final String oPath = String.format("/destinychat?s=%s&stream=%s", platform, newChannel);
+                final String oUrl = "http://overrustle.com"+oPath;
+                Log.d(TAG, "Pseudo Referrer: "+oUrl);
+                overrustle_watcher_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        Transport transport = (Transport)args[0];
+                        transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
+                            @Override
+                            public void call(Object... args) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, String> headers = (Map<String, String>) args[0];
+
+                                headers.put("Referer", oUrl);
+                            }
+                        });
+                    }
+                });
+
+
+                overrustle_watcher_socket.on("strim."+oPath, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        //Log.d("Socket.IO", "Recieved data from socket");
+                        Log.d(TAG, "Got viewer data!");
+                        Log.d(TAG, Arrays.toString(args));
+
+//                        thisActivity.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                // TODO:
+//                                // consider showing viewer counts somewhere
+//                            }
+//                        });
+                    }
+                });
+            }
+            if(!overrustle_watcher_socket.connected()) {
+                Log.d("Socket.IO", "Connecting overrustle_watcher_socket socket");
+                overrustle_watcher_socket.connect();
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+
+        }
+    }
 
     private void loadChannel(String channel) {
         loadChannel(channel, null);
@@ -600,13 +659,13 @@ public class MainActivity extends FragmentActivity
         dt.context = this;// getApplicationContext();
         dt.execute(channel);
 
-        if(channel.equals("gameongg")){
-//        	loadFeaturedStreamButton.setVisibility(View.GONE);
-        }else{
-            if(gameonlive){
-//            	loadFeaturedStreamButton.setVisibility(View.VISIBLE);
-            }
-        }
+//        if(channel.equals("gameongg")){
+////        	loadFeaturedStreamButton.setVisibility(View.GONE);
+//        }else{
+//            if(gameonlive){
+////            	loadFeaturedStreamButton.setVisibility(View.VISIBLE);
+//            }
+//        }
 
         // TODO figure out what this code was for
         // delete if pointless
@@ -773,8 +832,8 @@ public class MainActivity extends FragmentActivity
     	}else if(sizeName.startsWith("small")){
     		DisplayMetrics metrics = new DisplayMetrics(); 
     		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-    		int wd = (int) ((screenLongSide)/minimodeRatio);
-    		int ht = (int) ((screenShortSide)/minimodeRatio);
+    		int wd = (int) ((screenLongSide)/MINIMODE_RATIO);
+    		int ht = (int) ((screenShortSide)/MINIMODE_RATIO);
     		ResizeViewTo(view, wd, ht);
     	}else{ // if(original){
     		ResizeViewTo(view, ogwidth, ogheight);
