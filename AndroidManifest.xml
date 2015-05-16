@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <manifest
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:versionCode="630"
-  android:versionName="6.30"
+  android:versionCode="640"
+  android:versionName="6.40"
   package="gg.destiny.app">
 
   <uses-sdk

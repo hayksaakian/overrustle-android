@@ -461,6 +461,9 @@ public class Business {
 //                hm.clear();
 //            }
             Iterator<Pair<String, Integer>> sortedstreams = sorted.iterator();
+            List<Metadata> liveList = new ArrayList<Metadata>();
+            List<Metadata> offlineList = new ArrayList<Metadata>();
+
             while (sortedstreams.hasNext()) {
 //                i = i + 1;
                 Pair<String, Integer> pair = sortedstreams.next();
@@ -475,9 +478,16 @@ public class Business {
                         continue;
                     }
                     JSONObject jmd = metadata.getJSONObject(metaindex.getString(key));
-                    retval.add( new Metadata(jmd));
+                    Metadata md = new Metadata(jmd);
+                    if(md.live){
+                        liveList.add(md);
+                    }else{
+                        offlineList.add(md);
+                    }
                 }
             }
+            retval.addAll(liveList);
+            retval.addAll(offlineList);
         } catch (Exception e) {
             e.printStackTrace();
         }
