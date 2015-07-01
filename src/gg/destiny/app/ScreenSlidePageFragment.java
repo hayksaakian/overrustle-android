@@ -64,7 +64,7 @@ public class ScreenSlidePageFragment extends Fragment{
             home_url = "https://www.google.com/?gws_rd=ssl";
             targetV = wvr;
         }else{
-            home_url = "https://kiwiirc.com/client/irc.twitch.tv/#destiny";
+            home_url = "http://www.twitch.tv/destiny/chat?popout=";
         }
         // TODO: load the chat room appropriate to the current stream
 

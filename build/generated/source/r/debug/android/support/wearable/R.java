@@ -36,30 +36,30 @@ public final class R {
 		public static final int update_interval = 0x7f010017;
 	}
 	public static final class color {
-		public static final int black = 0x7f070000;
-		public static final int blue = 0x7f070001;
-		public static final int card_default_background = 0x7f070002;
-		public static final int dark_blue = 0x7f070011;
-		public static final int dark_grey = 0x7f070012;
-		public static final int disabled_text_light = 0x7f070013;
-		public static final int dismiss_close = 0x7f070014;
-		public static final int dismiss_close_pressed = 0x7f070015;
-		public static final int dismiss_overlay_bg = 0x7f070016;
-		public static final int green = 0x7f070017;
-		public static final int grey = 0x7f070018;
-		public static final int light_grey = 0x7f070019;
-		public static final int orange = 0x7f07001a;
-		public static final int primary_text_dark = 0x7f07001b;
-		public static final int primary_text_light = 0x7f07001c;
-		public static final int red = 0x7f07001d;
-		public static final int secondary_text_light = 0x7f07001e;
-		public static final int semitransparent_grey = 0x7f07001f;
-		public static final int white = 0x7f07002d;
+		public static final int black = 0x7f090000;
+		public static final int blue = 0x7f090001;
+		public static final int card_default_background = 0x7f090002;
+		public static final int dark_blue = 0x7f090011;
+		public static final int dark_grey = 0x7f090012;
+		public static final int disabled_text_light = 0x7f090013;
+		public static final int dismiss_close = 0x7f090014;
+		public static final int dismiss_close_pressed = 0x7f090015;
+		public static final int dismiss_overlay_bg = 0x7f090016;
+		public static final int green = 0x7f090017;
+		public static final int grey = 0x7f090018;
+		public static final int light_grey = 0x7f090019;
+		public static final int orange = 0x7f09001a;
+		public static final int primary_text_dark = 0x7f09001b;
+		public static final int primary_text_light = 0x7f09001c;
+		public static final int red = 0x7f09001d;
+		public static final int secondary_text_light = 0x7f09001e;
+		public static final int semitransparent_grey = 0x7f09001f;
+		public static final int white = 0x7f09002d;
 	}
 	public static final class dimen {
-		public static final int card_content_padding_rect_top = 0x7f090002;
-		public static final int close_button_diameter = 0x7f090006;
-		public static final int dismiss_padding = 0x7f090007;
+		public static final int card_content_padding_rect_top = 0x7f0b0002;
+		public static final int close_button_diameter = 0x7f0b0006;
+		public static final int dismiss_padding = 0x7f0b0007;
 	}
 	public static final class drawable {
 		public static final int card_background = 0x7f020001;
@@ -148,23 +148,23 @@ public final class R {
 		public static final int ic_full_sad = 0x7f020075;
 	}
 	public static final class id {
-		public static final int action_error = 0x7f080026;
-		public static final int action_success = 0x7f080028;
-		public static final int all = 0x7f080004;
-		public static final int animation = 0x7f080029;
-		public static final int bottom = 0x7f080003;
-		public static final int center = 0x7f08001f;
-		public static final int center_horizontal = 0x7f08001e;
-		public static final int center_vertical = 0x7f08001d;
-		public static final int dismiss_overlay_button = 0x7f08002c;
-		public static final int dismiss_overlay_explain = 0x7f08002b;
-		public static final int error_message = 0x7f080027;
-		public static final int left = 0x7f080000;
-		public static final int message = 0x7f08002a;
-		public static final int right = 0x7f080002;
-		public static final int text = 0x7f080041;
-		public static final int title = 0x7f08003f;
-		public static final int top = 0x7f080001;
+		public static final int action_error = 0x7f0a0026;
+		public static final int action_success = 0x7f0a0028;
+		public static final int all = 0x7f0a0004;
+		public static final int animation = 0x7f0a0029;
+		public static final int bottom = 0x7f0a0003;
+		public static final int center = 0x7f0a001f;
+		public static final int center_horizontal = 0x7f0a001e;
+		public static final int center_vertical = 0x7f0a001d;
+		public static final int dismiss_overlay_button = 0x7f0a002c;
+		public static final int dismiss_overlay_explain = 0x7f0a002b;
+		public static final int error_message = 0x7f0a0027;
+		public static final int left = 0x7f0a0000;
+		public static final int message = 0x7f0a002a;
+		public static final int right = 0x7f0a0002;
+		public static final int text = 0x7f0a0041;
+		public static final int title = 0x7f0a003f;
+		public static final int top = 0x7f0a0001;
 	}
 	public static final class layout {
 		public static final int confirmation_activity_layout = 0x7f040002;
@@ -172,21 +172,21 @@ public final class R {
 		public static final int watch_card_content = 0x7f040009;
 	}
 	public static final class style {
-		public static final int CardText = 0x7f0c000b;
-		public static final int CardTitle = 0x7f0c000c;
-		public static final int DismissOverlayText = 0x7f0c000d;
-		public static final int DotsPageIndicatorStyle = 0x7f0c000e;
-		public static final int TextAppearance_Wearable_Large = 0x7f0c000f;
-		public static final int TextAppearance_Wearable_Medium = 0x7f0c0010;
-		public static final int TextAppearance_Wearable_Small = 0x7f0c0011;
-		public static final int TextView_Large = 0x7f0c0012;
-		public static final int TextView_Large_Light = 0x7f0c0013;
-		public static final int TextView_Medium = 0x7f0c0014;
-		public static final int TextView_Medium_Light = 0x7f0c0015;
-		public static final int TextView_Small = 0x7f0c0016;
-		public static final int TextView_Small_Light = 0x7f0c0017;
-		public static final int Theme_Wearable = 0x7f0c0018;
-		public static final int Theme_Wearable_Modal = 0x7f0c0019;
+		public static final int CardText = 0x7f080000;
+		public static final int CardTitle = 0x7f080001;
+		public static final int DismissOverlayText = 0x7f080002;
+		public static final int DotsPageIndicatorStyle = 0x7f080003;
+		public static final int TextAppearance_Wearable_Large = 0x7f080004;
+		public static final int TextAppearance_Wearable_Medium = 0x7f080005;
+		public static final int TextAppearance_Wearable_Small = 0x7f080006;
+		public static final int TextView_Large = 0x7f080007;
+		public static final int TextView_Large_Light = 0x7f080008;
+		public static final int TextView_Medium = 0x7f080009;
+		public static final int TextView_Medium_Light = 0x7f08000a;
+		public static final int TextView_Small = 0x7f08000b;
+		public static final int TextView_Small_Light = 0x7f08000c;
+		public static final int Theme_Wearable = 0x7f08000d;
+		public static final int Theme_Wearable_Modal = 0x7f08000e;
 	}
 	public static final class styleable {
 		public static final int[] BoxInsetLayout_Layout = { 0x7f010003 };

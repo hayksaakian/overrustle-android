@@ -44,7 +44,7 @@ public class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
         }else if (position == 1) {
             return "Web Browser";
         }else if (position == 2) {
-            return "IRC Chat";
+            return "Other Chat";
         }else {
             return "OBJECT " + Integer.toString(position);
         }

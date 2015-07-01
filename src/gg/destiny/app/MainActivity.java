@@ -592,27 +592,21 @@ public class MainActivity extends FragmentActivity
                 Log.d("Socket.IO", "Creating overrustle_watcher_socket socket");
                 overrustle_watcher_socket = IO.socket("http://api.overrustle.com/stream");
                 // Receiving an object
-                final String oPath = String.format("/destinychat?s=%s&stream=%s", platform, newChannel);
-                final String oUrl = "http://overrustle.com"+oPath;
-                Log.d(TAG, "Pseudo Referrer: "+oUrl);
-                overrustle_watcher_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
+//                final String oPath = String.format("/destinychat?s=%s&stream=%s", platform, newChannel);
+                final String oPath = String.format("/%s/%s", platform, newChannel);
+                Log.d(TAG, "Watch Path: "+oPath);
+
+                overrustle_watcher_socket.on("connect", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
-                        Transport transport = (Transport)args[0];
-                        transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
-                            @Override
-                            public void call(Object... args) {
-                                @SuppressWarnings("unchecked")
-                                Map<String, String> headers = (Map<String, String>) args[0];
-
-                                headers.put("Referer", oUrl);
-                            }
-                        });
+                        //Log.d("Socket.IO", "Recieved data from socket");
+                        Log.d(TAG, "Got viewer data!");
+                        Log.d(TAG, Arrays.toString(args));
+                        overrustle_watcher_socket.emit("watch", oPath);
                     }
                 });
 
-
-                overrustle_watcher_socket.on("strim."+oPath, new Emitter.Listener() {
+                overrustle_watcher_socket.on("rustlers", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         //Log.d("Socket.IO", "Recieved data from socket");
