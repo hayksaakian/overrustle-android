@@ -23,6 +23,7 @@ import java.util.*;
 //import org.apache.http.*;
 import org.json.*;
 
+import gg.destiny.app.platforms.AngelThump;
 import gg.destiny.app.platforms.Azubu;
 import gg.destiny.app.platforms.Cb;
 import gg.destiny.app.platforms.Hitbox;
@@ -38,6 +39,7 @@ import gg.destiny.app.support.NavigationDrawerFragment;
 
 public class Business {
     final static Platform PlatformAPI = new Twitch();
+    final static AngelThump AngelThumpAPI = new AngelThump();
     final static Twitch TwitchAPI = new Twitch();
     final static Ustream UstreamAPI = new Ustream();
     final static Azubu AzubuAPI = new Azubu();
@@ -48,6 +50,7 @@ public class Business {
     final static Cb CbAPI = new Cb();
 
     final static Platform[] PLATFORM_LIST = {
+            AngelThumpAPI,
             TwitchAPI,
             UstreamAPI,
             AzubuAPI,
@@ -70,6 +73,7 @@ public class Business {
 //        TODO: dailymotion
 //        TODO: picarto
         Platforms = new HashMap<String, Platform>();
+        Platforms.put("angelthump", AngelThumpAPI);
         Platforms.put("twitch", TwitchAPI);
         Platforms.put("ustream", UstreamAPI);
         Platforms.put("azubu", AzubuAPI);

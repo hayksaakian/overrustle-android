@@ -42,6 +42,7 @@ public class YoutubeLayout extends ViewGroup {
 		// TODO: setup layout
 	    mHeaderView = findViewById(R.id.video);
 //	    mDescView = findViewById(R.id.viewDesc);
+		super.onFinishInflate();
 	}
 
 	public YoutubeLayout(Context context, AttributeSet attrs, int defStyle) {

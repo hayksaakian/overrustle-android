@@ -56,9 +56,7 @@ public class WebSocketFactory {
 
 	/**
 	 * Instantiates a new web socket factory.
-	 * 
-	 * @param appView
-	 *            the app view
+	 *
 	 */
 	public WebSocketFactory(Handler h, WebView appViewm, EditText inputField) {
 		this.appView = appViewm;
