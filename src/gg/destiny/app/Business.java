@@ -262,6 +262,7 @@ public class Business {
         try{
             Request request = new Request.Builder()
                     .url(url)
+                    .addHeader("Client-ID", Twitch.client_id)
                     .build();
 
             Response response = client.newCall(request).execute();

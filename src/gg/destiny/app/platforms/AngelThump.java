@@ -13,8 +13,8 @@ import java.util.HashMap;
  */
 public class AngelThump extends Platform {
 
-    final String STATUS_ENDPOINT = "http://angelthump.com/api/%s";
-    final String STREAM_ENDPOINT = "http://cdn.angelthump.com/hls/%s.m3u8";
+    final String STATUS_ENDPOINT = "https://angelthump.com/api/%s";
+    final String STREAM_ENDPOINT = "https://cdn.angelthump.com/hls/%s.m3u8";
 
     @Override
     public JSONObject status(String channel) throws JSONException {

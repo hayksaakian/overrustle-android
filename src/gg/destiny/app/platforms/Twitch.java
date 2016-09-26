@@ -15,6 +15,8 @@ import gg.destiny.app.Business;
  */
 public class Twitch extends Platform {
 
+    public static String client_id = "12qirsyxws9j4kxdg5di5f6tbq2movh";
+
     @Override
     public JSONObject status(String channel) throws JSONException {
         JSONObject channelStatus = new JSONObject();
