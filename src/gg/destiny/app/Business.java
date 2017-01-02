@@ -392,7 +392,7 @@ public class Business {
     private static final OkHttpClient rustleClient = new OkHttpClient();
 
     static void GetRustlers(final Activity activity, final NavigationDrawerFragment frag){
-        final String api_endpoint = "http://api.overrustle.com/api";
+        final String api_endpoint = "https://api.overrustle.com/api";
 
         Request request = new Request.Builder()
                 .url(api_endpoint)

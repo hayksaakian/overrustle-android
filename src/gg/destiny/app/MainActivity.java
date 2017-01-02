@@ -376,7 +376,7 @@ public class MainActivity extends FragmentActivity
             if(overrustle_browser_socket == null) {
 
                 Log.d("Socket.IO", "Creating overrustle_browser_socket socket");
-                overrustle_browser_socket = IO.socket("http://api.overrustle.com/streams");
+                overrustle_browser_socket = IO.socket("https://api.overrustle.com/streams");
                 // Receiving an object
                 overrustle_browser_socket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
                     @Override
@@ -387,7 +387,7 @@ public class MainActivity extends FragmentActivity
                             public void call(Object... args) {
                                 @SuppressWarnings("unchecked")
                                 Map<String, String> headers = (Map<String, String>) args[0];
-                                headers.put("Referer", "http://overrustle.com/strims?android=true");
+                                headers.put("Referer", "https://overrustle.com/strims?android=true");
                             }
                         });
                     }
