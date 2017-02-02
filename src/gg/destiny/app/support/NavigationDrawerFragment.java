@@ -63,6 +63,9 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    // Boolean to flag when the ListView Adapter is initialized
+    private boolean mDrawerListViewAdapterInit;
+
     public NavigationDrawerFragment() {
     }
 
@@ -96,8 +99,6 @@ public class NavigationDrawerFragment extends Fragment {
     //TreeMap<String, String> labelValueMap = new TreeMap<String, String>();
 //    List<Metadata> labelValueList = new ArrayList<Metadata>();
 
-//    TODO: figure out some way to remember the scroll position between list reloads
-//    int scrollPos = 0;
 
     public void setLabelValueList(List<Metadata> lvm){
         setDrawerItems(lvm);
@@ -122,14 +123,28 @@ public class NavigationDrawerFragment extends Fragment {
         if(ab == null){
             return;
         }
-        drawerItems = new ThumbnailAdapter(
-                ab.getThemedContext(),
-                R.layout.thumbnail,
-                R.id.thumbnail,
-                rawDrawerItems
-        );
+
+        //The navigation drawer will jump to the top every time it runs setAdapter, so this sets the
+        //adapter once and then refreshes the list of channels in the adapter on every call after
         if(mDrawerListView != null) {
-            mDrawerListView.setAdapter(drawerItems);
+
+            if(mDrawerListViewAdapterInit) {
+                drawerItems.clear();
+                drawerItems.addAll(rawDrawerItems);
+            }
+
+            else{
+                drawerItems = new ThumbnailAdapter(
+                        ab.getThemedContext(),
+                        R.layout.thumbnail,
+                        R.id.thumbnail,
+                        rawDrawerItems
+                );
+
+                mDrawerListView.setAdapter(drawerItems);
+
+                mDrawerListViewAdapterInit = true;
+            }
         }
     }
 //    private String getItem(int position){
