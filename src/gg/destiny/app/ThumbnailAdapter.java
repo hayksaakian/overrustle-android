@@ -79,9 +79,12 @@ public class ThumbnailAdapter extends ArrayAdapter<Metadata> {
             holder = (ThumbnailHolder)row.getTag();
         }
 
+        // If both lines with View.VISIBLE and View.GONE are commented out, Destiny's channel has a
+        // rustler count in the live section, but it bugs out occasionally with incorrect numbers
         Metadata metadata = metadatas.get(position);
         if (metadata.rustlers > 0){
             holder.viewers.setText(Integer.toString(metadata.rustlers));
+            holder.viewers.setVisibility(View.VISIBLE);
         }else{
             holder.viewers.setVisibility(View.GONE);
         }
